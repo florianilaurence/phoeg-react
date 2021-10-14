@@ -19,7 +19,7 @@ class Polytopes extends React.Component {
     render() {
         return (
             <div>
-                <h2 className="polytope-title">Polytopes</h2>
+                <h2 className="polytope-title">Polytope(s)</h2>
                 <form>
                     <label>
                         Combien de poyltopes souhaitez-vous comparer (jusque 3 maximum) ?
