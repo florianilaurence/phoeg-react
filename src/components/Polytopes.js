@@ -1,39 +1,22 @@
-import React from "react";
-import CreatableSelect from 'react-select/creatable';
+import React, {useState} from "react";
 import Polytope from "./Polytope";
 
-const options = [
-    {value: 1, label:'1'},
-    {value: 2, label:'2'},
-    {value: 3, label:'3'}
-];
+function Polytopes() {
+    const [count, setCount] = useState(0);
 
-class Polytopes extends React.Component {
-    selectedOption = null;
-
-    handleChange = (selectedOption) => {
-        this.selectedOption = selectedOption.value;
-        return <Polytope dataFromParent={this.selectedOption} />
-    }
-
-    render() {
-        return (
-            <div>
-                <h2 className="polytope-title">Polytope(s)</h2>
-                <form>
-                    <label>
-                        Combien de poyltopes souhaitez-vous comparer (jusque 3 maximum) ?
-                        <CreatableSelect
-                            options={options}
-                            onChange={this.handleChange}
-                            onInputChange={this.handleInputChange}
-                        />
-                        
-                    </label>
-                </form>
-            </div>
-        )
-    }
-}
+    return (
+        <div>
+            <h2 className="polytope-title">Polytope(s)</h2>
+            <p> Combien souhaitez-vous comparer de polytopes (max 3) :
+                <button onClick={() => setCount((count + 1)%4)}> + </button>
+                {count}
+                <button onClick={() => count > 0 ? setCount(count - 1):setCount(0)}> - </button>
+            </p>
+            {count == 3 ? <div> <Polytope/> <Polytope/> <Polytope/> </div> :
+                count == 2 ? <div> <Polytope/> <Polytope/> </div> :
+                    count == 1 ? <Polytope/>:null}
+      </div>
+    );
+  }
 
 export default Polytopes;
