@@ -5,36 +5,28 @@ const invariants = [
     {value: "avcol", label: "avcol"},
     {value: "eci", label: "eci"},
     {value: "numcol", label: "numcol"}
-]
+];
 
-class Polytope extends React.Component {
-    state = {
-        selectedOption: null,
-    };
+let selectedOption = invariants["avcol"];
 
-    handleChange = selectedOption => {
-        this.setState(
-            {selectedOption},
-            () => console.log(' !! ',this.state.selectedOption)
-        );
-    };
+function handleChange (selectedOptionNew) {
+    selectedOption = selectedOptionNew;
+}
 
-    render() {
-        const {selectedOption} = this.state;
-
+function Polytope (props) {
         return (
             <div>
-                <h3> Polytope</h3>
+                <h3> Polytope {props.num}</h3>
                 <p>Quel invariant souhaitez-vous utiliser ?
                     <Select
+                        isClearable
+                        onChange = {handleChange(selectedOption)}
                         value = {selectedOption}
-                        onChange = {this.handleChange}
                         options = {invariants}
                     />
                 </p>
             </div>
         )
-    }
 }
 
 export default Polytope;
