@@ -1,5 +1,6 @@
 import React from "react";
 
+// Component's core
 class Graphs extends React.Component {
 
     render() {

@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import Polytope from "./Polytope";
 
+// Component's core
 function Polytopes() {
 
     const [count, setCount] = useState(0);
