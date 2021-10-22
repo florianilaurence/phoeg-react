@@ -8,12 +8,22 @@ const invariants = [
     {value: "numcol", label: "numcol"}
 ];
 
+const options = [
+    {value : "m", label : "m"},
+    {value : "n", label : "n"}
+]
+
 // Init selectedOption
-let selectedOption = invariants["avcol"];
+let selectedInvariant = invariants["avcol"];
+let selectedOption = options["m"]
 
 // Method called when select other invariant
-function handleChange (selectedOptionNew) {
-    selectedOption = selectedOptionNew;
+function handleChangeInvariant(selectedInvariantNew) {
+    selectedInvariant = selectedInvariantNew;
+}
+
+function handleChangeOption(selectedOptionNew) {
+    selectedOption = selectedOptionNew
 }
 
 // Component's core
@@ -24,9 +34,15 @@ function Polytope (props) {
                 <p>Quel invariant souhaitez-vous utiliser ?
                     <Select
                         isClearable
-                        onChange = {handleChange(selectedOption)}
-                        value = {selectedOption}
+                        onChange = {handleChangeInvariant(selectedInvariant)}
+                        value = {selectedInvariant}
                         options = {invariants}
+                    />
+                    <Select
+                        isClearable
+                        onChange = {handleChangeOption(selectedOption)}
+                        value = {selectedOption}
+                        options = {options}
                     />
                 </p>
             </div>
