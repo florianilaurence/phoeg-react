@@ -5,12 +5,6 @@ import React from "react";
 
 class Banner extends React.Component {
 
-    readFile() {
-        let file = document.getElementById(file);
-        let reader = new FileReader();
-        return reader.readAsText(file, "UTF-16");
-    }
-
     render() {
         return (
             <div className="banner">
