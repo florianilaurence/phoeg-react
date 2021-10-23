@@ -1,6 +1,7 @@
 function PolytopeGraph(props) {
+
     return (
-        <p> Essai </p>
+        <h4>invariant : {props.invariant}</h4>
     )
 }
 

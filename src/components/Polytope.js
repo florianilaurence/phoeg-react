@@ -9,6 +9,7 @@ const invariants = [
     {value: "numcol", label: "numcol"}
 ];
 
+// List of number vertices possible
 const numbers = [
     {value : "2", label : "2"},
     {value : "3", label : "3"},
@@ -20,31 +21,48 @@ const numbers = [
     {value : "9", label : "9"},
 ]
 
+// List of options
 const options = [
     {value: "m", label: "m"},
     {value: "chi", label: "chi"}
 ];
 
-// Init selectedOption
-let selectedInvariant = invariants["avcol"];
-let selectedNumber = numbers["deux"];
-let selectedOption = options["chi"];
+// Init selected options
+let selectedInvariant = invariants[0];
+let selectedNumber = numbers[0];
+let selectedOption = options[0];
 
-// Method called when select other invariant
+/**
+ * Method called when select other invariant
+ *
+ * @param selectedInvariantNew
+ */
 function handleChangeInvariant(selectedInvariantNew) {
     selectedInvariant = selectedInvariantNew;
 }
 
+/**
+ * Method called when select other vertices number
+ *
+ * @param selectedNumberNew
+ */
 function handleChangeNumber(selectedNumberNew) {
     selectedNumber = selectedNumberNew;
 }
 
+/**
+ * Method called when select other option
+ *
+ * @param selectedOptionNew
+ */
 function handleChangeOption(selectedOptionNew) {
     selectedOption = selectedOptionNew;
 }
 
-function handleClick() {
-    return (<PolytopeGraph />)
+function isCompleted() {
+    return selectedInvariant != null
+        && selectedNumber != null
+        && selectedOption != null
 }
 
 // Component's core
@@ -52,30 +70,35 @@ function Polytope (props) {
         return (
             <div>
                 <h3> Polytope {props.num}</h3>
-                <p>Quel invariant souhaitez-vous étudier ?
-                    <Select
-                        onChange = {handleChangeInvariant(selectedInvariant)}
-                        value = {selectedInvariant}
-                        options = {invariants}
-                    />
-                </p>
-                <p> Combien de sommet souhaitez-vous pour les graphes ?
-                    <Select
-                        onChange = {handleChangeNumber(selectedNumber)}
-                        value = {selectedNumber}
-                        options = {numbers}
-                    />
-                </p>
-                <p> Quelle option voulez-vous utiliser pour colorer les points ?
-                    <Select
-                        onChange = {handleChangeOption(selectedOption)}
-                        value = {selectedOption}
-                        options = {options}
-                    />
-                </p>
-                <button onClick={() => handleClick()}>
-                    Lancer la recherche ?
-                </button>
+                <form>
+                    <label>
+                        Quel invariant souhaitez-vous étudier ?
+                        <Select
+                            defaultValue={selectedInvariant}
+                            onChange ={handleChangeInvariant(selectedInvariant)}
+                            options = {invariants}
+                        />
+                    </label>
+                    <br/>
+                    <label>
+                        Combien de sommet souhaitez-vous pour les graphes ?
+                        <Select
+                            defaultValue={selectedNumber}
+                            onChange={handleChangeNumber(selectedNumber)}
+                            options={numbers}
+                        />
+                    </label>
+                    <br/>
+                    <label>
+                        Quelle option voulez-vous utiliser pour colorer les points ?
+                        <Select
+                            defaultValue={selectedOption}
+                            onChange={handleChangeOption(selectedOption)}
+                            options={options}/>
+                    </label>
+                    <br/>
+                </form>
+                <PolytopeGraph invariant={selectedInvariant.value} number={selectedNumber.value} option={selectedOption.value}/>
             </div>
         )
 }
