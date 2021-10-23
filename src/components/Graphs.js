@@ -1,8 +1,7 @@
 import React from "react";
 
 // Component's core
-class Graphs extends React.Component {
-
+export default class Graphs extends React.Component {
     render() {
         return (
            <div className="graphs">
@@ -11,5 +10,3 @@ class Graphs extends React.Component {
         )
     }
 }
-
-export default Graphs;

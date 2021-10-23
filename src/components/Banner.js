@@ -3,8 +3,7 @@ import Polytopes from "./Polytopes.js"
 import file from "../data/description.txt"
 import React from "react";
 
-class Banner extends React.Component {
-
+export default class Banner extends React.Component {
     render() {
         return (
             <div className="banner">
@@ -15,6 +14,4 @@ class Banner extends React.Component {
             </div>
         )
     }
-}
-
-export default Banner;
+};
