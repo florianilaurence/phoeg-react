@@ -1,6 +1,6 @@
-import React from "react";
 import Select from 'react-select';
 import PolytopeGraph from "./PolytopeGraph"
+import {useState} from "react";
 
 // List of invariants possible
 const INVARIANTS = [
@@ -28,76 +28,80 @@ const OPTIONS = [
 ];
 
 // Component's core
-export default class Polytope extends React.Component {
-    constructor(props) {
-        super(props);
-        this.selectedInvariant = INVARIANTS[0];
-        this.selectedNumber = NUMBERS[0];
-        this.selectedOption = OPTIONS[0];
+export default function Polytope(props) {
 
-    }
-
-    handleChangeInvariant(selectedInvariantNew) {
-        this.selectedInvariant = selectedInvariantNew;
-    }
-
-    handleChangeNumber(selectedNumberNew) {
-        this.selectedNumber = selectedNumberNew;
-    }
-
-    handleChangeOption(selectedOptionNew) {
-        this.selectedOption = selectedOptionNew;
-    }
-
-    isCompleted() {
-        return this.selectedInvariant != null
-            && this.selectedNumber != null
-            && this.selectedOption != null
-    }
-
-    renderPolytope() {
+    const renderPolytope = () => {
         return (
             <PolytopeGraph
-                invariant={this.selectedInvariant.value}
-                number={this.selectedNumber.value}
-                option={this.selectedOption.value}/>
-        );
-    }
-
-    render () {
-        return (
-            <div>
-                <h3> Polytope {this.props.num}</h3>
-                <form>
-                    <label>
-                        Quel invariant souhaitez-vous étudier ?
-                        <Select
-                            defaultValue={this.selectedInvariant}
-                            onChange ={this.handleChangeInvariant(this.selectedInvariant)}
-                            options = {INVARIANTS}
-                        />
-                    </label>
-                    <br/>
-                    <label>
-                        Combien de sommet souhaitez-vous pour les graphes ?
-                        <Select
-                            defaultValue={this.selectedNumber}
-                            onChange={this.handleChangeNumber(this.selectedNumber)}
-                            options={NUMBERS}
-                        />
-                    </label>
-                    <br/>
-                    <label>
-                        Quelle option voulez-vous utiliser pour colorer les points ?
-                        <Select
-                            defaultValue={this.selectedOption}
-                            onChange={this.handleChangeOption(this.selectedOption)}
-                            options={OPTIONS}/>
-                    </label>
-                    {this.renderPolytope()}
-                </form>
-
-            </div>
+                invariant={pol.selectedInvariant.value}
+                number={pol.selectedNumber.value}
+                option={pol.selectedOption.value}/>
         )
     }
+
+    const [pol, setPol] = useState({
+        selectedInvariant:INVARIANTS[0],
+        selectedNumber:NUMBERS[0],
+        selectedOption:OPTIONS[0]});
+
+    const handleChangeInvariant = (newSelectedInvariant) => {
+        setPol({
+            selectedInvariant: newSelectedInvariant,
+            selectedNumber: pol.selectedNumber,
+            selectedOption: pol.selectedOption
+        })
+        return true;
+    }
+
+    const handleChangeNumber = (newSelectedNumber) => {
+        setPol({
+            selectedInvariant: pol.selectedInvariant,
+            selectedNumber: newSelectedNumber,
+            selectedOption: pol.selectedOption
+        })
+        return true;
+    }
+
+    const handleChangeOption = (newSelectedOption) => {
+        setPol({
+            selectedInvariant: pol.selectedInvariant,
+            selectedNumber: pol.selectedNumber,
+            selectedOption: newSelectedOption
+        })
+        return true;
+    }
+
+    return (
+        <div>
+            <h3> Polytope {props.num}</h3>
+            <form>
+                <label>
+                    Quel invariant souhaitez-vous étudier ?
+                    <Select
+                        defaultValue={pol.selectedInvariant}
+                        onChange={handleChangeInvariant}
+                        options={INVARIANTS}
+                    />
+                </label>
+                <br/>
+                <label>
+                    Combien de sommet souhaitez-vous pour les graphes ?
+                    <Select
+                        defaultValue={pol.selectedNumber}
+                        onChange={handleChangeNumber}
+                        options={NUMBERS}
+                    />
+                </label>
+                <br/>
+                <label>
+                    Quelle option voulez-vous utiliser pour colorer les points ?
+                    <Select
+                        defaultValue={pol.selectedOption}
+                        onChange={handleChangeOption}
+                        options={OPTIONS}/>
+                </label>
+                {renderPolytope()}
+            </form>
+        </div>
+    )
 }

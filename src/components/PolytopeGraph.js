@@ -1,13 +1,6 @@
-import React from "react";
 
-export default class PolytopeGraph extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render () {
-        return (
-            <h4>invariant : {this.props.invariant}</h4>
-        )
-    }
+export default function PolytopeGraph(props) {
+    return (
+        <h4>invariant : {props.invariant} number : {props.number} option : {props.option}</h4>
+    )
 }

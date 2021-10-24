@@ -1,29 +1,22 @@
-import React, {useState} from "react";
 import Polytope from "./Polytope";
+import {useState} from "react";
 
 // Component's core
-export default class Polytopes extends React.Component {
-    constructor() {
-        this.count = 0;
-    }
+export default function Polytopes() {
 
-    setCount(newCount) {
-        this.count = newCount;
-    }
+    const [count, setCount] = useState(0);
 
-    render() {
-        return (
-            <div>
-                <h2 className="polytope-title">Polytope(s)</h2>
-                <p> Combien souhaitez-vous comparer de polytopes (max 3) :
-                    <button onClick={() => this.count > 0 ? this.setCount(this.count - 1):this.setCount(0)}> - </button>
-                    {" " + this.count + " "}
-                    <button onClick={() => this.setCount((this.count + 1)%4)}> + </button>
-                </p>
-                {this.count === 3 ? <div> <Polytope num={1}/> <Polytope num={2}/> <Polytope num={3}/> </div> :
-                    this.count === 2 ? <div> <Polytope num={1}/> <Polytope num={2}/> </div> :
-                        this.count === 1 ? <Polytope num={1}/>:null}
-            </div>
-        );
-    }
+    return (
+        <div>
+            <h2 className="polytope-title">Polytope(s)</h2>
+            <p> Combien souhaitez-vous comparer de polytopes (max 3) :
+                <button onClick={() => count > 0 ? setCount(count - 1):setCount(0)}> - </button>
+                {" " + count + " "}
+                <button onClick={() => setCount((count + 1)%4)}> + </button>
+            </p>
+            {count === 3 ? <div> <Polytope num={1}/> <Polytope num={2}/> <Polytope num={3}/> </div> :
+                count === 2 ? <div> <Polytope num={1}/> <Polytope num={2}/> </div> :
+                    count === 1 ? <Polytope num={1}/>:null}
+        </div>
+    );
 }
