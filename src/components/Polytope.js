@@ -22,7 +22,7 @@ const NUMBERS = [
 ]
 
 // List of options
-const OPTIONS = [
+const MEASURES = [
     {value: "m", label: "m"},
     {value: "chi", label: "chi"}
 ];
@@ -35,20 +35,21 @@ export default function Polytope(props) {
             <PolytopeGraph
                 invariant={pol.selectedInvariant.value}
                 number={pol.selectedNumber.value}
-                option={pol.selectedOption.value}/>
+                measure={pol.selectedMeasure.value}/>
         )
     }
 
     const [pol, setPol] = useState({
-        selectedInvariant:INVARIANTS[0],
-        selectedNumber:NUMBERS[0],
-        selectedOption:OPTIONS[0]});
+        selectedInvariant : INVARIANTS[0],
+        selectedNumber : NUMBERS[0],
+        selectedMeasure : MEASURES[0]
+    });
 
     const handleChangeInvariant = (newSelectedInvariant) => {
         setPol({
             selectedInvariant: newSelectedInvariant,
             selectedNumber: pol.selectedNumber,
-            selectedOption: pol.selectedOption
+            selectedMeasure: pol.selectedMeasure
         })
         return true;
     }
@@ -57,16 +58,16 @@ export default function Polytope(props) {
         setPol({
             selectedInvariant: pol.selectedInvariant,
             selectedNumber: newSelectedNumber,
-            selectedOption: pol.selectedOption
+            selectedMeasure: pol.selectedMeasure
         })
         return true;
     }
 
-    const handleChangeOption = (newSelectedOption) => {
+    const handleChangeMeasure = (newSelectedMeasure) => {
         setPol({
             selectedInvariant: pol.selectedInvariant,
             selectedNumber: pol.selectedNumber,
-            selectedOption: newSelectedOption
+            selectedMeasure: newSelectedMeasure
         })
         return true;
     }
@@ -94,11 +95,11 @@ export default function Polytope(props) {
                 </label>
                 <br/>
                 <label>
-                    Quelle option voulez-vous utiliser pour colorer les points ?
+                    Quelle mesures voulez-vous utiliser pour colorer les points ?
                     <Select
-                        defaultValue={pol.selectedOption}
-                        onChange={handleChangeOption}
-                        options={OPTIONS}/>
+                        defaultValue={pol.selectedMeasure}
+                        onChange={handleChangeMeasure}
+                        options={MEASURES}/>
                 </label>
                 {renderPolytope()}
             </form>

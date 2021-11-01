@@ -8,8 +8,12 @@
     "@testing-library/user-event": "^12.1.10",
     "@types/react": "^17.0.29",
     "@types/react-dom": "^17.0.9",
+    "chart.js": "^3.6.0",
+    "jquery": "^3.6.0",
     "react": "^17.0.2",
+    "react-csv-reader": "^3.4.0",
     "react-dom": "^17.0.2",
+    "react-native-file-viewer": "^2.1.4",
     "react-scripts": "^4.0.3",
     "react-select": "^5.1.0",
     "web-vitals": "^1.0.1"
