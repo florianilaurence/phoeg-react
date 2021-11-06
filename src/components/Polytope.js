@@ -1,5 +1,5 @@
 import Select from 'react-select';
-import PolytopeGraph from "./PolytopeGraph"
+import PolytopeChart from "./PolytopeChart"
 import {useState} from "react";
 
 // List of invariants possible
@@ -21,8 +21,8 @@ const NUMBERS = [
     {value : "9", label : "9"},
 ]
 
-// List of options
-const MEASURES = [
+// List of possible colorations
+const COLORATIONS = [
     {value: "m", label: "m"},
     {value: "chi", label: "chi"}
 ];
@@ -30,26 +30,26 @@ const MEASURES = [
 // Component's core
 export default function Polytope(props) {
 
-    const renderPolytope = () => {
+    const renderPolytopeChart = () => {
         return (
-            <PolytopeGraph
+            <PolytopeChart
                 invariant={pol.selectedInvariant.value}
                 number={pol.selectedNumber.value}
-                measure={pol.selectedMeasure.value}/>
+                coloration={pol.selectedColoration.value}/>
         )
     }
 
     const [pol, setPol] = useState({
         selectedInvariant : INVARIANTS[0],
         selectedNumber : NUMBERS[0],
-        selectedMeasure : MEASURES[0]
+        selectedColoration : COLORATIONS[0]
     });
 
     const handleChangeInvariant = (newSelectedInvariant) => {
         setPol({
             selectedInvariant: newSelectedInvariant,
             selectedNumber: pol.selectedNumber,
-            selectedMeasure: pol.selectedMeasure
+            selectedColoration: pol.selectedColoration
         })
         return true;
     }
@@ -58,16 +58,16 @@ export default function Polytope(props) {
         setPol({
             selectedInvariant: pol.selectedInvariant,
             selectedNumber: newSelectedNumber,
-            selectedMeasure: pol.selectedMeasure
+            selectedColoration: pol.selectedColoration
         })
         return true;
     }
 
-    const handleChangeMeasure = (newSelectedMeasure) => {
+    const handleChangeMeasure = (newSelectedColoration) => {
         setPol({
             selectedInvariant: pol.selectedInvariant,
             selectedNumber: pol.selectedNumber,
-            selectedMeasure: newSelectedMeasure
+            selectedColoration: newSelectedColoration
         })
         return true;
     }
@@ -95,13 +95,13 @@ export default function Polytope(props) {
                 </label>
                 <br/>
                 <label>
-                    Quelle mesures voulez-vous utiliser pour colorer les points ?
+                    Quelle mesure voulez-vous employer pour colorer les points ?
                     <Select
-                        defaultValue={pol.selectedMeasure}
+                        defaultValue={pol.selectedColoration}
                         onChange={handleChangeMeasure}
-                        options={MEASURES}/>
+                        options={COLORATIONS}/>
                 </label>
-                {renderPolytope()}
+                {renderPolytopeChart()}
             </form>
         </div>
     )
