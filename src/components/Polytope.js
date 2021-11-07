@@ -23,7 +23,7 @@ const NUMBERS = [
 
 // List of possible colorations
 const COLORATIONS = [
-    {value: "m", label: "m"},
+    {value: "mult", label: "mult"},
     {value: "chi", label: "chi"}
 ];
 

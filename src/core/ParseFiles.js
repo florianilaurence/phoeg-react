@@ -23,7 +23,10 @@ export default class ParseFiles {
 
     readEnvelope() {
         const result = [];
-        $.get(`./files/data_${this.x_axis}/enveloppes/enveloppe-${this.number}.csv`, response => {
+        $.get(`./files/data_${this.x_axis}/enveloppes/enveloppe-${this.number}.csv`, function(data, status) {
+
+            alert($.parseCSV(data));
+            /*
             this.parseCSV(response);
             let arr = response['arr'];
             let varMapping = response['varMapping'];
@@ -31,11 +34,11 @@ export default class ParseFiles {
                 let line = arr[i].split(',');
                 let xVal = line[varMapping[this.x_axis]];
                 let yVal = line[varMapping[this.y_axis]];
-                result.push({"x": xVal, "y": yVal});
-            }
-        })
-        return result;
-    }
+                result.push({x: xVal, y: yVal});*/
+            })
+        }
+        // return result;
+
 
     readPoints() {
         const result = []
@@ -52,7 +55,7 @@ export default class ParseFiles {
                 if (!pointsGrouped.hasOwnProperty(colorVal))
                     pointsGrouped[colorVal] = [];
 
-                pointsGrouped[colorVal].push({ "x": xVal, "y": yVal, "r": this.radius });
+                pointsGrouped[colorVal].push({ x: xVal, y: yVal, r: this.radius });
             }
             const groupsKeys = Object.keys(pointsGrouped).map(x => parseInt(x)).sort((a, b) => a >= b);
             const min = groupsKeys[0];
