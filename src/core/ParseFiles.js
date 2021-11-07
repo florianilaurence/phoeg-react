@@ -1,50 +1,60 @@
 import $ from 'jquery';
 import {pickColorIntoGradient, GRADIENT} from './gradient'
 
+function parseCSV(str) {
+    let arr = str.split(/\r?\n/g);
+    let firstLine = arr.shift().split(',');
+    let varMapping = {};
+    for (let i in firstLine) {
+        varMapping[firstLine[i]] = i;
+    }
+    arr.pop();
+    return {arr, varMapping};
+}
+
+export function readEnvelope(x_axis, coloration, number) {
+    let path = "https://florianilaurence.github.io/assets/data_" + x_axis
+        + "/enveloppes/enveloppe-" + number + ".csv"
+    $.get(path, function(data) {
+        let result = [];
+        let y_axis = "m";
+        let lines = data.split("\n");
+        let firstLine = lines[0].split(',');
+        if (firstLine[0] === x_axis) {
+            y_axis = firstLine[1];
+            let i = 1;
+            while (i < lines.length) {
+                if (lines[i] !== '') {
+                    let currentLine = lines[i].split(',');
+                    result.push({x: parseFloat(currentLine[0]), y: parseFloat(currentLine[1])});
+                }
+                i++;
+            }
+        }
+        return result;
+    });
+}
+
+
 export default class ParseFiles {
+
     constructor(invariant, coloration, number) {
         this.x_axis = invariant;
-        this.y_axis = "m";  // TODO à remplacer pour qu'il soit récupérer directement dans le fichier
+        this.y_axis = "m";
         this.coloration = coloration;
         this.number = number;
         this.radius = 4;    // TODO à remplacer pour qu'il soit plus facilement modifiable
     }
 
-    parseCSV(str) {
-        let arr = str.split(/\r?\n/g);
-        let firstLine = arr.shift().split(',');
-        let varMapping = {};
-        for (let i in firstLine) {
-            varMapping[firstLine[i]] = i;
-        }
-        arr.pop();
-        return {arr, varMapping};
-    }
-
-    readEnvelope() {
-        const result = [];
-        $.get(`./files/data_${this.x_axis}/enveloppes/enveloppe-${this.number}.csv`, function(data, status) {
-
-            alert($.parseCSV(data));
-            /*
-            this.parseCSV(response);
-            let arr = response['arr'];
-            let varMapping = response['varMapping'];
-            for (let i in arr) {
-                let line = arr[i].split(',');
-                let xVal = line[varMapping[this.x_axis]];
-                let yVal = line[varMapping[this.y_axis]];
-                result.push({x: xVal, y: yVal});*/
-            })
-        }
-        // return result;
 
 
     readPoints() {
-        const result = []
-        $.get(`./files/data_${this.x_axis}/points/points-${this.number}.csv`, response => {
+        let result = [];
+        let path = "https://florianilaurence.github.io/assets/data_" + this.x_axis
+                + "/points/points-" + this.number + ".csv"
+        $.get(path, function(data) {
+            let response = parseCSV(data);
             const pointsGrouped = {};
-            this.parseCSV(response);
             let arr = response['arr'];
             let varMapping = response['varMapping'];
             for (let i in arr) {
