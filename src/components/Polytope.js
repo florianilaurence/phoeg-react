@@ -40,6 +40,7 @@ export default function Polytope(props) {
     let currentInvariant = invariant.value;
     let currentNumber = number.value;
     let currentColor = color.value;
+    let currentEnvelope = envelope;
 
     const update = () => {
         let pathEnv = "https://florianilaurence.github.io/assets/data_" + currentInvariant
@@ -49,7 +50,9 @@ export default function Polytope(props) {
         $.get(pathEnv, function(dataEnvelope) {
             let env = readEnvelope(dataEnvelope, currentInvariant);
             $.get(pathPoi, function (dataPoints) {
+                env.push(env[0]);
                 let points = readPoints(dataPoints);
+                currentEnvelope = env;
                 setEnvelope(env);
             });
         });
@@ -113,7 +116,7 @@ export default function Polytope(props) {
                     <VictoryLine style={{
                         data: {stroke: "#62100d"},
                         parent: {border: "1px solid #ccc"}}}
-                                 data={envelope}/>
+                                 data={currentEnvelope}/>
                 </VictoryChart>
             </form>
         </div>
