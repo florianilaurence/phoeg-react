@@ -2,6 +2,7 @@ import Select from 'react-select';
 import React, {useState} from "react";
 import {VictoryChart, VictoryLine, VictoryTheme} from "victory";
 import $ from "jquery";
+import { Bubble } from 'react-chartjs-2';
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 
 // List of invariants possible
@@ -36,14 +37,17 @@ export default function Polytope(props) {
     const [color, setColor] = useState(COLORS[0]);
     const [envelope, setEnvelope] = useState([{x: 0, y: 0}]);
 
+    let currentInvariant = invariant.value;
+    let currentNumber = number.value;
+    let currentColor = color.value;
+
     const update = () => {
-        let pathEnv = "https://florianilaurence.github.io/assets/data_" + invariant.value
-            + "/enveloppes/enveloppe-" + number.value + ".csv";
-        let pathPoi = "https://florianilaurence.github.io/assets/data_" + invariant.value
-            + "/points/points-" + number.value + ".csv";
+        let pathEnv = "https://florianilaurence.github.io/assets/data_" + currentInvariant
+            + "/enveloppes/enveloppe-" + currentNumber + ".csv";
+        let pathPoi = "https://florianilaurence.github.io/assets/data_" + currentInvariant
+            + "/points/points-" + currentNumber + ".csv";
         $.get(pathEnv, function(dataEnvelope) {
-            let env = readEnvelope(dataEnvelope, invariant.value);
-            console.log("---> " + pathEnv)
+            let env = readEnvelope(dataEnvelope, currentInvariant);
             $.get(pathPoi, function (dataPoints) {
                 let points = readPoints(dataPoints);
                 setEnvelope(env);
@@ -53,21 +57,21 @@ export default function Polytope(props) {
 
     const handleChangeInvariant = (newInvariant) => {
         setInvariant(newInvariant);
-        console.log("^^^^^^^^^ invariant "+ invariant.value);
+        currentInvariant = newInvariant.value;
         update();
         return true;
     }
 
     const handleChangeNumber = (newNumber) => {
         setNumber(newNumber);
-        console.log("^^^^^^^^^ number "+ number.value);
+        currentNumber = newNumber.value;
         update();
         return true;
     }
 
     const handleChangeMeasure = (newColor) => {
         setColor(newColor);
-        console.log("^^^^^^^^^ color "+ color.value);
+        currentColor = newColor.value;
         update();
         return true;
     }
@@ -75,6 +79,7 @@ export default function Polytope(props) {
     return (
         <div>
             <h3> Polytope {props.num}</h3>
+            {update()}
             <form>
                 <label>
                     Quel invariant souhaitez-vous étudier ?
@@ -102,6 +107,8 @@ export default function Polytope(props) {
                         options={COLORS}/>
                 </label>
                 <VictoryChart
+                    width={150}
+                    height={150}
                     theme={VictoryTheme.material}>
                     <VictoryLine style={{
                         data: {stroke: "#62100d"},
