@@ -17,7 +17,7 @@ export default function Polytopes() {
     }
 
     const renderOnePolytope = (num) => {
-        return <Polytope num={num}/>
+        return <Polytope key={"pol_" + num} num={num}/>
     }
 
     return (

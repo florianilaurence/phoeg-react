@@ -1,6 +1,8 @@
 import Select from 'react-select';
-import PolytopeChart from "./PolytopeChart"
-import {useState} from "react";
+import React, {useState} from "react";
+import {VictoryChart, VictoryLine, VictoryTheme} from "victory";
+import $ from "jquery";
+import {readEnvelope, readPoints} from "../core/ParseFiles";
 
 // List of invariants possible
 const INVARIANTS = [
@@ -21,8 +23,8 @@ const NUMBERS = [
     {value : "9", label : "9"},
 ]
 
-// List of possible colorations
-const COLORATIONS = [
+// List of possible colors
+const COLORS = [
     {value: "mult", label: "mult"},
     {value: "chi", label: "chi"}
 ];
@@ -30,27 +32,41 @@ const COLORATIONS = [
 // Component's core
 export default function Polytope(props) {
 
-    const renderPolytopeChart = () => {
-        return (
-            <PolytopeChart
-                invariant={pol.selectedInvariant.value}
-                number={pol.selectedNumber.value}
-                coloration={pol.selectedColoration.value}/>
-        )
-    }
-
     const [pol, setPol] = useState({
         selectedInvariant : INVARIANTS[0],
         selectedNumber : NUMBERS[0],
-        selectedColoration : COLORATIONS[0]
+        selectedColor : COLORS[0],
+        envelope: [{x: 0, y: 0}]
     });
+
+    const update = () => {
+        alert("update est appelé")
+        let pathEnv = "https://florianilaurence.github.io/assets/data_" + pol.selectedInvariant
+            + "/enveloppes/enveloppe-" + pol.selectedNumber + ".csv";
+        let pathPoi = "https://florianilaurence.github.io/assets/data_" + pol.selectedInvariant
+            + "/points/points-" + pol.selectedNumber + ".csv";
+        $.get(pathEnv, function(dataEnvelope) {
+            let env = readEnvelope(dataEnvelope, pol.selectedInvariant);
+            $.get(pathPoi, function (dataPoints) {
+                let points = readPoints(dataPoints)
+                setPol({
+                    selectedInvariant: pol.selectedInvariant,
+                    selectedNumber: pol.selectedNumber,
+                    selectedColor: pol.selectedColor,
+                    envelope: env
+                })
+            })
+        });
+    }
 
     const handleChangeInvariant = (newSelectedInvariant) => {
         setPol({
             selectedInvariant: newSelectedInvariant,
             selectedNumber: pol.selectedNumber,
-            selectedColoration: pol.selectedColoration
+            selectedColor: pol.selectedColor,
+            envelope: pol.envelope
         })
+        update();
         return true;
     }
 
@@ -58,17 +74,21 @@ export default function Polytope(props) {
         setPol({
             selectedInvariant: pol.selectedInvariant,
             selectedNumber: newSelectedNumber,
-            selectedColoration: pol.selectedColoration
+            selectedColor: pol.selectedColor,
+            envelope: pol.envelope
         })
+        update();
         return true;
     }
 
-    const handleChangeMeasure = (newSelectedColoration) => {
+    const handleChangeMeasure = (newSelectedColor) => {
         setPol({
             selectedInvariant: pol.selectedInvariant,
             selectedNumber: pol.selectedNumber,
-            selectedColoration: newSelectedColoration
+            selectedColor: newSelectedColor,
+            envelope: pol.envelope
         })
+        update();
         return true;
     }
 
@@ -97,11 +117,17 @@ export default function Polytope(props) {
                 <label>
                     Quelle mesure voulez-vous employer pour colorer les points ?
                     <Select
-                        defaultValue={pol.selectedColoration}
+                        defaultValue={pol.selectedColor}
                         onChange={handleChangeMeasure}
-                        options={COLORATIONS}/>
+                        options={COLORS}/>
                 </label>
-                {renderPolytopeChart()}
+                <VictoryChart
+                    theme={VictoryTheme.material}>
+                    <VictoryLine style={{
+                        data: {stroke: "#62100d"},
+                        parent: {border: "1px solid #ccc"}}}
+                                 data={pol.envelope}/>
+                </VictoryChart>
             </form>
         </div>
     )
