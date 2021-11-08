@@ -31,63 +31,43 @@ const COLORS = [
 
 // Component's core
 export default function Polytope(props) {
-
-    const [pol, setPol] = useState({
-        selectedInvariant : INVARIANTS[0],
-        selectedNumber : NUMBERS[0],
-        selectedColor : COLORS[0],
-        envelope: [{x: 0, y: 0}]
-    });
+    const [invariant, setInvariant] = useState(INVARIANTS[0]);
+    const [number, setNumber] = useState(NUMBERS[0]);
+    const [color, setColor] = useState(COLORS[0]);
+    const [envelope, setEnvelope] = useState([{x: 0, y: 0}]);
 
     const update = () => {
-        alert("update est appelé")
-        let pathEnv = "https://florianilaurence.github.io/assets/data_" + pol.selectedInvariant
-            + "/enveloppes/enveloppe-" + pol.selectedNumber + ".csv";
-        let pathPoi = "https://florianilaurence.github.io/assets/data_" + pol.selectedInvariant
-            + "/points/points-" + pol.selectedNumber + ".csv";
+        let pathEnv = "https://florianilaurence.github.io/assets/data_" + invariant.value
+            + "/enveloppes/enveloppe-" + number.value + ".csv";
+        let pathPoi = "https://florianilaurence.github.io/assets/data_" + invariant.value
+            + "/points/points-" + number.value + ".csv";
         $.get(pathEnv, function(dataEnvelope) {
-            let env = readEnvelope(dataEnvelope, pol.selectedInvariant);
+            let env = readEnvelope(dataEnvelope, invariant.value);
+            console.log("---> " + pathEnv)
             $.get(pathPoi, function (dataPoints) {
-                let points = readPoints(dataPoints)
-                setPol({
-                    selectedInvariant: pol.selectedInvariant,
-                    selectedNumber: pol.selectedNumber,
-                    selectedColor: pol.selectedColor,
-                    envelope: env
-                })
-            })
+                let points = readPoints(dataPoints);
+                setEnvelope(env);
+            });
         });
     }
 
-    const handleChangeInvariant = (newSelectedInvariant) => {
-        setPol({
-            selectedInvariant: newSelectedInvariant,
-            selectedNumber: pol.selectedNumber,
-            selectedColor: pol.selectedColor,
-            envelope: pol.envelope
-        })
+    const handleChangeInvariant = (newInvariant) => {
+        setInvariant(newInvariant);
+        console.log("^^^^^^^^^ invariant "+ invariant.value);
         update();
         return true;
     }
 
-    const handleChangeNumber = (newSelectedNumber) => {
-        setPol({
-            selectedInvariant: pol.selectedInvariant,
-            selectedNumber: newSelectedNumber,
-            selectedColor: pol.selectedColor,
-            envelope: pol.envelope
-        })
+    const handleChangeNumber = (newNumber) => {
+        setNumber(newNumber);
+        console.log("^^^^^^^^^ number "+ number.value);
         update();
         return true;
     }
 
-    const handleChangeMeasure = (newSelectedColor) => {
-        setPol({
-            selectedInvariant: pol.selectedInvariant,
-            selectedNumber: pol.selectedNumber,
-            selectedColor: newSelectedColor,
-            envelope: pol.envelope
-        })
+    const handleChangeMeasure = (newColor) => {
+        setColor(newColor);
+        console.log("^^^^^^^^^ color "+ color.value);
         update();
         return true;
     }
@@ -99,7 +79,7 @@ export default function Polytope(props) {
                 <label>
                     Quel invariant souhaitez-vous étudier ?
                     <Select
-                        defaultValue={pol.selectedInvariant}
+                        defaultValue={invariant}
                         onChange={handleChangeInvariant}
                         options={INVARIANTS}
                     />
@@ -108,7 +88,7 @@ export default function Polytope(props) {
                 <label>
                     Combien de sommet souhaitez-vous pour les graphes ?
                     <Select
-                        defaultValue={pol.selectedNumber}
+                        defaultValue={number}
                         onChange={handleChangeNumber}
                         options={NUMBERS}
                     />
@@ -117,7 +97,7 @@ export default function Polytope(props) {
                 <label>
                     Quelle mesure voulez-vous employer pour colorer les points ?
                     <Select
-                        defaultValue={pol.selectedColor}
+                        defaultValue={color}
                         onChange={handleChangeMeasure}
                         options={COLORS}/>
                 </label>
@@ -126,7 +106,7 @@ export default function Polytope(props) {
                     <VictoryLine style={{
                         data: {stroke: "#62100d"},
                         parent: {border: "1px solid #ccc"}}}
-                                 data={pol.envelope}/>
+                                 data={envelope}/>
                 </VictoryChart>
             </form>
         </div>

@@ -14,12 +14,11 @@ export function readEnvelope(data, x_axis) {
             }
             i++;
         }
-    }/*
+    }
     let str = "";
     for (let i in result) {
         str = str + "x " + result[i]['x'] + " y " + result[i]['y'] + "\n";
     }
-    alert(str);*/
     return result;
 }
 

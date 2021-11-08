@@ -6,7 +6,7 @@ export default function Banner() {
             <h1 align="center">PHOEG
                 <img align="right" src={logo} className="app-logo" alt="logo"/>
             </h1>
-            <text align="justify">Une petite description de l'application web</text>
+            <p align="justify">Une petite description de l'application web</p>
         </div>
     )
 }
