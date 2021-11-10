@@ -1,7 +1,7 @@
 import $ from "jquery";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useState} from "react";
-import {Scatter} from "react-chartjs-2";
+import {Bubble} from "react-chartjs-2";
 
 export default function PolytopeChart(props) {
     const [envelope, setEnvelope] = useState([{x: 0, y: 0}]);
@@ -51,6 +51,7 @@ export default function PolytopeChart(props) {
             });
         });
     }
+
 /*
     const initChart = (envelope, points) => {
         const canvas = resetCanvas();
@@ -85,32 +86,79 @@ export default function PolytopeChart(props) {
     }*/
 
     const data = {
-        type: 'line',
         datasets: [
             {
-                label: 'ESSAI',
-                data: [
-                    {x: 1, y: 1},
-                    {x: 3, y: 3},
-                    {x: 4, y: 2},
-                    {x: 1, y: 1}
-                ],
-                backgroundColor: 'rgba(255, 99, 132, 1)',
+                label: "Line Dataset 2",
+                data: [{ x: 1, y: 10 }, { x: 3, y: 10 }],
+                type: "line",
+                fill: "false",
+                // pointRadius: 0,
+                pointStyle: "circle"
             },
-        ],
+            {
+                label: "Line Dataset",
+                data: [{ x: 1, y: 10, r: 5 }, { x: 3, y: 10, r: 5 }],
+                pointHoverRadius: [5, 5, 5],
+                type: "bubble",
+                // pointRadius: 0,
+                pointStyle: "circle"
+            }],
+        labels: ["Data"]
     };
 
     const options = {
+        elements: {
+            line: {tension: 0.000001}
+        },
+        tooltips: {displayColors: false},
+        legend: {display: false},
         scales: {
+            xAxes: [
+                {
+                    gridLines: {
+                        display: true,
+                        drawBorder: true
+                    },
+                    ticks: {
+                        stepSize: 0.5,
+                        min: -0.5,
+                        max: 3.5,
+                        precision: 0.01
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Incidenza",
+                        padding: 10
+                    }
+                }
+                ],
             yAxes: [
                 {
-                    ticks: {
-                        beginAtZero: true
+                    gridLines: {
+                        display: true,
+                        drawBorder: true
                     },
-                },
-                ],
-        },
+                    ticks: {
+                        stepSize: 5,
+                        min: 0,
+                        max: 20
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Coefficiente Potenza di Fuoco",
+                        padding: 10
+                    }
+                }
+                ]
+        }
     };
+
+    const plugins = [
+        {
+            afterDraw: (chartInstance, easing) => {
+                console.log("aaa");
+            }
+        }];
 
     return (
         <div>
@@ -118,9 +166,12 @@ export default function PolytopeChart(props) {
             <p>
                 Invariant : {props.invariant} Color : {props.color} Number : {props.number}
             </p>
-            <Scatter
+            <Bubble
                 data={data}
-                options={options} />
+                options={options}
+                plugins={plugins}
+                height={200}
+            />
         </div>
     )
 
