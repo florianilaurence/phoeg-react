@@ -208,4 +208,4 @@ function unpack(str) {
     bytes.push(char & 0xFF);
   }
   return bytes;
-};
+}
