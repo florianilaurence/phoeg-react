@@ -23,5 +23,5 @@ export function readEnvelope(data, x_axis) {
 }
 
 export function readPoints(data) {
-    return [{x: 1, y: 2}];
+    return [{data: [{x: 0, y: 0, r: 5}]}];
 }
