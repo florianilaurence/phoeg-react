@@ -1,8 +1,5 @@
 import Select from 'react-select';
 import React, {useState} from "react";
-import $ from "jquery";
-import { Scatter } from 'react-chartjs-2';
-import {readEnvelope, readPoints} from "../core/ParseFiles";
 import PolytopeChart from "./PolytopeChart";
 
 // List of invariants possible

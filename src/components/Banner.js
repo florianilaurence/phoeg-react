@@ -1,4 +1,4 @@
-import logo from "../assets/logo_phoeg.png"
+import logo from "../phoeg.png"
 
 export default function Banner() {
     return (
