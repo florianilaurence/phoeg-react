@@ -1,7 +1,6 @@
-import $ from "jquery";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
-import {Bubble} from "react-chartjs-2";
+import {useSigma, addNode} from "react-sigma-v2";
 
 export default function PolytopeChart(props) {
     const [envelope, setEnvelope] = useState([{x: 0, y: 0}, {x: 1, y: 1}]);
@@ -12,12 +11,7 @@ export default function PolytopeChart(props) {
         let pathEnv = "assets/data_" + props.invariant + "/enveloppes/enveloppe-" + props.number + ".json";
         let pathPoints = "assets/data_" + props.invariant + "/points/points-" + props.number + ".json";
 
-        fetch(pathPoints
-            ,{
-            headers : {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }})
+        fetch(pathPoints,{headers : {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then(function(response){
                 return response.json();
             })
@@ -25,13 +19,7 @@ export default function PolytopeChart(props) {
                 setPoints(readPoints(myJson, props.invariant));
             });
 
-
-        fetch(pathEnv
-            ,{
-            headers : {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }})
+        fetch(pathEnv, {headers : {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then(function(response){
                 return response.json();
             })
@@ -39,6 +27,12 @@ export default function PolytopeChart(props) {
                 setEnvelope(readEnvelope(myJson));
             });
         setData({datasets: [points, {type: 'line', data: envelope}]});
+    }
+
+    const PolytopeGrah = () => {
+        const sigma = useSigma();
+        const graph = sigma.getGraph();
+        graph.addNode()
     }
 
     useEffect(update, [props.invariant, props.color, props.number]);
@@ -49,10 +43,7 @@ export default function PolytopeChart(props) {
             <p>
                 Invariant : {props.invariant} Color : {props.color} Number : {props.number}
             </p>
-            <Bubble
-                data={data}
-                height={200}
-            />
+
         </div>
     )
 
