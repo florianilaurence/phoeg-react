@@ -1,1 +1,1 @@
-[{'sig': 'B?', 'm': 0, 'avcol': 2, 'chi': 1}, {'sig': 'BG', 'm': 1, 'avcol': 2.33333, 'chi': 2}, {'sig': 'BW', 'm': 2, 'avcol': 2.5, 'chi': 2}, {'sig': 'Bw', 'm': 3, 'avcol': 3, 'chi': 3}]
+[{"sig": "B?", "m": 0, "avcol": 2, "chi": 1}, {"sig": "BG", "m": 1, "avcol": 2.33333, "chi": 2}, {"sig": "BW", "m": 2, "avcol": 2.5, "chi": 2}, {"sig": "Bw", "m": 3, "avcol": 3, "chi": 3}]
