@@ -1,6 +1,8 @@
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
-import {useSigma, addNode} from "react-sigma-v2";
+import {SigmaContainer, useSigma} from "react-sigma-v2";
+import Graph from "graphology";
+import Sigma from "sigma";
 
 export default function PolytopeChart(props) {
     const [envelope, setEnvelope] = useState([{x: 0, y: 0}, {x: 1, y: 1}]);
@@ -29,10 +31,13 @@ export default function PolytopeChart(props) {
         setData({datasets: [points, {type: 'line', data: envelope}]});
     }
 
-    const PolytopeGrah = () => {
+    const MyCustomGraph = () => {
         const sigma = useSigma();
         const graph = sigma.getGraph();
-        graph.addNode()
+        graph.addNode("Jessica", { label: "Jessica", x: 1, y: 1, color: "#FF0", size: 10 });
+        graph.addNode("Truman", { label: "Truman", x: 0, y: 0, color: "#00F", size: 5 });
+        graph.addEdge("Jessica", "Truman", { color: "#CCC", size: 1 });
+        return null;
     }
 
     useEffect(update, [props.invariant, props.color, props.number]);
@@ -43,7 +48,14 @@ export default function PolytopeChart(props) {
             <p>
                 Invariant : {props.invariant} Color : {props.color} Number : {props.number}
             </p>
-
+            ReactDOM.render(
+                <React.StrictMode>
+                    <SigmaContainer style={{ height: "500px", width: "500px" }}>
+                        <MyCustomGraph />
+                    </SigmaContainer>
+                </React.StrictMode>,
+            document.getElementById("root"),.
+            );
         </div>
     )
 
