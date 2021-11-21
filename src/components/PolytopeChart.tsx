@@ -1,3 +1,4 @@
+import $ from "jquery";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
 import {Bubble} from "react-chartjs-2";
