@@ -1,4 +1,3 @@
-import $ from "jquery";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
 import {Bubble} from "react-chartjs-2";
@@ -13,23 +12,23 @@ export default function PolytopeChart(props) {
         let pathEnv = "assets/data_" + props.invariant + "/enveloppes/enveloppe-" + props.number + ".json";
         let pathPoints = "assets/data_" + props.invariant + "/points/points-" + props.number + ".json";
 
-        fetch(pathEnv,{headers : {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-            .then(function(response){
+        fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+            .then(function (response) {
                 return response.json();
             })
-            .then(function(myJson) {
+            .then(function (myJson) {
                 const envelope = readEnvelope(myJson);
-                fetch(pathPoints,{headers : {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                    .then(function(response){
+                fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+                    .then(function (response) {
                         return response.json();
                     })
-                    .then(function(myJson) {
+                    .then(function (myJson) {
                         const points = readPoints(myJson, props.invariant);
                         setData({datasets: [{type: 'bubble', data: points}, {type: 'line', data: envelope}]});
-                    });
+                    })
             });
-    }
-    , [props.invariant, props.color, props.number]);
+    },
+        [props.invariant, props.color, props.number]);
 
     return (
         <div>
@@ -43,6 +42,6 @@ export default function PolytopeChart(props) {
             />
         </div>
     )
-
-
 }
+
+

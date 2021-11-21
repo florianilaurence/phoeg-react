@@ -1,6 +1,6 @@
 import Select from 'react-select';
 import React, {useState} from "react";
-import PolytopeChart from "./PolytopeChart";
+import PolytopeChart from "./PolytopeChart.js";
 
 // List of invariants possible
 const INVARIANTS = [
