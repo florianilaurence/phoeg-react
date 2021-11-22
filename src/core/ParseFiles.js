@@ -16,7 +16,7 @@ export function readEnvelope(json) {
 }
 
 function readEnvelopePoint(data) {
-    return [{x: data[0], y: data[1]}];
+    return [{x: data["x"], y: data["y"]}];
 }
 
 function readEnvelopeLine(data) {
@@ -41,16 +41,20 @@ export function readPoints(data, invariantX, coloration) {
     // "avcol" "eci" ... --> Ox
     // "chi" --> Coloration
     // "mult" --> Coloration
+
     const pointsGrouped = {};
     for (let i in data) {
         let xVal = data[i][invariantX];
-        let yVal = data[i]["m"];
+        let yVal = data[i]["m"]; //TODO A modifier
         let color = data[i][coloration];
         if (!pointsGrouped.hasOwnProperty(coloration)) {
             pointsGrouped[color] = [];
         }
+
         pointsGrouped[color].push({x: xVal, y: yVal, r: 5});
+        console.log("x " + pointsGrouped[color]+ " y " + pointsGrouped[color]["y"])
     }
+    console.log(" x " + pointsGrouped[1]);
     let result = [];
     const groupsKeys = Object.keys(pointsGrouped).map(x => parseInt(x)).sort((a, b) => a >= b);
     const min = groupsKeys[0];
