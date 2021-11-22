@@ -23,7 +23,7 @@ export default function PolytopeChart(props) {
                         return response.json();
                     })
                     .then(function (myJson) {
-                        const points = readPoints(myJson, props.invariant);
+                        const points = readPoints(myJson, props.invariant, props.color);
                         setData({datasets: [{type: 'bubble', data: points}, {type: 'line', data: envelope}]});
                     })
             });
