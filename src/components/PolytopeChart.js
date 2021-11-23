@@ -24,8 +24,9 @@ export default function PolytopeChart(props) {
                     })
                     .then(function (myJson) {
                         const points = readPoints(myJson, props.invariant, props.color);
-                        console.log(points[0]);
-                        setData({datasets: [{type: 'bubble', data: points}, {type: 'line', data: envelope}]});
+                        console.log(points[0]["data"][0]["x"]);
+                        points.push({type: 'line', label: "Envelope", borderColor: "0xFFFFFF", data: envelope});
+                        setData({datasets: points});
                     })
             });
     },
@@ -34,9 +35,6 @@ export default function PolytopeChart(props) {
     return (
         <div>
             <h4> Polytope Chart </h4>
-            <p>
-                Invariant : {props.invariant} Color : {props.color} Number : {props.number}
-            </p>
             <Bubble
                 data={data}
                 height={200}
