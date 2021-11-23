@@ -50,11 +50,9 @@ export function readPoints(data, invariantX, coloration) {
         if (!pointsGrouped.hasOwnProperty(coloration)) {
             pointsGrouped[color] = [];
         }
-
         pointsGrouped[color].push({x: xVal, y: yVal, r: 5});
-        console.log("x " + pointsGrouped[color]+ " y " + pointsGrouped[color]["y"])
     }
-    console.log(" x " + pointsGrouped[1]);
+    console.log(" x " + pointsGrouped[1][0]["x"] + " y " + pointsGrouped[1][0]["y"]);
     let result = [];
     const groupsKeys = Object.keys(pointsGrouped).map(x => parseInt(x)).sort((a, b) => a >= b);
     const min = groupsKeys[0];
@@ -63,12 +61,28 @@ export function readPoints(data, invariantX, coloration) {
         const groupVal = groupsKeys[i];
         result.push({
             type: 'bubble',
-            label: coloration,
+            label: coloration + " = " + groupVal,
             data: pointsGrouped[groupVal],
             background: pickColorIntoGradient(GRADIENT, 100 * (groupVal - min) / (max - min)),
             borderColor: "transparent"
         })
     }
-
+    console.log("************ " + result[0]["data"][0]["x"])
     return result;
 }
+
+/*
+
+export function readPoints(data, invariantX) {
+    // "m" --> Oy
+    // "avcol" "eci" ... --> Ox
+    // "chi" --> Coloration
+    // "mult" --> Coloration
+    let result = [];
+    for (let i in data) {
+        result.push({x: data[i][invariantX], y: data[i]["m"], r: 5});
+    }
+    return result;
+}
+
+ */
