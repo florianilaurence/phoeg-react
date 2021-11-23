@@ -1,6 +1,7 @@
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
 import {Bubble} from "react-chartjs-2";
+import 'chartjs-plugin-zoom';
 
 export default function PolytopeChart(props) {
     const [data, setData] = useState({datasets: [
@@ -24,7 +25,6 @@ export default function PolytopeChart(props) {
                     })
                     .then(function (myJson) {
                         const points = readPoints(myJson, props.invariant, props.color);
-                        console.log(points[0]["data"][0]["x"]);
                         points.push({type: 'line', label: "Envelope", borderColor: "0xFFFFFF", data: envelope});
                         setData({datasets: points});
                     })
@@ -32,11 +32,25 @@ export default function PolytopeChart(props) {
     },
         [props.invariant, props.color, props.number]);
 
+    const options = {
+        // title: { display: true, text: "Polytope pour l'invariant " + props.invariant},
+        plugins: {
+            zoom: {
+                zoom:{
+                    wheel: {enabled: true,},
+                    pinch: {enabled: true},
+                    mode: 'xy'
+                }
+            }
+        }
+    };
+
     return (
         <div>
             <h4> Polytope Chart </h4>
             <Bubble
                 data={data}
+                options={options}
                 height={200}
             />
         </div>
