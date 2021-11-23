@@ -47,10 +47,10 @@ export function readPoints(data, invariantX, coloration) {
         let xVal = data[i][invariantX];
         let yVal = data[i]["m"]; //TODO A modifier
         let color = data[i][coloration];
-        if (!pointsGrouped.hasOwnProperty(coloration)) {
+        if (pointsGrouped[color] == null) {
             pointsGrouped[color] = [];
         }
-        pointsGrouped[color].push({x: xVal, y: yVal, r: 5});
+        pointsGrouped[color].push({x: xVal, y: yVal, r: 3});
     }
     let result = [];
     const groupsKeys = Object.keys(pointsGrouped).map(x => parseInt(x)).sort((a, b) => a >= b);
@@ -62,7 +62,10 @@ export function readPoints(data, invariantX, coloration) {
             type: 'bubble',
             label: coloration + " = " + groupVal,
             data: pointsGrouped[groupVal],
-            backgroundColor: pickColorIntoGradient(GRADIENT, 100 * (groupVal - min) / (max - min))
+            backgroundColor: pickColorIntoGradient(GRADIENT, 100 * (groupVal - min) / (max - min)),
+            borderWidth: 1,
+            hoverBorderColor: '0x000000',
+            pointStyle: 'triangle'
         })
     }
     return result;

@@ -1,7 +1,7 @@
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
 import {Bubble} from "react-chartjs-2";
-import 'chartjs-plugin-zoom';
+//import 'chartjs-plugin-zoom';
 
 export default function PolytopeChart(props) {
     const [data, setData] = useState({datasets: [

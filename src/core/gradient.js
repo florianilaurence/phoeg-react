@@ -22,5 +22,5 @@ export const pickColorIntoGradient = (gradient, per) => {
   let g = gradient[i - 1][2] * p1 + gradient[i][2] * p2;
   let b = gradient[i - 1][3] * p1 + gradient[i][3] * p2;
 
-  return `rgb(${r},${g},${b})`
+  return `rgba(${r},${g},${b}, 0.75)`
 }
