@@ -1,7 +1,7 @@
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
 import {Bubble} from "react-chartjs-2";
-//import 'chartjs-plugin-zoom';
+import 'chartjs-plugin-zoom';
 
 export default function PolytopeChart(props) {
     const [data, setData] = useState({datasets: [
@@ -36,8 +36,13 @@ export default function PolytopeChart(props) {
         // title: { display: true, text: "Polytope pour l'invariant " + props.invariant},
         plugins: {
             zoom: {
+                pan: {
+                    enabled: true,
+                    mode: 'x',
+                },
                 zoom:{
-                    wheel: {enabled: true,},
+                    wheel: {enabled: true, modifierKey: 'ctrl'},
+                    drag: {enabled: true, modifierKey: 'shift'},
                     pinch: {enabled: true},
                     mode: 'xy'
                 }
