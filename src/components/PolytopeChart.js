@@ -33,8 +33,14 @@ export default function PolytopeChart(props) {
         [props.invariant, props.color, props.number]);
 
     const options = {
+        /*events: [
+            onclick = (evt) => {
+                console.log("cool");
+                console.log(evt);
+            }
+        ],*/
         // title: { display: true, text: "Polytope pour l'invariant " + props.invariant},
-        plugins: {
+        /*plugins: {
             zoom: {
                 pan: {
                     enabled: true,
@@ -47,8 +53,13 @@ export default function PolytopeChart(props) {
                     mode: 'xy'
                 }
             }
-        }
+        }*/
     };
+
+    const handleClick = (elt, evt) => {
+        console.log(elt);
+        console.log("OK " + evt);
+    }
 
     return (
         <div>
@@ -57,6 +68,7 @@ export default function PolytopeChart(props) {
                 data={data}
                 options={options}
                 height={200}
+                getElementAtEvent={(elt, evt) => handleClick(elt, evt)}
             />
         </div>
     )

@@ -1,0 +1,69 @@
+isTrusted: true
+altKey: false
+altitudeAngle: 1.5707963267948966
+azimuthAngle: 0
+bubbles: true
+button: 0
+buttons: 0
+cancelBubble: false
+cancelable: true
+clientX: 280
+clientY: 543
+composed: true
+ctrlKey: false
+currentTarget: null
+defaultPrevented: false
+detail: 1
+eventPhase: 0
+fromElement: null
+height: 1
+isPrimary: false
+layerX: 280
+layerY: 175
+metaKey: false
+movementX: 0
+movementY: 0
+offsetX: 281
+offsetY: 176
+pageX: 280
+pageY: 844
+path: (12) [canvas, div, form, div, div, header.app_header, div.app, div#root, body, html, document, Window]
+pointerId: 1
+pointerType: "mouse"
+pressure: 0
+relatedTarget: null
+returnValue: true
+screenX: 281
+screenY: 655
+shiftKey: false
+sourceCapabilities: InputDeviceCapabilities {firesTouchEvents: false}
+srcElement: canvas
+tangentialPressure: 0
+target: canvas
+tiltX: 0
+tiltY: 0
+timeStamp: 446898.90000000596
+toElement: null
+twist: 0
+type: "click"
+view: Window {window: Window, self: Window, document: document, name: '', location: Location, …}
+which: 1
+width: 1
+x: 280
+y: 543
+[[Prototype]]: PointerEvent
+
+
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+        onClick: (e) => {
+            const canvasPosition = Chart.helpers.getRelativePosition(e, chart);
+
+            // Substitute the appropriate scale IDs
+            const dataX = chart.scales.x.getValueForPixel(canvasPosition.x);
+            const dataY = chart.scales.y.getValueForPixel(canvasPosition.y);
+        }
+    }
+});
