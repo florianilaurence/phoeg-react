@@ -67,9 +67,7 @@ export default function PolytopeChart(props) {
             let point = data["datasets"][datasetIndex]["data"][index];
             setM(point["y"]);
             setInvariantVal(point["x"]);
-            console.log(point);
         }
-
     }
 
     return (

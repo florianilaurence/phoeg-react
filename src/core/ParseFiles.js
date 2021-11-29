@@ -50,7 +50,7 @@ export function readPoints(data, invariantX, coloration) {
         if (pointsGrouped[color] == null) {
             pointsGrouped[color] = [];
         }
-        pointsGrouped[color].push({x: xVal, y: yVal, r: 3});
+        pointsGrouped[color].push({x: xVal, y: yVal, r: 5});
     }
     let result = [];
     const groupsKeys = Object.keys(pointsGrouped).map(x => parseInt(x)).sort((a, b) => a >= b);
@@ -67,6 +67,16 @@ export function readPoints(data, invariantX, coloration) {
             hoverBorderColor: '0x000000',
             pointStyle: 'triangle'
         })
+    }
+    return result;
+}
+
+export function readGraph(data, m, invariantVal, name) {
+    let result =[];
+    for (let i in data) {
+        if (data[i]["m"] === m && data[i][name] === invariantVal) {
+            result.push({value: data[i], label: data[i]}); // Car j'ai besoin pour mon select box
+        }
     }
     return result;
 }
