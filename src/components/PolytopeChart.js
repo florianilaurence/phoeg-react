@@ -2,12 +2,16 @@ import {readEnvelope, readPoints} from "../core/ParseFiles";
 import React, {useEffect, useState} from "react";
 import {Bubble} from "react-chartjs-2";
 import 'chartjs-plugin-zoom';
+import Graphs from "./Graphs";
 
 export default function PolytopeChart(props) {
     const [data, setData] = useState({datasets: [
             {type: 'bubble', data: [{x: 0, y: 0, r: 5}]},
             {type: 'line', data: [{x: 0, y: 0}]}
         ]})
+
+    const [m, setM] = useState(0);
+    const [invariantVal, setInvariantVal] = useState(0);
 
     useEffect( () => {
         let pathEnv = "assets/data_" + props.invariant + "/enveloppes/enveloppe-" + props.number + ".json";
@@ -57,8 +61,15 @@ export default function PolytopeChart(props) {
     };
 
     const handleClick = (elt, evt) => {
-        console.log(elt);
-        console.log("OK " + evt);
+        if (elt.length > 0) {
+            let datasetIndex = elt[0]["datasetIndex"];
+            let index = elt[0]["index"];
+            let point = data["datasets"][datasetIndex]["data"][index];
+            setM(point["y"]);
+            setInvariantVal(point["x"]);
+            console.log(point);
+        }
+
     }
 
     return (
@@ -70,6 +81,7 @@ export default function PolytopeChart(props) {
                 height={200}
                 getElementAtEvent={(elt, evt) => handleClick(elt, evt)}
             />
+            <Graphs invariantVal={invariantVal} m={m} name={props.invariant}/>
         </div>
     )
 }

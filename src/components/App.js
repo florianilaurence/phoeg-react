@@ -11,7 +11,6 @@ export default function App() {
                 <Banner/>
                 <Menu/>
                 <Polytopes/>
-                <Graphs/>
             </header>
         </div>
     )
