@@ -55,6 +55,7 @@
   "devDependencies": {
     "react-file-viewer": "^1.2.1",
     "react-native-charts-wrapper": "^0.5.7",
+    "react-sigma": "^1.2.35",
     "victory": "^36.2.0"
   }
 }
