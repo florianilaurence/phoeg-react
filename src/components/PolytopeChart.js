@@ -79,7 +79,7 @@ export default function PolytopeChart(props) {
                 height={200}
                 getElementAtEvent={(elt, evt) => handleClick(elt, evt)}
             />
-            <Graphs invariantVal={invariantVal} m={m} name={props.invariant}/>
+            <Graphs invariantVal={invariantVal} n={props.number} m={m} name={props.invariant}/>
         </div>
     )
 }

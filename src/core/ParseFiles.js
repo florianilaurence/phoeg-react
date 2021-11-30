@@ -75,7 +75,7 @@ export function readGraph(data, m, invariantVal, name) {
     let result =[];
     for (let i in data) {
         if (data[i]["m"] === m && data[i][name] === invariantVal) {
-            result.push({value: data[i], label: data[i]}); // Car j'ai besoin pour mon select box
+            result.push({value: data[i], label: data[i]["sig"]}); // Nécessaire pour mon select box
         }
     }
     return result;

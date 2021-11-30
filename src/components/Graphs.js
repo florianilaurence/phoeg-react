@@ -9,7 +9,7 @@ export default function Graphs(props) {
     let currentGraph = {};
 
     useEffect( () => {
-        let pathGraph = "assets/data_" + props.name + "/graphes/graphes-" + props.m + ".json";
+        let pathGraph = "assets/data_" + props.name + "/graphes/graphes-" + props.n + ".json";
         fetch(pathGraph, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
                     .then(function (response) {
                         return response.json();
@@ -18,7 +18,7 @@ export default function Graphs(props) {
                         setGraphs(readGraph(myJson, props.m, props.invariantVal, props.name));
                     })
 
-        }
+        }, [props.m, props.n, props.name, props.invariantVal]
     )
 
     const handleChangeGraph = (newGraph) => {
