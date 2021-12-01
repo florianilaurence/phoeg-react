@@ -8,7 +8,7 @@ export default function PolytopeChart(props) {
     const [data, setData] = useState({datasets: [
             {type: 'bubble', data: [{x: 0, y: 0, r: 5}]},
             {type: 'line', data: [{x: 0, y: 0}]}
-        ]})
+        ]});
 
     const [m, setM] = useState(0);
     const [invariantVal, setInvariantVal] = useState(0);

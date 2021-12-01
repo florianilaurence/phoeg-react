@@ -1,16 +1,49 @@
-import React, {useEffect, useState} from "react";
-import {readGraph, readPoints} from "../core/ParseFiles";
+import React, { useEffect, useState } from "react";
+import { readGraph } from "../core/ParseFiles";
 import Select from "react-select";
-import { Sigma, RandomizeNodePositions, RelativeSize } from "react-sigma";
+import Graph from "./Graph";
+import Slider from "@farbenmeer/react-spring-slider";
 
+function constructNodes(n) {
+    const nodes = [];
+    for (let i = 0; i < n; i++) {
+        nodes.push({ id: `n${i}` });
+    }
+    return nodes;
+}
+
+function parseToBits(data) {
+    let bits = []
+    for (let b of data) {
+        for (let i = 5; i >= 0; i--) {
+            bits.push((b >> i) & 1);
+        }
+    }
+    return bits;
+}
+
+function constructEdges(bits, n) {
+    const edges = [];
+    let cnt = 0;
+    let edgesCnt = 0;
+    for (let j = 1; j < n; j++) {
+        for (let i = 0; i < j; i++) {
+            if (bits[cnt]) {
+                edges.push({ id: `e${edgesCnt}`, source: `n${i}`, target: `n${j}` })
+                edgesCnt += 1;
+            }
+            cnt += 1;
+        }
+    }
+    return edges;
+}
 
 function unpack(str) {
     let bytes = [];
     for (let i = 0; i < str.length; i++) {
         let char = str.charCodeAt(i);
-        //bytes.push(char >>> 8);
         bytes.push(char & 0xFF);
-        }
+    }
     return bytes;
 }
 
@@ -31,13 +64,11 @@ function bytesArrayToN(bytesArray) {
 }
 
 export default function Graphs(props) {
-    const [graphs, setGraphs] = useState([]); // La liste des graphes correspondant aux critères
-    let currentGraph = {};
+    const [graphsList, setGraphsList] = useState([]); // La liste des graphes correspondant aux critères
+    const [nodes, setnodes] = useState([]);
+    const [edges, setEdges] = useState([]);
 
-    let myGraph = {
-        nodes: [{ id: "n1", label: "Alice" }, { id: "n2", label: "Bob" }],
-        edges: [{ id: "e1", source: "n1", target: "n2"}]
-    };
+    let currentGraphSelect = {};
 
     useEffect( () => {
         let pathGraph = "assets/data_" + props.name + "/graphes/graphes-" + props.n + ".json";
@@ -46,75 +77,55 @@ export default function Graphs(props) {
                         return response.json();
                     })
                     .then(function (myJson) {
-                        setGraphs(readGraph(myJson, props.m, props.invariantVal, props.name));
+                        setGraphsList(readGraph(myJson, props.m, props.invariantVal, props.name));
                     })
 
         }, [props.m, props.n, props.name, props.invariantVal]
     )
 
     const handleChangeGraph = (newGraph) => {
-        currentGraph = newGraph.value;
+        currentGraphSelect = newGraph.value;
+        refreshNodesEdges();
         return true;
     }
 
-    const constructGraph = () => {
-        let signature = currentGraph["sig"];
+    const refreshNodesEdges = () => {
+        let signature = currentGraphSelect["sig"];
         const bytesArr = unpack(signature);
         for (let i in bytesArr) {
             bytesArr[i] -= 63;
         }
-        let [n, data] = bytesArrayToN(bytesArr);
-        let nd = Math.floor((Math.floor(n * (n - 1) / 2) + 5) / 6)
-        let bits = []
-        for (let b of data) {
-            for (let i = 5; i >= 0; i--) {
-                bits.push((b >> i) & 1);
-            }
-        }
-        const nodes = [];
-        for (let i = 0; i < n; i++) {
-            nodes.push({
-                data: {
-                    id: `n${i}`
-                }
-            });
-        }
 
-        const edges = [];
-        let cnt = 0;
-        let edgesCnt = 0;
-        for (let j = 1; j < n; j++) {
-            for (let i = 0; i < j; i++) {
-                if (bits[cnt]) {
-                    edges.push({
-                        data: { id: `e${edgesCnt}`, source: `n${i}`, target: `n${j}` }
-                    })
-                    edgesCnt += 1;
-                }
-                cnt += 1;
-            }
-        }
-        console.log(bytesArr);
-        return { nodes, edges };
+        let [n, data] = bytesArrayToN(bytesArr);
+        let nodes = constructNodes(n);
+        let bits = parseToBits(data);
+        let edges = constructEdges(bits, n);
+
+        setnodes(nodes);
+        setEdges(edges);
     }
 
     return (
         <div className="graphs">
+            <Slider>
+                <div> A </div>
+                <div> B </div>
+                <div> C </div>
+            </Slider>
             <h2 className="graphs-title">Graphe(s)</h2>
             <p> Nom de l'invariant : {props.name} Nombre d'arêtes : {props.m} Valeur de l'invariant : {props.invariantVal}</p>
-            <label>
-                Nous avons trouvé {graphs.length} graphe(s) différent(s)
-                <Select
-                    defaultValue={currentGraph}
-                    onChange={handleChangeGraph}
-                    options={graphs}
-                />
-                <button type="button" onClick={constructGraph}>Soumettre</button>
-            </label>
-            <Sigma graph={myGraph} settings={{ drawEdges: true, clone: false }}>
-                <RelativeSize initialSize={15} />
-                <RandomizeNodePositions />
-            </Sigma>
+
         </div>
-    )
+    );
+    /*
+            <label>
+                Nous avons trouvé {graphsList.length} graphe(s) différent(s) :
+                <Select
+                    defaultValue={currentGraphSelect}
+                    onChange={handleChangeGraph}
+                    options={graphsList}
+                />
+            </label>
+            <Graph nodes={nodes} edges={edges}/>
+     */
 }
