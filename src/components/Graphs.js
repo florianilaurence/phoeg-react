@@ -3,6 +3,7 @@ import { readGraph } from "../core/ParseFiles";
 import Select from "react-select";
 import Graph from "./Graph";
 import Slider from "@farbenmeer/react-spring-slider";
+import AwesomeSlider from 'react-awesome-slider';
 
 function constructNodes(n) {
     const nodes = [];
@@ -107,11 +108,11 @@ export default function Graphs(props) {
 
     return (
         <div className="graphs">
-            <Slider>
+            <AwesomeSlider animation="cubeAnimation">
                 <div> A </div>
                 <div> B </div>
                 <div> C </div>
-            </Slider>
+            </AwesomeSlider>
             <h2 className="graphs-title">Graphe(s)</h2>
             <p> Nom de l'invariant : {props.name} Nombre d'arêtes : {props.m} Valeur de l'invariant : {props.invariantVal}</p>
 
