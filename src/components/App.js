@@ -1,6 +1,5 @@
 import Banner from "./Banner.js";
 import Polytopes from "./Polytopes.js";
-import Graphs from "./Graphs.js";
 import Menu from "./Menu.js";
 
 // Component's core

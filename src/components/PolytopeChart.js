@@ -9,9 +9,9 @@ export default function PolytopeChart(props) {
             {type: 'bubble', data: [{x: 0, y: 0, r: 5}]},
             {type: 'line', data: [{x: 0, y: 0}]}
         ]});
-
     const [m, setM] = useState(0);
     const [invariantVal, setInvariantVal] = useState(0);
+    const [selected, setSelected] = useState(false);
 
     useEffect( () => {
         let pathEnv = "assets/data_" + props.invariant + "/enveloppes/enveloppe-" + props.number + ".json";
@@ -67,6 +67,7 @@ export default function PolytopeChart(props) {
             let point = data["datasets"][datasetIndex]["data"][index];
             setM(point["y"]);
             setInvariantVal(point["x"]);
+            setSelected(true);
         }
     }
 
@@ -79,7 +80,7 @@ export default function PolytopeChart(props) {
                 height={200}
                 getElementAtEvent={(elt, evt) => handleClick(elt, evt)}
             />
-            <Graphs invariantVal={invariantVal} n={props.number} m={m} name={props.invariant}/>
+            <Graphs invariantVal={invariantVal} n={props.number} m={m} name={props.invariant} selected={selected}/>
         </div>
     )
 }

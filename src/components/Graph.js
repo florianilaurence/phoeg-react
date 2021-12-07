@@ -1,5 +1,5 @@
 import {RandomizeNodePositions, RelativeSize, Sigma} from "react-sigma";
-import React, {useEffect, useState} from "react";
+import React, { useState } from "react";
 
 
 function constructNodes(n) {
@@ -78,12 +78,10 @@ export default function Graph(props) {
         });
     }
 
-    useEffect( () => {
-        computeNodesEdges();
-    }, [props.signature]);
-
     return (
         <div className="graph">
+            <h4> Graphe dont la signature est : {props.signature} </h4>
+            {computeNodesEdges()}
             <Sigma graph={graph} settings={{ drawEdges: true, clone: false }}>
                 <RelativeSize initialSize={15} />
                 <RandomizeNodePositions />
