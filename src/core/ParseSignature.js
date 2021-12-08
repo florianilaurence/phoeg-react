@@ -1,5 +1,3 @@
-import {RandomizeNodePositions, RelativeSize, Sigma} from "react-sigma";
-import React from "react";
 
 function constructNodes(n) {
     const nodes = [];

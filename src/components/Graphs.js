@@ -4,25 +4,38 @@ import GraphSlider from "./GraphSlider";
 
 export default function Graphs(props) {
     const [graphlist, setGraphList] = useState(["@"]); // La liste des graphes correspondant aux critères
+    const [computedList, setComputedList] = useState(false);
 
     useEffect( () => {
-        if (props.selected) {
-            let pathGraph = "assets/data_" + props.name + "/graphes/graphes-" + props.n + ".json";
-            fetch(pathGraph, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (myJson) {
-                    setGraphList(readGraph(myJson, props.m, props.invariantVal, props.name));
-                })
-            }
-        }, [props.m, props.name, props.invariantVal, props.n, props.selected] );
+        let pathGraph = "assets/data_" + props.invariantName + "/graphes/graphes-" + props.numberVertices + ".json";
+        fetch(pathGraph, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (myJson) {
+                let temp = readGraph(myJson, props.numberEdges, props.invariantName, props.invariantValue);
+                if (temp !== null) {
+                    setGraphList(temp);
+                    setComputedList(true);
+                } else {
+                    setComputedList(false);
+                }
+            })
+    }, [props.invariantName, props.invariantValue, props.numberVertices, props.numberEdges] );
+
+    const RenderGraphSlider = () => {
+        if (computedList) {
+            return <GraphSlider graphList={graphlist}/>;
+        } else {
+            return null;
+        }
+    }
 
     return (
         <div className="graphs">
             <h2 className="graphs-title">Graphe(s)</h2>
-            <p> Nom de l'invariant : {props.name} Nombre d'arêtes : {props.m} Valeur de l'invariant : {props.invariantVal}</p>
-            <GraphSlider graphList={graphlist}/>
+            <p> Nom de l'invariant : {props.invariantName} | Nombre d'arêtes : {props.numberEdges} | Nombre de sommets : {props.numberVertices} | Valeur de l'invariant : {props.invariantValue} </p>
+            <RenderGraphSlider />
         </div>
     );
 }

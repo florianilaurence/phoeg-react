@@ -85,7 +85,7 @@ export default function Polytope(props) {
                         onChange={handleChangeMeasure}
                         options={COLORS}/>
                 </label>
-                <PolytopeChart invariant={currentInvariant} number={currentNumber} color={currentColor}/>
+                <PolytopeChart invariantName={currentInvariant} numberVertices={currentNumber} invariantColor={currentColor}/>
             </form>
         </div>
     )

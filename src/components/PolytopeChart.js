@@ -9,14 +9,13 @@ export default function PolytopeChart(props) {
             {type: 'bubble', data: [{x: 0, y: 0, r: 5}]},
             {type: 'line', data: [{x: 0, y: 0}]}
         ]});
-    const [m, setM] = useState(0);
-    const [invariantVal, setInvariantVal] = useState(0);
+    const [numberEdges, setNumberEdges] = useState(0);
+    const [invariantValue, setInvariantValue] = useState(0);
     const [selected, setSelected] = useState(false);
 
     useEffect( () => {
-        let pathEnv = "assets/data_" + props.invariant + "/enveloppes/enveloppe-" + props.number + ".json";
-        let pathPoints = "assets/data_" + props.invariant + "/points/points-" + props.number + ".json";
-
+        let pathEnv = "assets/data_" + props.invariantName + "/enveloppes/enveloppe-" + props.numberVertices + ".json";
+        let pathPoints = "assets/data_" + props.invariantName + "/points/points-" + props.numberVertices + ".json";
         fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then(function (response) {
                 return response.json();
@@ -28,13 +27,13 @@ export default function PolytopeChart(props) {
                         return response.json();
                     })
                     .then(function (myJson) {
-                        const points = readPoints(myJson, props.invariant, props.color);
-                        points.push({type: 'line', label: "Envelope", borderColor: "0xFFFFFF", data: envelope});
+                        const points = readPoints(myJson, props.invariantName, props.invariantColor);
+                        points.push({type: 'line', label: "Envelope", borderColor: "0xFFFFFF", data: envelope}); // Ajoute l'enveloppe à la suite des points
                         setData({datasets: points});
                     })
             });
     },
-        [props.invariant, props.color, props.number]);
+        [props.invariantName, props.invariantColor, props.numberVertices]);
 
     const options = {
         /*events: [
@@ -65,9 +64,24 @@ export default function PolytopeChart(props) {
             let datasetIndex = elt[0]["datasetIndex"];
             let index = elt[0]["index"];
             let point = data["datasets"][datasetIndex]["data"][index];
-            setM(point["y"]);
-            setInvariantVal(point["x"]);
+            setNumberEdges(point["y"]);
+            setInvariantValue(point["x"]);
             setSelected(true);
+        } else {
+            setSelected(false);
+        }
+    }
+
+    const RenderGraphs = () => {
+        if (selected) {
+            return <Graphs
+                invariantName={props.invariantName}
+                invariantValue={invariantValue}
+                numberVertices={props.numberVertices}
+                numberEdges={numberEdges}
+            />;
+        } else {
+            return null;
         }
     }
 
@@ -79,8 +93,8 @@ export default function PolytopeChart(props) {
                 options={options}
                 height={200}
                 getElementAtEvent={(elt, evt) => handleClick(elt, evt)}
-            />
-            <Graphs invariantVal={invariantVal} n={props.number} m={m} name={props.invariant} selected={selected}/>
+                type={"bubble"}/>
+            <RenderGraphs />
         </div>
     )
 }

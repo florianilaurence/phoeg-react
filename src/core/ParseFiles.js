@@ -74,15 +74,15 @@ export function readPoints(data, invariantX, coloration) {
 /**
  *
  * @param data Données du Json
- * @param m Nombre d'arrêtes demandé (y)
- * @param invariantVal Valeur de l'invariant demandée (x)
- * @param name Nom de l'invariant
+ * @param numberEdges Nombre d'arrêtes demandé (y)
+ * @param invariantValue Valeur de l'invariant demandée (x)
+ * @param invariantName Nom de l'invariant
  * @returns {*[]} Liste des signatures de graphes correspondant aux critères
  */
-export function readGraph(data, m, invariantVal, name) {
+export function readGraph(data, numberEdges, invariantName, invariantValue) {
     let result =[];
     for (let d of data) {
-        if (d["m"] === m && d[name] === invariantVal) {
+        if (d["m"] === numberEdges && d[invariantName] === invariantValue) {
             result.push(d["sig"]);
         }
     }
