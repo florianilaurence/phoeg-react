@@ -33,6 +33,7 @@ export default function Polytope(props) {
     const [invariant, setInvariant] = useState(INVARIANTS[0]);
     const [number, setNumber] = useState(NUMBERS[0]);
     const [color, setColor] = useState(COLORS[0]);
+    const [submit, setSubmit] = useState(false);
 
     let currentInvariant = invariant.value;
     let currentNumber = number.value;
@@ -41,19 +42,34 @@ export default function Polytope(props) {
     const handleChangeInvariant = (newInvariant) => {
         setInvariant(newInvariant);
         currentInvariant = newInvariant.value;
+        setSubmit(false);
         return true;
     }
 
     const handleChangeNumber = (newNumber) => {
         setNumber(newNumber);
         currentNumber = newNumber.value;
+        setSubmit(false);
         return true;
     }
 
     const handleChangeMeasure = (newColor) => {
         setColor(newColor);
         currentColor = newColor.value;
+        setSubmit(false);
         return true;
+    }
+
+    const clickSubmit = () => {
+        setSubmit(true);
+    }
+
+    const RenderPolytopeChart = () => {
+        if (submit) {
+            return <PolytopeChart invariantName={currentInvariant} numberVertices={currentNumber} invariantColor={currentColor}/>;
+        } else {
+            return null;
+        }
     }
 
     return (
@@ -85,8 +101,9 @@ export default function Polytope(props) {
                         onChange={handleChangeMeasure}
                         options={COLORS}/>
                 </label>
-                <PolytopeChart invariantName={currentInvariant} numberVertices={currentNumber} invariantColor={currentColor}/>
             </form>
+            <button onClick={clickSubmit}> Soumettre </button>
+            <RenderPolytopeChart />
         </div>
     )
 }

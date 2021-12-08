@@ -3,10 +3,10 @@ import {useState} from "react";
 
 // Component's core
 export default function Polytopes() {
-
     const [count, setCount] = useState(0);
+    const [maxPolytopes, setMaxPolytopes] = useState(3);
 
-    const renderMultiPolytopes = () => {
+    const RenderMultiPolytopes = () => {
         let i = 1;
         let result = [];
         while (i <= count) {
@@ -22,14 +22,13 @@ export default function Polytopes() {
 
     return (
         <div>
-            <h2 className="polytope-title">Polytope(s)</h2> {//TODO Permettre plus que 3 ou au moins que la valeur ne soit pas hardcoder mais dans un fichier de configuration
-                                                                }
-            <p> Combien souhaitez-vous comparer de polytopes (max 3) :
+            <h2 className="polytope-title">Polytope(s)</h2>
+            <p> Combien souhaitez-vous comparer de polytopes (max {maxPolytopes}) :
                 <button onClick={() => count > 0 ? setCount(count - 1):setCount(0)}> - </button>
                 {" " + count + " "}
-                <button onClick={() => setCount((count + 1)%4)}> + </button>
+                <button onClick={() => setCount((count + 1) % (maxPolytopes + 1))}> + </button>
             </p>
-            {renderMultiPolytopes()}
+            <RenderMultiPolytopes />
         </div>
     );
 }
