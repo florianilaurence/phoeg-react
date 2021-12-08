@@ -2,7 +2,7 @@
 function constructNodes(n) {
     const nodes = [];
     for (let i = 0; i < n; i++) {
-        nodes.push({ id: `n${i}` });
+        nodes.push({ id: `n${i}`, size: 15 });
     }
     return nodes;
 }
