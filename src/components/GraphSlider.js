@@ -10,15 +10,16 @@ export default function GraphSlider(props) {
         }, [props.graphList, currentSign, currentIndex] );
 
     const handleClickPrevious = () => {
-        console.log("Previous " + currentIndex);
-        setCurrentIndex(1);
-        //currentIndex > 0 ? setCurrentIndex(currentIndex - 1) : setCurrentIndex(props.graphList.length - 1)
+        if (currentIndex > 0) {
+            setCurrentIndex(currentIndex - 1);
+        } else {
+            setCurrentIndex(props.graphList.length - 1);
+        }
         return null;
     }
 
     const handleClickNext = () => {
-        console.log("Next " + currentIndex);
-        //setCurrentIndex((currentIndex + 1) % props.graphList.length);
+        setCurrentIndex((currentIndex + 1) % props.graphList.length);
         return null;
     }
 
