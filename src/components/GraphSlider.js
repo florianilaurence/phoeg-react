@@ -23,7 +23,9 @@ export default function GraphSlider(props) {
         return null;
     }
 
-    const RenderSlider = () => {
+    const RenderSlider = () => { // TODO Avoir un dictionnaire qui contient les graphes qu'on a déjà rencontré (Donc avoir deux cas)
+                                 // --> Déjà calculé => récupérer le graphe
+                                 // --> Pas encore calculé => Calculer le graphe puis l'ajouter au dictionnaire
         if (props.graphList.length === 1) {
             return <Graph signature={currentSign}/>
         } else {

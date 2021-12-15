@@ -10,8 +10,11 @@ export default function Graph(props) {
     }, [props.signature]);
 
     return (
-        <Sigma graph={graph}
-               settings={{drawEdges:true}}>
+        <Sigma renderer="webgl"
+               graph={graph}
+               settings={{drawEdges:true}}
+               onOverNode={e => console.log("Mouse over node " + e.data.label)}
+        >
             <DragNodes />
             <NodeShapes default="pacman"/>
             <RandomizeNodePositions/>
