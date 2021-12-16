@@ -1,8 +1,15 @@
 import {readEnvelope, readPoints} from "../core/ParseFiles";
-import React, {useEffect, useState} from "react";
-import {Bubble} from "react-chartjs-2";
-import 'chartjs-plugin-zoom';
+import React, {useEffect, useMemo, useState} from "react";
+import {
+    AnimatedAxis, // any of these can be non-animated equivalents
+    AnimatedGrid,
+    AnimatedLineSeries,
+    LineSeries,
+    XYChart,
+} from '@visx/xychart';
 import Graphs from "./Graphs";
+import {Circle} from "@visx/shape";
+import {GridColumns} from "@visx/grid";
 
 export default function PolytopeChart(props) {
     const [data, setData] = useState({datasets: [
@@ -35,30 +42,6 @@ export default function PolytopeChart(props) {
     },
         [props.invariantName, props.invariantColor, props.numberVertices]);
 
-    const options = {
-        /*events: [
-            onclick = (evt) => {
-                console.log("cool");
-                console.log(evt);
-            }
-        ],*/
-        // title: { display: true, text: "Polytope pour l'invariant " + props.invariant},
-        /*plugins: {
-            zoom: {
-                pan: {
-                    enabled: true,
-                    mode: 'x',
-                },
-                zoom:{
-                    wheel: {enabled: true, modifierKey: 'ctrl'},
-                    drag: {enabled: true, modifierKey: 'shift'},
-                    pinch: {enabled: true},
-                    mode: 'xy'
-                }
-            }
-        }*/
-    };
-
     const handleClick = (elt, evt) => {
         if (elt.length > 0) {
             let datasetIndex = elt[0]["datasetIndex"];
@@ -85,18 +68,45 @@ export default function PolytopeChart(props) {
         }
     }
 
+    const data1 = [
+        { x: 0.5, y: 0.5 },
+        { x: 0.5, y: 1 },
+        { x: 1, y: 1 },
+        { x: 1, y: 0.5},
+        { x: 0.5, y: 0.5}
+    ];
+
+    const data2 = [
+        { x: 0.75, y: 0.25, r: 5},
+        { x: 0.25, y: 0.9, r: 5 },
+        { x: 0.9, y: 0.9, r: 5 },
+        { x: 0.9, y: 0.25, r: 5},
+        { x: 0.25, y: 0.25, r: 5}
+    ]
+
+    const accessors = {
+        xAccessor: d => d.x,
+        yAccessor: d => d.y,
+    };
+    const xScale = { type: 'linear' }
+    const yScale = { type: 'linear'}
+
     return (
-        <div>
-            <h4> Polytope Chart </h4>
-            <Bubble
-                data={data}
-                options={options}
-                height={200}
-                getElementAtEvent={(elt, evt) => handleClick(elt, evt)}
-                type={"bubble"}/>
-            <RenderGraphs />
-        </div>
-    )
+
+        <XYChart height={300} xScale={xScale} yScale={yScale}>
+            <LineSeries dataKey={"Essaie"} data={data1} xAccessor={accessors.xAccessor} yAccessor={accessors.yAccessor} />
+            {data2.map((point, i) => (
+              <Circle
+                key={`point-${point[0]}-${i}`}
+                className="dot"
+                cx={point.x}
+                cy={point.y}
+                r={point.r}
+                fill={"red"}
+              />
+            ))}
+        </XYChart>
+    );
 }
 
 
