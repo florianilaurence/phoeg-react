@@ -2551,7 +2551,7 @@
     "@visx/event" "2.1.2"
     prop-types "^15.5.10"
 
-"@visx/event@2.1.2":
+"@visx/event@2.1.2", "@visx/event@^2.1.2":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@visx/event/-/event-2.1.2.tgz#f714e705b8702e6bac2c11c4ae667535460e50c1"
   integrity sha512-x3gAQ9DB4zDA6qqGpzlpGacGuOtmzFi/m5Zq7BJ0OJ7PjNfkIazCsznc9epCT/g9IIhwhs+UN/Ijww4YnFHqHw==
@@ -2631,7 +2631,7 @@
     classnames "^2.3.1"
     prop-types "^15.6.2"
 
-"@visx/responsive@2.4.1":
+"@visx/responsive@2.4.1", "@visx/responsive@^2.4.1":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@visx/responsive/-/responsive-2.4.1.tgz#7f471c7d5d754adf101a23dc7a72f24ee2210672"
   integrity sha512-x5zPUmmsdVX/QaeDj9rLg3mGtNuiomBWUvwBo5oQs2KOtAFiviHx0NpLfY09h+p5gvkmGfTM+8gHEtVtIwLXPg==
