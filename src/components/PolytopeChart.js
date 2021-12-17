@@ -1,6 +1,26 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {Axis, GlyphSeries, LineSeries, XYChart} from "@visx/xychart";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
+import {scaleLinear, scaleQuantile} from "@visx/scale";
+import {LegendQuantile} from "@visx/legend";
+
+
+const accessors = (data, param) => {
+    if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
+        switch (param) {
+            case 'x':
+                return data.x;
+            case 'y':
+                return data.y;
+            case 'r':
+                return data.r;
+            case 'c':
+                return data.c;
+            default:
+                console.log("Houston, on a un problème !")
+            }
+        }
+    }
 
 export default function PolytopeChart(props) {
     const [points, setPoints] = useState([{}]);
@@ -8,6 +28,13 @@ export default function PolytopeChart(props) {
 
     const xScale = {type: 'linear'}
     const yScale = {type: 'linear'}
+
+    const colorMin = Math.min(points.map(data => accessors(data, 'c')));
+
+    const sizeScale = scaleLinear({
+        domain: [0, 10],
+        range: [5, 13],
+    });
 
     useEffect( () => {
         let pathEnv = "assets/data_" + props.invariantName + "/enveloppes/enveloppe-" + props.numberVertices + ".json";
@@ -28,21 +55,6 @@ export default function PolytopeChart(props) {
             });
     },
         [props.invariantName, props.invariantColor, props.numberVertices]);
-
-    const accessors = (data, param) => {
-        if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
-            switch (param) {
-                case 'x':
-                    return data.x;
-                case 'y':
-                    return data.y;
-                case 'r':
-                    return data.r;
-                default:
-                    console.log("Houston, on a un problème !")
-            }
-        }
-    }
 
     return (
         <XYChart
