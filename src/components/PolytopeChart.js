@@ -11,10 +11,8 @@ const accessors = (data, param) => {
                 return data.y;
             case 'r':
                 return data.r;
-            case 'c':
-                return data.c;
             default:
-                console.log("Houston, on a un problème !")
+                return data.c;
         }
     }
 }
@@ -22,7 +20,6 @@ const accessors = (data, param) => {
 export default function PolytopeChart(props) {
     const [groupedPoints, setGroupedPoints] = useState([[{}]]);
     const [lines, setLines] = useState([{}]);
-    const [initiated, setInitiated] = useState(false);
 
     const xScale = {type: 'linear'}
     const yScale = {type: 'linear'}
@@ -42,29 +39,28 @@ export default function PolytopeChart(props) {
                     })
                     .then(function (myJson) {
                         setGroupedPoints(regroupedPoints(readPoints(myJson, props.invariantName, props.invariantColor), 10));
-                        setInitiated(true);
                     })
             });
     },
         [props.invariantName, props.invariantColor, props.numberVertices]);
 
     const regroupedPoints2 = (grouped, colors, numberClusters) => {
-        let sizeCluster = Math.floor(colors.length / numberClusters);
+        let sizeCluster = Math.ceil(colors.length / numberClusters);
         let result = [];
         let start = 0;
         let end = sizeCluster;
-        while (end < grouped.length) {
+        while (end < colors.length - sizeCluster) {
             let temp = [];
-            while (start <= end) {
-                temp.push(grouped[colors[start]]);
+            while (start < end) {
+                temp.push(...grouped[colors[start]]);
                 start += 1;
             }
             result.push(temp);
             end += sizeCluster;
         }
         let temp = [];
-        while (start < grouped.length) {
-            temp.push(grouped[colors[start]]);
+        while (start < colors.length) {
+            temp.push(...grouped[colors[start]]);
             start += 1;
         }
         result.push(temp);
@@ -72,25 +68,38 @@ export default function PolytopeChart(props) {
     }
 
     const regroupedPoints = (points, numberClusters) => {
-        if (initiated) {
-            let pointsGr = {};
-            for (let point of points) {
-                if (pointsGr[point.col] == null) {
-                    pointsGr[point.col] = [];
-                }
-                pointsGr[point.col].push(point);
+        let pointsGr = {};
+        for (let point of points) {
+            if (pointsGr[point.col] == null) {
+                pointsGr[point.col] = [];
             }
-            const colors = Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b);
-            if (colors.length > numberClusters) {
-                return regroupedPoints2(pointsGr, colors, numberClusters);
-            } else {
-                let result = [];
-                for (let col of colors) {
-                    result.push(pointsGr[col]);
-                }
-                return result;
-            }
+            pointsGr[point.col].push(point);
         }
+        const colors = Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b);
+        if (colors.length > numberClusters) {
+            return regroupedPoints2(pointsGr, colors, numberClusters);
+        } else {
+            let result = [];
+            for (let col of colors) {
+                result.push(pointsGr[col]);
+            }
+            return result;
+        }
+    }
+
+    const RenderGlypheSeries = () => {
+        let result = [];
+        for (let group of groupedPoints) {
+            result.push(
+                <GlyphSeries
+                    dataKey={`Points-${group[0].col}`}
+                    data={group}
+                    xAccessor={data => accessors(data, 'x')}
+                    yAccessor={data => accessors(data, 'y')}
+                    renderGlyphs={data => accessors(data, 'r')} />
+            )
+        }
+        return result;
     }
 
     return (
@@ -105,14 +114,7 @@ export default function PolytopeChart(props) {
                 data={lines}
                 xAccessor={data => accessors(data, 'x')}
                 yAccessor={data => accessors(data, 'y')} />
-            {groupedPoints.map( group =>
-                <GlyphSeries
-                    dataKey={group[0].col}
-                    data={group}
-                    xAccessor={data => accessors(data, 'x')}
-                    yAccessor={data => accessors(data, 'y')}
-                    renderGlyphs={data => accessors(data, 'r')} />
-            )}
+            <RenderGlypheSeries />
         </XYChart>
     );
 }
