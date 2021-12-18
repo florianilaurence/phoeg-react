@@ -41,7 +41,7 @@ export function readPoints(data, invariantX, coloration) {
         let xVal = data[i][invariantX];
         let yVal = data[i]["m"]; //TODO A modifier
         let color = data[i][coloration];
-        result.push({x: xVal, y: yVal, r: 2, col: color});
+        result.push({x: xVal, y: yVal, r: 1, col: color});
     }
     return result;
 }

@@ -20,6 +20,8 @@ const accessors = (data, param) => {
 export default function PolytopeChart(props) {
     const [groupedPoints, setGroupedPoints] = useState([[{}]]);
     const [lines, setLines] = useState([{}]);
+    const [maxCluster, setMaxCluster] = useState(10);
+    const [clusterNb, setClusterNb] = useState(1);
 
     const xScale = {type: 'linear'}
     const yScale = {type: 'linear'}
@@ -42,10 +44,10 @@ export default function PolytopeChart(props) {
                     })
             });
     },
-        [props.invariantName, props.invariantColor, props.numberVertices]);
+        [props.invariantName, props.invariantColor, props.numberVertices, clusterNb, maxCluster]);
 
-    const regroupedPoints2 = (grouped, colors, numberClusters) => {
-        let sizeCluster = Math.ceil(colors.length / numberClusters);
+    const regroupedPoints2 = (grouped, colors) => {
+        let sizeCluster = Math.ceil(colors.length / clusterNb);
         let result = [];
         let start = 0;
         let end = sizeCluster;
@@ -67,7 +69,7 @@ export default function PolytopeChart(props) {
         return result;
     }
 
-    const regroupedPoints = (points, numberClusters) => {
+    const regroupedPoints = (points) => {
         let pointsGr = {};
         for (let point of points) {
             if (pointsGr[point.col] == null) {
@@ -76,8 +78,9 @@ export default function PolytopeChart(props) {
             pointsGr[point.col].push(point);
         }
         const colors = Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b);
-        if (colors.length > numberClusters) {
-            return regroupedPoints2(pointsGr, colors, numberClusters);
+        setMaxCluster(colors.length);
+        if (colors.length > clusterNb) {
+            return regroupedPoints2(pointsGr, colors);
         } else {
             let result = [];
             for (let col of colors) {
@@ -92,7 +95,7 @@ export default function PolytopeChart(props) {
         for (let group of groupedPoints) {
             result.push(
                 <GlyphSeries
-                    dataKey={`Points-${group[0].col}`}
+                    dataKey={`${group[0].col} - ${group[group.length-1].col}`}
                     data={group}
                     xAccessor={data => accessors(data, 'x')}
                     yAccessor={data => accessors(data, 'y')}
@@ -103,19 +106,29 @@ export default function PolytopeChart(props) {
     }
 
     return (
-        <XYChart
-            height={300}
-            xScale={xScale}
-            yScale={yScale}>
-            <Axis orientation="bottom" />
-            <Axis orientation="left" />
-            <LineSeries
-                dataKey="Enveloppe"
-                data={lines}
-                xAccessor={data => accessors(data, 'x')}
-                yAccessor={data => accessors(data, 'y')} />
-            <RenderGlypheSeries />
-        </XYChart>
+        <div>
+            <XYChart
+                height={500}
+                xScale={xScale}
+                yScale={yScale}>
+                <Axis orientation="bottom" />
+                <Axis orientation="left" />
+                <LineSeries
+                    dataKey="Enveloppe"
+                    data={lines}
+                    xAccessor={data => accessors(data, 'x')}
+                    yAccessor={data => accessors(data, 'y')} />
+                <RenderGlypheSeries />
+            </XYChart>
+            <p>Combien souhaitez-vous de clusters pour colorier les graphes ? Entre {1} et {maxCluster}.</p>
+            <button onClick={() => clusterNb > 1 ? setClusterNb(clusterNb - 1):setClusterNb(1)}> - </button>
+            {" " + clusterNb + " "}
+            <button onClick={() => setClusterNb(Math.max((clusterNb + 1) % (maxCluster + 1), 1))}> + </button>
+            {
+                // Attention le changement du nombre de clusters n'entraîne pas toujours un changement
+                // Car au moment de au ceil, on peut tomber plusieurs fois sur la même valeur
+            }
+        </div>
     );
 }
 
