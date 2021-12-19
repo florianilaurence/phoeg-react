@@ -19,10 +19,16 @@ const accessors = (data, param) => {
 }
 
 export default function PolytopeChart(props) {
-    const [groupedPoints, setGroupedPoints] = useState([[{}]]);
-    const [lines, setLines] = useState([{}]);
+
+    const [groupedPointsByColor, setGroupedPointsByColor] = useState({});             // Liste des points regroupés par couleurs
+    const [groupedPointsByCluster, setGroupedPointsByCluster] = useState([[{}]]);     // Liste des points regroupés par clusters de couleurs
+    const [lines, setLines] = useState([{}]);                                         // Liste des lignes qui construisent l'enveloppe
+
+    const [colors, setColors] = useState([]);                                         // Liste des valeurs de couleurs différentes
+
     const [maxCluster, setMaxCluster] = useState(10);
     const [clusterNb, setClusterNb] = useState(1);
+
     const [domainX, setDomainX] = useState([1, 10]);
 
     const xScale = {type: 'linear', domain: domainX};
@@ -42,36 +48,59 @@ export default function PolytopeChart(props) {
                         return response.json();
                     })
                     .then(function (myJson) {
-                        setGroupedPoints(regroupedPoints(readPoints(myJson, props.invariantName, props.invariantColor), 10));
+                        let points = readPoints(myJson, props.invariantName, props.invariantColor);
+                        setGroupedPointsByColor(regroupedPointsByColor(points)); // Construit le dico (Clé = color, Value = Liste de points)
+                        if (colors.length > clusterNb) {
+                            setGroupedPointsByCluster(regroupedPointsByCluster());
+                        } else {
+                            let result = [];
+                            for (let col of colors) {
+                                result.push(groupedPointsByColor[col]);
+                            }
+                            setGroupedPointsByCluster(result);
+                        }
                     })
             });
     },
-        [props.invariantName, props.invariantColor, props.numberVertices, clusterNb, maxCluster]);
+        [props.invariantName, props.invariantColor, props.numberVertices]);
 
-    const regroupedPoints2 = (grouped, colors) => {
-        let sizeCluster = Math.ceil(colors.length / clusterNb);
+    useEffect(() => {
+        if (colors.length > clusterNb) {
+            setGroupedPointsByCluster(regroupedPointsByCluster());
+        } else {
+            let result = [];
+            for (let col of colors) {
+                result.push(groupedPointsByColor[col]);
+            }
+            setGroupedPointsByCluster(result);
+        }
+    },
+        [clusterNb]);
+
+    const regroupedPointsByCluster = () => {
+        let sizeCluster = Math.ceil(maxCluster / clusterNb);
         let result = [];
         let start = 0;
         let end = sizeCluster;
-        while (end < colors.length - sizeCluster) {
+        while (end < maxCluster - sizeCluster) {
             let temp = [];
             while (start < end) {
-                temp.push(...grouped[colors[start]]);
+                temp.push(...groupedPointsByColor[colors[start]]);
                 start += 1;
             }
             result.push(temp);
             end += sizeCluster;
         }
         let temp = [];
-        while (start < colors.length) {
-            temp.push(...grouped[colors[start]]);
+        while (start < maxCluster) {
+            temp.push(...groupedPointsByColor[colors[start]]);
             start += 1;
         }
         result.push(temp);
         return result;
     }
 
-    const regroupedPoints = (points) => {
+    const regroupedPointsByColor = (points) => { // Séparer du regroupement par cluster pour ne pas être appelé trop souvent
         let pointsGr = {};
         let minX = 100;
         let maxX = 0;
@@ -83,23 +112,15 @@ export default function PolytopeChart(props) {
             maxX = Math.max(maxX, point.x);
             pointsGr[point.col].push(point);
         }
-        const colors = Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b);
+        setColors(Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b));
         setMaxCluster(colors.length);
         setDomainX([Math.floor(minX), Math.ceil(maxX)]);
-        if (colors.length > clusterNb) {
-            return regroupedPoints2(pointsGr, colors);
-        } else {
-            let result = [];
-            for (let col of colors) {
-                result.push(pointsGr[col]);
-            }
-            return result;
-        }
+        return pointsGr;
     }
 
     const RenderGlypheSeries = () => {
         let result = [];
-        for (let group of groupedPoints) {
+        for (let group of groupedPointsByCluster) {
             result.push(
                 <GlyphSeries
                     dataKey={`${group[0].col} - ${group[group.length-1].col}`}
@@ -136,8 +157,8 @@ export default function PolytopeChart(props) {
             {" " + clusterNb + " "}
             <button onClick={() => setClusterNb(Math.max((clusterNb + 1) % (maxCluster + 1), 1))}> + </button>
             {
-                // Attention le changement du nombre de clusters n'entraîne pas toujours un changement
-                // Car au moment de au ceil, on peut tomber plusieurs fois sur la même valeur
+                // Attention le changement du nombre de clusters n'entraîne pas toujours un changement de la coloration
+                // Car au moment du ceil, on peut tomber plusieurs fois sur la même valeur
                 // Math.ceil(3.3) === Math.ceil(3.6)
             }
         </div>
