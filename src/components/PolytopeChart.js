@@ -25,8 +25,9 @@ export default function PolytopeChart(props) {
     const [lines, setLines] = useState([{}]);                                         // Liste des lignes qui construisent l'enveloppe
 
     const [colors, setColors] = useState([]);                                         // Liste des valeurs de couleurs différentes
+    const [clustersList, setClustersList] = useState([]);                             // Liste des clusters possibles
+    const [indexCluster, setIndexCluster] = useState(0);                              // Index pointant sur l'un des clusters de la liste
 
-    const [maxCluster, setMaxCluster] = useState(10);
     const [clusterNb, setClusterNb] = useState(1);
 
     const [domainX, setDomainX] = useState([1, 10]);
@@ -58,6 +59,7 @@ export default function PolytopeChart(props) {
                                 result.push(groupedPointsByColor[col]);
                             }
                             setGroupedPointsByCluster(result);
+                            setClustersList(computeClustersList());
                         }
                     })
             });
@@ -77,8 +79,24 @@ export default function PolytopeChart(props) {
     },
         [clusterNb]);
 
+    const computeClustersList = () => {
+        let maxCluster = colors.length;
+        let currentNb = 1;
+        let currentSize = Math.ceil( maxCluster / currentNb);
+        let result = [1];
+        while (currentNb < maxCluster) {
+            if (! currentSize in result ) {
+                result.push(currentSize);
+            }
+            currentNb += 1;
+            currentSize = Math.ceil( maxCluster / currentNb);
+        }
+        return result;
+    }
+
     const regroupedPointsByCluster = () => {
-        let sizeCluster = Math.ceil(maxCluster / clusterNb);
+        let sizeCluster = clustersList[indexCluster];
+        let maxCluster = colors.length;
         let result = [];
         let start = 0;
         let end = sizeCluster;
@@ -113,7 +131,6 @@ export default function PolytopeChart(props) {
             pointsGr[point.col].push(point);
         }
         setColors(Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b));
-        setMaxCluster(colors.length);
         setDomainX([Math.floor(minX), Math.ceil(maxX)]);
         return pointsGr;
     }
@@ -151,11 +168,11 @@ export default function PolytopeChart(props) {
                 <RenderGlypheSeries />
             </XYChart>
             <p>
-                Combien souhaitez-vous de clusters pour colorier les graphes ? Entre {1} et {maxCluster}.
+                Combien souhaitez-vous de clusters pour colorier les graphes ? Entre {1} et {colors.length}.
             </p>
             <button onClick={() => clusterNb > 1 ? setClusterNb(clusterNb - 1):setClusterNb(1)}> - </button>
             {" " + clusterNb + " "}
-            <button onClick={() => setClusterNb(Math.max((clusterNb + 1) % (maxCluster + 1), 1))}> + </button>
+            <button onClick={() => setClusterNb(Math.max((clusterNb + 1) % (colors.length + 1), 1))}> + </button>
             {
                 // Attention le changement du nombre de clusters n'entraîne pas toujours un changement de la coloration
                 // Car au moment du ceil, on peut tomber plusieurs fois sur la même valeur
