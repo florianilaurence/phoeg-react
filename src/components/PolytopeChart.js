@@ -26,7 +26,7 @@ export default function PolytopeChart(props) {
     const [lines, setLines] = useState([{}]);
 
     const [clustersList, setClustersList] = useState([]);
-    const [clusterNb, setClusterNb] = useState(1);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const [colors, setColors] = useState([]);
 
     const xScale = {type: 'linear'}
@@ -62,16 +62,18 @@ export default function PolytopeChart(props) {
             regroupPointsByClusterSwitch();
         }
     },
-        [props.invariantName, props.invariantColor, props.numberVertices, firstTime, dataIsReturned, clusterNb]);
+        [props.invariantName, props.invariantColor, props.numberVertices, firstTime, currentIndex]);
 
     const computeClustersList = () => {
         let maxCluster = colors.length;
         let currentNb = 1;
         let currentSize = Math.ceil( maxCluster / currentNb);
-        let result = [1];
+        let viewed = [currentSize]; // Contient les tailles de cluster déjà vu
+        let result = [1]; // Contient les nombres de clusters
         while (currentNb < maxCluster) {
-            if (!result.includes(currentSize)) {
-                result.push(currentSize);
+            if (!viewed.includes(currentSize)) {
+                result.push(currentNb);
+                viewed.push(currentSize);
             }
             currentNb += 1;
             currentSize = Math.ceil( maxCluster / currentNb);
@@ -93,7 +95,7 @@ export default function PolytopeChart(props) {
     }
 
     const regroupPointsByClusterSwitch = () => {
-        if (colors.length > clusterNb) {
+        if (colors.length > clustersList[currentIndex]) {
             setGroupedPointsByClusters(regroupPointsByCluster(groupedPointsByColor));
         } else {
             let result = [];
@@ -105,7 +107,7 @@ export default function PolytopeChart(props) {
     }
 
     const regroupPointsByCluster = () => {
-        let sizeCluster = Math.ceil(colors.length / clusterNb);
+        let sizeCluster = Math.ceil(colors.length / clustersList[currentIndex]);
         let result = [];
         let start = 0;
         let end = sizeCluster;
@@ -145,23 +147,26 @@ export default function PolytopeChart(props) {
     return (
         <div>
             <XYChart height={500} xScale={xScale} yScale={yScale}>
-                        <Axis orientation="bottom" label={props.invariantName}/>
-                        <Axis orientation="left" label="Nombre d'arêtes"/>
-                        <LineSeries
-                            dataKey="Enveloppe"
-                            data={lines}
-                            xAccessor={data => accessors(data, 'x')}
-                            yAccessor={data => accessors(data, 'y')}/>
-                        <RenderGlypheSeries/>
-                    </XYChart>
-                    <p>Combien souhaitez-vous de clusters pour colorier les graphes?Entre {1} et {colors.length}.</p>
-                    <button onClick={() => setClusterNb(clusterNb > 1 ? clusterNb - 1 : colors.length)}> -</button>
-                        {" " + clusterNb + " "}
-                    <button onClick={() => setClusterNb(clusterNb < colors.length ? clusterNb + 1 : 1)}> + </button>
-                {
-                    // Attention le changement du nombre de clusters n'entraîne pas toujours un changement
-                    // Car au moment de au ceil, on peut tomber plusieurs fois sur la même valeur
-                }
+                <Axis orientation="bottom" label={props.invariantName}/>
+                <Axis orientation="left" label="Nombre d'arêtes"/>
+                <LineSeries
+                    dataKey="Enveloppe"
+                    data={lines}
+                    xAccessor={data => accessors(data, 'x')}
+                    yAccessor={data => accessors(data, 'y')}/>
+                <RenderGlypheSeries/>
+            </XYChart>
+            <button onClick={() => setCurrentIndex(0)}> Reset nombre de cluster </button>
+            <p>
+                Combien souhaitez-vous de clusters pour colorier les graphes ? {clustersList.map(d => d + " ")}
+            </p>
+            <button onClick={() => setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : clustersList.length)}> Précédent </button>
+            {" " + clustersList[currentIndex] + " "}
+            <button onClick={() => setCurrentIndex(currentIndex < clustersList.length ? currentIndex + 1 : 1)}> Suivant </button>
+            {
+                // Attention le changement du nombre de clusters n'entraîne pas toujours un changement
+                // Car au moment de au ceil, on peut tomber plusieurs fois sur la même valeur
+            }
         </div>
     );
 }
