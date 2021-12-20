@@ -18,71 +18,23 @@ const accessors = (data, param) => {
 }
 
 export default function PolytopeChart(props) {
-    let firstTime = true;
-    const [dataIsReturned, setDataIsReturned] = useState(false);
-    let points = [{}];
-    const [groupedPointsByColor, setGroupedPointsByColor] = useState({});
-    const [groupedPointsByClusters, setGroupedPointsByClusters] = useState([[{}]]) ;
+    const [allClusters, setAllClusters] = useState({});
     const [lines, setLines] = useState([{}]);
 
-    const [clustersList, setClustersList] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [colors, setColors] = useState([]);
+    const [clusterList, setClusterList] = useState([]);
+    const [indexCluster, setIndexCluster] = useState(0);
+
+    let firstTime = true;
 
     const xScale = {type: 'linear'}
     const yScale = {type: 'linear'}
 
     useEffect( () => {
-        if (firstTime) {
-            console.log("IF");
-            let pathEnv = "assets/data_" + props.invariantName + "/enveloppes/enveloppe-" + props.numberVertices + ".json";
-            let pathPoints = "assets/data_" + props.invariantName + "/points/points-" + props.numberVertices + ".json";
-            fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (myJson) {
-                    setLines(readEnvelope(myJson));
-                });
-            fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (myJson) {
-                    points = readPoints(myJson, props.invariantName, props.invariantColor);
-                    setDataIsReturned(true);
-                    regroupPointsByColor();
-                    computeClustersList();
-                    regroupPointsByClusterSwitch();
-                    firstTime = false;
-                })
 
-        } else {
-            console.log("ELSE");
-            regroupPointsByClusterSwitch();
-        }
     },
-        [props.invariantName, props.invariantColor, props.numberVertices, firstTime, currentIndex]);
+        [props.invariantName, props.invariantColor, props.numberVertices]);
 
-    const computeClustersList = () => {
-        let maxCluster = colors.length;
-        let currentNb = 1;
-        let currentSize = Math.ceil( maxCluster / currentNb);
-        let viewed = [currentSize]; // Contient les tailles de cluster déjà vu
-        let result = [1]; // Contient les nombres de clusters
-        while (currentNb < maxCluster) {
-            if (!viewed.includes(currentSize)) {
-                result.push(currentNb);
-                viewed.push(currentSize);
-            }
-            currentNb += 1;
-            currentSize = Math.ceil( maxCluster / currentNb);
-        }
-        result.sort((a, b) => a - b);
-        setClustersList(result);
-    }
-
-    const regroupPointsByColor = () => {
+    const regroupPointsByColor = (points) => {
         let pointsGr = {};
         for (let point of points) {
             if (pointsGr[point.col] == null) {
@@ -90,24 +42,35 @@ export default function PolytopeChart(props) {
             }
             pointsGr[point.col].push(point);
         }
-        setColors(Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b))
-        setGroupedPointsByColor(pointsGr);
+        return {
+            cols: Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a >= b),
+            pointsGr: pointsGr
+        };
     }
 
-    const regroupPointsByClusterSwitch = () => {
-        if (colors.length > clustersList[currentIndex]) {
-            setGroupedPointsByClusters(regroupPointsByCluster(groupedPointsByColor));
-        } else {
-            let result = [];
-            for (let col of colors) {
-                result.push(groupedPointsByColor[col]);
+    const computeAllCluster = (groupedByColor, colors, points) => {
+        let currentNbCluster = 2;
+        let currentSizeCluster = Math.ceil(colors.length / currentNbCluster);
+        let viewedNb = [];
+        let result = {
+            1: [points]
+        };
+        while (currentNbCluster <= colors.length) {
+            let currentClusters = regroupPointsInCluster(currentSizeCluster, colors, groupedByColor);
+            if (!viewedNb.includes(currentClusters.length)) {
+                viewedNb.push(currentClusters.length);
+                result[currentClusters.length] = currentClusters;
             }
-            setGroupedPointsByClusters(result);
+            currentNbCluster += 1;
+            currentSizeCluster = Math.ceil(colors.length / currentNbCluster);
         }
+        return {
+            clusterPossible: viewedNb.sort((a, b) => a - b),
+            allClusters: result
+        };
     }
 
-    const regroupPointsByCluster = () => {
-        let sizeCluster = Math.ceil(colors.length / clustersList[currentIndex]);
+    const regroupPointsInCluster = (sizeCluster, colors, groupedPointsByColor) => {
         let result = [];
         let start = 0;
         let end = sizeCluster;
@@ -131,21 +94,47 @@ export default function PolytopeChart(props) {
 
     const RenderGlypheSeries = () => {
         let result = [];
-        for (let group of groupedPointsByClusters) {
+        let currentGroupedPoints = allClusters[clusterList[indexCluster]];
+        for (let group of currentGroupedPoints) {
             result.push(
                 <GlyphSeries
-                    dataKey={`${group[0].col} - ${group[group.length-1].col}`}
+                    dataKey={`${group[0].col} - ${group[group.length - 1].col}`}
                     data={group}
                     xAccessor={data => accessors(data, 'x')}
                     yAccessor={data => accessors(data, 'y')}
-                    renderGlyphs={data => accessors(data, 'r')} />
+                    renderGlyphs={data => accessors(data, 'r')}/>
             )
         }
         return result;
     }
 
+    const initData = () => {
+        let pathEnv = "assets/data_" + props.invariantName + "/enveloppes/enveloppe-" + props.numberVertices + ".json";
+        let pathPoints = "assets/data_" + props.invariantName + "/points/points-" + props.numberVertices + ".json";
+        fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (myJson) {
+                setLines(readEnvelope(myJson));
+            });
+        fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (myJson) {
+                let points = readPoints(myJson, props.invariantName, props.invariantColor);
+                let temp = regroupPointsByColor(points); // COLORS et GROUPEDBYCOLOR
+                let temp2 = computeAllCluster(temp.pointsGr, temp.cols, points);
+                setAllClusters(temp2.allClusters);
+                setClusterList(temp2.clusterPossible);
+                firstTime = false;
+            })
+    }
+
     return (
         <div>
+            {firstTime ? initData() : null}
             <XYChart height={500} xScale={xScale} yScale={yScale}>
                 <Axis orientation="bottom" label={props.invariantName}/>
                 <Axis orientation="left" label="Nombre d'arêtes"/>
@@ -156,17 +145,12 @@ export default function PolytopeChart(props) {
                     yAccessor={data => accessors(data, 'y')}/>
                 <RenderGlypheSeries/>
             </XYChart>
-            <button onClick={() => setCurrentIndex(0)}> Reset nombre de cluster </button>
             <p>
-                Combien souhaitez-vous de clusters pour colorier les graphes ? {clustersList.map(d => d + " ")}
+                Combien souhaitez-vous de clusters pour colorier les graphes ? {clusterList.map(d => d + " ")}
             </p>
-            <button onClick={() => setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : clustersList.length)}> Précédent </button>
-            {" " + clustersList[currentIndex] + " "}
-            <button onClick={() => setCurrentIndex(currentIndex < clustersList.length ? currentIndex + 1 : 1)}> Suivant </button>
-            {
-                // Attention le changement du nombre de clusters n'entraîne pas toujours un changement
-                // Car au moment de au ceil, on peut tomber plusieurs fois sur la même valeur
-            }
+            <button onClick={() => setIndexCluster(indexCluster > 0 ? indexCluster - 1 : clusterList.length)}> Précédent </button>
+            {" " + clusterList[indexCluster] + " "}
+            <button onClick={() => setIndexCluster(indexCluster < clusterList.length ? indexCluster + 1 : 1)}> Suivant </button>
         </div>
     );
 }
