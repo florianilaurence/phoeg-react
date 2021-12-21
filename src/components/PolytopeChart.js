@@ -113,18 +113,22 @@ export default function PolytopeChart(props) {
 
     const RenderGlypheSeries = () => {
         let result = [];
-        let currentGroupedPoints = allClusters[clusterList[indexCluster]];
-        for (let group of currentGroupedPoints) {
-            result.push(
-                <GlyphSeries
-                    dataKey={`${group[0].col} - ${group[group.length - 1].col}`}
-                    data={group}
-                    xAccessor={data => accessors(data, 'x')}
-                    yAccessor={data => accessors(data, 'y')}
-                    renderGlyphs={data => accessors(data, 'r')}/>
-            )
+        if (clusterList.length > 0) {
+            let currentGroupedPoints = allClusters[clusterList[indexCluster]];
+            for (let group of currentGroupedPoints) {
+                result.push(
+                    <GlyphSeries
+                        dataKey={`${group[0].col} - ${group[group.length - 1].col}`}
+                        data={group}
+                        xAccessor={data => accessors(data, 'x')}
+                        yAccessor={data => accessors(data, 'y')}
+                        renderGlyphs={data => accessors(data, 'r')}/>
+                )
+            }
+            return result;
+        } else {
+            return null;
         }
-        return result;
     }
 
     return (
