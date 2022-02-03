@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from "react";
-import {Axis, GlyphSeries, LineSeries, XYChart} from "@visx/xychart";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
+import {Group} from "@visx/group";
+import {Axis, AxisBottom, AxisLeft, AxisTop} from "@visx/axis";
+import {scaleLinear} from "@visx/scale";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -24,9 +26,6 @@ export default function PolytopeChart(props) {
     const [clusterList, setClusterList] = useState([]);
     const [indexCluster, setIndexCluster] = useState(0);
 
-    const xScale = {type: 'linear'}
-    const yScale = {type: 'linear'}
-
     useEffect( async () => {
         let pathEnv = "assets/data_" + props.invariantName + "/enveloppes/enveloppe-" + props.numberVertices + ".json";
         let pathPoints = "assets/data_" + props.invariantName + "/points/points-" + props.numberVertices + ".json";
@@ -45,110 +44,42 @@ export default function PolytopeChart(props) {
             .then(function (myJson) {
                 return readPoints(myJson, props.invariantName, props.invariantColor);
             })
-        setLines(tempLines);
-        let temp = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
-        let temp2 = computeAllCluster(temp.pointsGr, temp.cols, tempPoints);
-        setAllClusters(temp2.allClusters);
-        setClusterList(temp2.clusterPossible);
+
     },
         [props.invariantName, props.invariantColor, props.numberVertices]);
 
-    const regroupPointsByColor = (points) => {
-        let pointsGr = {};
-        for (let point of points) {
-            if (pointsGr[point.col] == null) {
-                pointsGr[point.col] = [];
-            }
-            pointsGr[point.col].push(point);
-        }
-        return {
-            cols: Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a - b),
-            pointsGr: pointsGr
-        };
-    }
+    const minX = 0;
+    const maxX = 10;
+    const minY = 0;
+    const maxY = 20;
 
-    const computeAllCluster = (groupedByColor, colors, points) => {
-        let currentNbCluster = 2;
-        let currentSizeCluster = Math.ceil(colors.length / currentNbCluster);
-        let viewedNb = [1];
-        let result = {
-            1: [points]
-        };
-        while (currentNbCluster <= colors.length) {
-            let currentClusters = regroupPointsInCluster(currentSizeCluster, colors, groupedByColor);
-            if (!viewedNb.includes(currentClusters.length)) {
-                viewedNb.push(currentClusters.length);
-                result[currentClusters.length] = currentClusters;
-            }
-            currentNbCluster += 1;
-            currentSizeCluster = Math.ceil(colors.length / currentNbCluster);
-        }
-        return {
-            clusterPossible: viewedNb.sort((a, b) => a - b),
-            allClusters: result
-        };
-    }
+    const background = '#f3f3f3';
+    const width = 750;
+    const height = 500;
+    const margin = { top: 35, right: 35, bottom: 35, left: 35 };
 
-    const regroupPointsInCluster = (sizeCluster, colors, groupedPointsByColor) => {
-        let result = [];
-        let start = 0;
-        let end = sizeCluster;
-        while (end < colors.length - sizeCluster) {
-            let temp = [];
-            while (start < end) {
-                temp.push(...groupedPointsByColor[colors[start]]);
-                start += 1;
-            }
-            result.push(temp);
-            end += sizeCluster;
-        }
-        let temp = [];
-        while (start < colors.length) {
-            temp.push(...groupedPointsByColor[colors[start]]);
-            start += 1;
-        }
-        result.push(temp);
-        return result;
-    }
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
 
-    const RenderGlypheSeries = () => {
-        let result = [];
-        if (clusterList.length > 0) {
-            let currentGroupedPoints = allClusters[clusterList[indexCluster]];
-            for (let group of currentGroupedPoints) {
-                result.push(
-                    <GlyphSeries
-                        dataKey={`${group[0].col} - ${group[group.length - 1].col}`}
-                        data={group}
-                        xAccessor={data => accessors(data, 'x')}
-                        yAccessor={data => accessors(data, 'y')}
-                        renderGlyphs={data => accessors(data, 'r')}/>
-                )
-            }
-            return result;
-        } else {
-            return null;
-        }
-    }
+    const xScale = scaleLinear({
+        range: [margin.left, innerWidth],
+        domain: [minX, maxX],
+        nice: true,
+    });
+
+    const yScale = scaleLinear({
+        range: [innerHeight, margin.top],
+        domain: [minY, maxY],
+        nice: true,
+    });
 
     return (
-        <div>
-            <XYChart height={500} xScale={xScale} yScale={yScale}>
-                <Axis orientation="bottom" label={props.invariantName}/>
-                <Axis orientation="left" label="Nombre d'arêtes"/>
-                <LineSeries
-                    dataKey="Enveloppe"
-                    data={lines}
-                    xAccessor={data => accessors(data, 'x')}
-                    yAccessor={data => accessors(data, 'y')}/>
-                <RenderGlypheSeries/>
-            </XYChart>
-            <p>
-                Combien souhaitez-vous de clusters pour colorier les graphes ? {clusterList.map(d => d + " ")}
-            </p>
-            <button onClick={() => setIndexCluster(indexCluster > 0 ? indexCluster - 1 : clusterList.length-1)}> Précédent </button>
-            {" " + clusterList[indexCluster] + " "}
-            <button onClick={() => setIndexCluster((indexCluster+1) % clusterList.length)}> Suivant </button>
-        </div>
-    );
+        <svg width={width} height={height}>
+            <rect width={width} height={height} fill={background}/>
+            <Group left={margin.left} top={margin.top}>
+                <AxisLeft scale={yScale} left={margin.left} />
+                <Axis orientation="bottom" scale={xScale} top={innerHeight} />
+            </Group>
+        </svg>
+    )
 }
