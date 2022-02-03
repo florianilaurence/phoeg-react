@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import {Group} from "@visx/group";
-import {Axis, AxisBottom, AxisLeft, AxisTop} from "@visx/axis";
+import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
+import {Circle, LinePath} from "@visx/shape";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -20,15 +21,12 @@ const accessors = (data, param) => {
 }
 
 export default function PolytopeChart(props) {
-    const [allClusters, setAllClusters] = useState({});
     const [lines, setLines] = useState([{}]);
-
-    const [clusterList, setClusterList] = useState([]);
-    const [indexCluster, setIndexCluster] = useState(0);
+    const [points, setPoints] = useState([{}]);
 
     useEffect( async () => {
-        let pathEnv = "assets/data_" + props.invariantName + "/enveloppes/enveloppe-" + props.numberVertices + ".json";
-        let pathPoints = "assets/data_" + props.invariantName + "/points/points-" + props.numberVertices + ".json";
+        let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
+        let pathPoints = "assets/data_" + props.invariantX + "/points/points-" + props.invariantY + ".json";
 
         const tempLines = await fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then(function (response) {
@@ -42,16 +40,19 @@ export default function PolytopeChart(props) {
                 return response.json();
             })
             .then(function (myJson) {
-                return readPoints(myJson, props.invariantName, props.invariantColor);
+                return readPoints(myJson, props.invariantX, props.invariantColor);
             })
-
+        console.log(tempPoints);
+        setPoints(tempPoints);
+        setLines(tempLines);
+        console.log(points);
     },
-        [props.invariantName, props.invariantColor, props.numberVertices]);
+        [props.invariantX, props.invariantY, props.invariantColor]);
 
-    const minX = 0;
-    const maxX = 10;
-    const minY = 0;
-    const maxY = 20;
+    const minX = Math.min(...points.map((d) => accessors(d, "x")));
+    const maxX = Math.max(...points.map((d) => accessors(d, "x")));
+    const minY = Math.min(...points.map((d) => accessors(d, "y")));
+    const maxY = Math.max(...points.map((d) => accessors(d, "y")));
 
     const background = '#f3f3f3';
     const width = 750;
@@ -79,6 +80,26 @@ export default function PolytopeChart(props) {
             <Group left={margin.left} top={margin.top}>
                 <AxisLeft scale={yScale} left={margin.left} />
                 <Axis orientation="bottom" scale={xScale} top={innerHeight} />
+                <Group pointerEvents="none">
+                    <LinePath
+                        stroke="black"
+                        strokeWidth={ 1 }
+                        data={ lines }
+                        x={ (d) => xScale(d.x) }
+                        y={ (d) => yScale(d.y) }
+                    />
+                    {
+                        points.map((d) => (
+                            <Circle
+                                fill="black"
+                                cx={ xScale(accessors(d, "x")) }
+                                cy={ yScale(accessors(d, "y")) }
+                                r={ accessors(d, "") }
+                            />
+                        ))
+                    }
+                </Group>
+
             </Group>
         </svg>
     )
