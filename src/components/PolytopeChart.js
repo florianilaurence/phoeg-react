@@ -4,6 +4,7 @@ import {Group} from "@visx/group";
 import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
+import { interpolateRainbow } from 'd3-scale-chromatic';
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -149,26 +150,24 @@ export default function PolytopeChart(props) {
         return result;
     }
 
-    const computeAllColors = (number) => {
-        let result = [];
-
-    }
-
     const RenderCircleSeries = () => {
         let result = [];
         if (clusterList.length > 0) { // Important car parfois appelé avant que les données ne soient correctement initialisées
             let currentClustersNumber = clusterList[indexCluster];
             let currentGroupedPoints = allClusters[currentClustersNumber];
-            for (let group of currentGroupedPoints) { // ToDo ajouter sélection couleur pour ce groupe
-                console.log(currentClustersNumber);
-                group.map((currentData) => result.push(
-                    <Circle
-                        cx={xScale(accessors(currentData, "x"))}
-                        cy={yScale(accessors(currentData, "y"))}
-                        r={3}
-                    />
-                ))
-            }
+            const colorScale = scaleLinear({ range: [0, 1], domain: [0, currentClustersNumber] });
+            currentGroupedPoints.map((group, i) => {
+                group.map(currentData => result.push(
+                    <React.Fragment key={`group-${i}`}>
+                        <circle
+                            cx={xScale(accessors(currentData, "x"))}
+                            cy={yScale(accessors(currentData, "y"))}
+                            r={3}
+                            fill={interpolateRainbow(colorScale(i) ?? 0)}
+                        />
+                    </React.Fragment>
+                ));
+            });
             return result;
         } else {
             return null;
