@@ -5,6 +5,7 @@ import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
 import { interpolateRainbow } from 'd3-scale-chromatic';
+import {LegendItem, LegendLinear, LegendOrdinal} from "@visx/legend";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -37,6 +38,15 @@ export default function PolytopeChart(props) {
     const [maxX, setMaxX] = useState(0);
     const [minY, setMinY] = useState(0);
     const [maxY, setMaxY] = useState(0);
+
+
+    const [color1, setColor1] = useState(null);
+    const [color2, setColor2] = useState(null);
+    const [domain, setDomain] = useState([0, 10]);
+    const colorScale = scaleLinear({
+        domain: domain,
+        range: [color1, color2]
+    });
 
     useEffect( async () => {
         let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
@@ -108,7 +118,7 @@ export default function PolytopeChart(props) {
 
     const computeAllCluster = (groupedByColor, colors, points) => {
         let currentNbCluster = 2;
-        let currentSizeCluster = Math.ceil(colors.length / currentNbCluster);
+        let currentSizeCluster = Math.floor(colors.length / currentNbCluster);
         let viewedNb = [1];
         let result = {
             1: [points]
@@ -132,7 +142,7 @@ export default function PolytopeChart(props) {
         let result = [];
         let start = 0;
         let end = sizeCluster;
-        while (end < colors.length - sizeCluster) {
+        while (end <= colors.length - sizeCluster) {
             let temp = [];
             while (start < end) {
                 temp.push(...groupedPointsByColor[colors[start]]);
@@ -155,15 +165,17 @@ export default function PolytopeChart(props) {
         if (clusterList.length > 0) { // Important car parfois appelé avant que les données ne soient correctement initialisées
             let currentClustersNumber = clusterList[indexCluster];
             let currentGroupedPoints = allClusters[currentClustersNumber];
-            const colorScale = scaleLinear({ range: [0, 1], domain: [0, currentClustersNumber] });
+            if (domain[1] !== currentClustersNumber)
+                setDomain([0, currentClustersNumber])
             currentGroupedPoints.map((group, i) => {
-                group.map(currentData => result.push(
-                    <React.Fragment key={`group-${i}`}>
+                group.map((currentData, j) => result.push(
+                    <React.Fragment key={`group-${i}-${j}`}>
                         <circle
                             cx={xScale(accessors(currentData, "x"))}
                             cy={yScale(accessors(currentData, "y"))}
                             r={3}
-                            fill={interpolateRainbow(colorScale(i) ?? 0)}
+                            fill={colorScale(i)}
+                            fillOpacity={0.75}
                         />
                     </React.Fragment>
                 ));
@@ -191,9 +203,15 @@ export default function PolytopeChart(props) {
                         />
                         <RenderCircleSeries />
                     </Group>
-
                 </Group>
             </svg>
+            {clusterList[indexCluster] === 1 ?
+                <input type="color" value={color1} onChange={e => setColor1(e.target.value)}/> :
+                <div>
+                    <input type="color" value={color1} onChange={e => setColor1(e.target.value)}/>
+                    <input type="color" value={color2} onChange={e => setColor2(e.target.value)}/>
+                </div>
+            }
             <p>
                 Combien souhaitez-vous de clusters pour colorier les graphes ? {clusterList.map(d => d + " ")}
             </p>
