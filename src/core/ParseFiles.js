@@ -31,11 +31,6 @@ function readEnvelopePolygone(data) {
 }
 
 export function readPoints(data, invariantX, invariantY, invariantColor) {
-    // "m" --> Oy
-    // "avcol" "eci" ... --> Ox
-    // "chi" --> Coloration
-    // "mult" --> Coloration
-
     const result = [];
     for (let i in data) {
         let xVal = data[i][invariantX];
