@@ -2,8 +2,9 @@ import React, {useEffect, useState} from "react";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import {Group} from "@visx/group";
 import {Axis, AxisLeft} from "@visx/axis";
-import {scaleLinear} from "@visx/scale";
+import {scaleLinear, scaleOrdinal} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
+import {GridColumns, GridRows} from "@visx/grid";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -40,10 +41,6 @@ export default function PolytopeChart(props) {
 
     const [domain, setDomain] = useState([]);
     const [range, setRange] = useState([]);
-    const colorScale = scaleLinear({
-        domain: domain,
-        range: range
-    });
 
     useEffect( async () => {
         let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
@@ -63,21 +60,21 @@ export default function PolytopeChart(props) {
             .then(function (myJson) {
                 return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hard coder
             })
-        setMinX(Math.min(
+        setMinX(Math.floor(Math.min(
             Math.min(...tempPoints.map((d) => accessors(d, "x"))),
-            Math.min(...tempLines.map((d) => accessors(d, "x")))
+            Math.min(...tempLines.map((d) => accessors(d, "x"))))
         ));
-        setMaxX(Math.max(
+        setMaxX(Math.ceil(Math.max(
             Math.max(...tempPoints.map((d) => accessors(d, "x"))),
-            Math.max(...tempLines.map((d) => accessors(d, "x")))
+            Math.max(...tempLines.map((d) => accessors(d, "x"))))
         ));
-        setMinY(Math.min(
+        setMinY(Math.floor(Math.min(
             Math.min(...tempPoints.map((d) => accessors(d, "y"))),
-            Math.min(...tempLines.map((d) => accessors(d, "y")))
+            Math.min(...tempLines.map((d) => accessors(d, "y"))))
         ));
-        setMaxY(Math.max(
+        setMaxY(Math.ceil(Math.max(
             Math.max(...tempPoints.map((d) => accessors(d, "y"))),
-            Math.max(...tempLines.map((d) => accessors(d, "y")))
+            Math.max(...tempLines.map((d) => accessors(d, "y"))))
         ));
         setLines(tempLines);
         let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
@@ -224,9 +221,8 @@ export default function PolytopeChart(props) {
                         <Circle
                             cx={xScale(accessors(currentData, "x"))}
                             cy={yScale(accessors(currentData, "y"))}
-                            r={3}
+                            r={4}
                             fill={range[i]}
-                            fillOpacity={0.75}
                         />
                     </React.Fragment>
                 ));
@@ -244,6 +240,8 @@ export default function PolytopeChart(props) {
                 <Group left={margin.left} top={margin.top}>
                     <AxisLeft scale={yScale} left={margin.left} />
                     <Axis orientation="bottom" scale={xScale} top={innerHeight} />
+                    <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                    <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
                     <Group pointerEvents="none">
                         <LinePath
                             stroke="black"
