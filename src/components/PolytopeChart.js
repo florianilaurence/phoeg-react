@@ -4,8 +4,6 @@ import {Group} from "@visx/group";
 import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
-import { interpolateRainbow } from 'd3-scale-chromatic';
-import {LegendItem, LegendLinear, LegendOrdinal} from "@visx/legend";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -38,14 +36,13 @@ export default function PolytopeChart(props) {
     const [maxX, setMaxX] = useState(0);
     const [minY, setMinY] = useState(0);
     const [maxY, setMaxY] = useState(0);
+    const [previousState, setPreviousState] = useState(0);
 
-
-    const [color1, setColor1] = useState(null);
-    const [color2, setColor2] = useState(null);
-    const [domain, setDomain] = useState([0, 10]);
+    const [domain, setDomain] = useState([]);
+    const [range, setRange] = useState([]);
     const colorScale = scaleLinear({
         domain: domain,
-        range: [color1, color2]
+        range: range
     });
 
     useEffect( async () => {
@@ -160,21 +157,75 @@ export default function PolytopeChart(props) {
         return result;
     }
 
+    const computeNamesDomain = (currentGroupedPoints) => {
+        let result = [];
+        for (let group of currentGroupedPoints) {
+            let min = Math.min(...group.map((d) => d.col));
+            let max = Math.max(...group.map((d) => d.col));
+            if (min !== max) {
+                result.push(`${min} - ${max}`);
+            } else {
+                result.push(`${min}`);
+            }
+
+        }
+        return result;
+    }
+
+    const computeColorsRange = (newDomain) => {
+        let result = [];
+        if (range.length > newDomain.length) {
+            result = range.slice(0, newDomain.length); // Copie du nombre de couleurs nécessaires
+        } else if (range.length < newDomain.length) {
+            result = range.slice(); // Copier l'entièreté des précédentes couleurs
+            let i = range.length;
+            while (i < newDomain.length) { // Compléter avec suffisamment de couleurs
+                let color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+                while (color in result) {
+                    color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+                }
+                result.push(color);
+                i++;
+            }
+        }
+        return result;
+    }
+
+    const RenderInputColors = () => {
+        let result = [<p> { props.invariantColor } : </p>];
+        for (let i in range) {
+            result.push(
+                <p> {domain[i]} <input type="color" value={range[i]} onChange={e => {
+                    let tempRange = range.slice();
+                    tempRange[i] = e.target.value;
+                    setRange(tempRange);
+                }} />
+                </p>
+
+            )
+        }
+        return result;
+    }
+
     const RenderCircleSeries = () => {
         let result = [];
         if (clusterList.length > 0) { // Important car parfois appelé avant que les données ne soient correctement initialisées
             let currentClustersNumber = clusterList[indexCluster];
             let currentGroupedPoints = allClusters[currentClustersNumber];
-            if (domain[1] !== currentClustersNumber)
-                setDomain([0, currentClustersNumber])
+            if (previousState !== currentClustersNumber) { // Il faut modifier le range et le domain du color scale
+                setPreviousState(currentClustersNumber);
+                let currentDomain = computeNamesDomain(currentGroupedPoints);
+                setDomain(currentDomain);
+                setRange(computeColorsRange(currentDomain));
+            }
             currentGroupedPoints.map((group, i) => {
                 group.map((currentData, j) => result.push(
                     <React.Fragment key={`group-${i}-${j}`}>
-                        <circle
+                        <Circle
                             cx={xScale(accessors(currentData, "x"))}
                             cy={yScale(accessors(currentData, "y"))}
                             r={3}
-                            fill={colorScale(i)}
+                            fill={range[i]}
                             fillOpacity={0.75}
                         />
                     </React.Fragment>
@@ -205,13 +256,7 @@ export default function PolytopeChart(props) {
                     </Group>
                 </Group>
             </svg>
-            {clusterList[indexCluster] === 1 ?
-                <input type="color" value={color1} onChange={e => setColor1(e.target.value)}/> :
-                <div>
-                    <input type="color" value={color1} onChange={e => setColor1(e.target.value)}/>
-                    <input type="color" value={color2} onChange={e => setColor2(e.target.value)}/>
-                </div>
-            }
+            <RenderInputColors />
             <p>
                 Combien souhaitez-vous de clusters pour colorier les graphes ? {clusterList.map(d => d + " ")}
             </p>
