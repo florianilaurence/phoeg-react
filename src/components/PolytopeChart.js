@@ -5,6 +5,7 @@ import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear, scaleOrdinal} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
 import {GridColumns, GridRows} from "@visx/grid";
+import { Dimensions } from 'react-native';
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -23,8 +24,8 @@ const accessors = (data, param) => {
 
 export default function PolytopeChart(props) {
     const background = '#f3f3f3';
-    const width = 750;
-    const height = 500;
+    const width = Dimensions.get('window').width;
+    const height = width / 2;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
