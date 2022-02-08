@@ -74,8 +74,18 @@ export default function PolytopeChart(props) {
                 return response.json();
             })
             .then(function (myJson) {
-                return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hard coder
+                return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hardcodé
             })
+        computeScaleDomains(tempPoints, tempLines);
+        setLines(tempLines);
+        let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
+        let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
+        setAllClusters(clusters.allClusters);
+        setClusterList(clusters.clusterPossible);
+    },
+        [props.invariantX, props.invariantY, props.invariantColor]);
+
+    const computeScaleDomains = (tempPoints, tempLines) => {
         setMinX(Math.floor(Math.min(
             Math.min(...tempPoints.map((d) => accessors(d, "x"))),
             Math.min(...tempLines.map((d) => accessors(d, "x"))))
@@ -92,13 +102,7 @@ export default function PolytopeChart(props) {
             Math.max(...tempPoints.map((d) => accessors(d, "y"))),
             Math.max(...tempLines.map((d) => accessors(d, "y"))))
         ));
-        setLines(tempLines);
-        let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
-        let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
-        setAllClusters(clusters.allClusters);
-        setClusterList(clusters.clusterPossible);
-    },
-        [props.invariantX, props.invariantY, props.invariantColor]);
+    }
 
     const xScale = scaleLinear({
         range: [margin.left, innerWidth],
@@ -176,7 +180,7 @@ export default function PolytopeChart(props) {
             let min = Math.min(...group.map((d) => d.col));
             let max = Math.max(...group.map((d) => d.col));
             if (min !== max) {
-                result.push(`${min} - ${max}`);
+                result.push(`[${min} ; ${max}]`);
             } else {
                 result.push(`${min}`);
             }
@@ -194,7 +198,7 @@ export default function PolytopeChart(props) {
             let i = range.length;
             while (i < newDomain.length) { // Compléter avec suffisamment de couleurs
                 let color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-                while (color in result) {
+                while (color in result) { //ToDo Ne fonctionne pas correctement ...
                     color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
                 }
                 result.push(color);
@@ -205,15 +209,17 @@ export default function PolytopeChart(props) {
     }
 
     const RenderInputColors = () => {
-        let result = [<p> { props.invariantColor } : </p>];
+        let result = [];
         for (let i in range) {
             result.push(
-                <p> {domains[i]} <input type="color" value={range[i]} onChange={e => {
-                    let tempRange = range.slice();
-                    tempRange[i] = e.target.value;
-                    setRange(tempRange);
-                }} />
-                </p>
+                <div>
+                    <input type="color" name={range[i]} id={range[i]} value={range[i]} onChange={e => {
+                        let tempRange = range.slice();
+                        tempRange[i] = e.target.value;
+                        setRange(tempRange);
+                    }} />
+                    <label for={range[i]}> {props.invariantColor} = {domains[i]} </label>
+                </div>
 
             )
         }
@@ -278,5 +284,5 @@ export default function PolytopeChart(props) {
             {" " + clusterList[indexCluster] + " "}
             <button onClick={() => setIndexCluster((indexCluster+1) % clusterList.length)}> Suivant </button>
         </div>
-            )
+    )
 }
