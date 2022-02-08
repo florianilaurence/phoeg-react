@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {readEnvelope, readPoints} from "../core/ParseFiles";
 import {Group} from "@visx/group";
 import {Axis, AxisLeft} from "@visx/axis";
-import {scaleLinear, scaleOrdinal} from "@visx/scale";
+import {scaleLinear} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
 import {GridColumns, GridRows} from "@visx/grid";
 import { Dimensions } from 'react-native';
@@ -23,6 +23,7 @@ const accessors = (data, param) => {
 }
 
 export default function PolytopeChart(props) {
+    // Données de configuration de l'encadré contenant le graphique
     const background = '#f3f3f3';
     const width = Dimensions.get('window').width;
     const height = width / 2;
@@ -30,17 +31,31 @@ export default function PolytopeChart(props) {
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    const [allClusters, setAllClusters] = useState({});
+    // Les lignes de l'enveloppe du polytope
     const [lines, setLines] = useState([{}]);
+
+    // Dictionnaire de tous les clusters de points possibles
+    const [allClusters, setAllClusters] = useState({});
+
+    // Liste des nom de clusters
     const [clusterList, setClusterList] = useState([]);
+
+    // Indice correspondant à la liste de cluster courrante
     const [indexCluster, setIndexCluster] = useState(0);
+
+    // Valeurs nécessaires pour construie les axes et les échelles (xScale et yScale)
     const [minX, setMinX] = useState(0);
     const [maxX, setMaxX] = useState(0);
     const [minY, setMinY] = useState(0);
     const [maxY, setMaxY] = useState(0);
+
+    // Permet de recalculer les domaines seulement si le nombre de cluster a été changé
     const [previousState, setPreviousState] = useState(0);
 
-    const [domain, setDomain] = useState([]);
+    // Liste des domaines correspondants à chaque couleur
+    const [domains, setDomains] = useState([]);
+
+    // Liste des inputs de sélection de couleurs
     const [range, setRange] = useState([]);
 
     useEffect( async () => {
@@ -193,7 +208,7 @@ export default function PolytopeChart(props) {
         let result = [<p> { props.invariantColor } : </p>];
         for (let i in range) {
             result.push(
-                <p> {domain[i]} <input type="color" value={range[i]} onChange={e => {
+                <p> {domains[i]} <input type="color" value={range[i]} onChange={e => {
                     let tempRange = range.slice();
                     tempRange[i] = e.target.value;
                     setRange(tempRange);
@@ -213,7 +228,7 @@ export default function PolytopeChart(props) {
             if (previousState !== currentClustersNumber) { // Il faut modifier le range et le domain du color scale
                 setPreviousState(currentClustersNumber);
                 let currentDomain = computeNamesDomain(currentGroupedPoints);
-                setDomain(currentDomain);
+                setDomains(currentDomain);
                 setRange(computeColorsRange(currentDomain));
             }
             currentGroupedPoints.map((group, i) => {
