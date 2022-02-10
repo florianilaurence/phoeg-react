@@ -35,9 +35,9 @@ export function readPoints(data, invariantX, invariantY, invariantColor) {
     for (let i in data) {
         let xVal = data[i][invariantX];
         let yVal = data[i][invariantY];
-        let color = data[i][invariantColor];
-        result.push({x: xVal, y: yVal, r: 1, col: color});
-        // ToDo possibilité d'ajouter un invariant supplémentaire pour le rayon des cercles
+        let colorVal = data[i][invariantColor];
+        result.push({x: xVal, y: yVal, r: 1, col: colorVal});
+        // ToDo possibilité d'ajouter un invariant supplémentaire pour le rayon des cercles de manière facultative
     }
     return result;
 }

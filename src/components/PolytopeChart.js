@@ -6,6 +6,7 @@ import {scaleLinear} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
 import {GridColumns, GridRows} from "@visx/grid";
 import { Dimensions } from 'react-native';
+import Select from "react-select";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
@@ -48,16 +49,35 @@ export default function PolytopeChart(props) {
     const [maxX, setMaxX] = useState(0);
     const [minY, setMinY] = useState(0);
     const [maxY, setMaxY] = useState(0);
+    const [minCol, setMinCol] = useState(0); // ToDo Supposé que invariantCol est un nombre, not good ...
+    const [maxCol, setMaxCol] = useState(0);
 
-    // Permet de recalculer les domaines seulement si le nombre de cluster a été changé
+    // Permet de recalculer les domaines seulement si le nombre de cluster a été changé (éviter trop de re render qui plantent l'appli)
     const [previousState, setPreviousState] = useState(0);
 
-    // Liste des domaines correspondants à chaque couleur
-    const [domains, setDomains] = useState([]);
+    // COLORATIONS
+    const optionsTypeColoration = [
+        { value: 'gradient', label: 'Coloration par gradient' },
+        { value: 'indep', label: 'Coloration en choisissant les couleurs'}
+    ];
+    const [typeSelected, setTypeSelected] = useState(optionsTypeColoration[1]);
+    let typeCurrent = typeSelected.value;
 
-    // Liste des inputs de sélection de couleurs
+    //    * Pour une coloration aléatoire
+    //          Liste des domaines correspondants à chaque couleur
+    const [domains, setDomains] = useState([]);
+    //          Liste des inputs de sélection de couleurs
     const [range, setRange] = useState([]);
 
+    //     * Pour une coloration par gradient
+    const [color1, setColor1] = useState('#FFFFFF');
+    const [color2, setColor2] = useState('#FF0000');
+    const colorScale = scaleLinear({
+        domain: [minCol, maxCol],
+        range: [color1, color2]
+    });
+
+    // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
         let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
         let pathPoints = "assets/data_" + props.invariantX + "/points/points-" + props.invariantY + ".json";
@@ -85,6 +105,7 @@ export default function PolytopeChart(props) {
     },
         [props.invariantX, props.invariantY, props.invariantColor]);
 
+    // Calcule les domaines pour les échelles en X et en Y
     const computeScaleDomains = (tempPoints, tempLines) => {
         setMinX(Math.floor(Math.min(
             Math.min(...tempPoints.map((d) => accessors(d, "x"))),
@@ -104,18 +125,21 @@ export default function PolytopeChart(props) {
         ));
     }
 
+    // Echelle pour l'axe Ox
     const xScale = scaleLinear({
         range: [margin.left, innerWidth],
         domain: [minX, maxX],
         round: true,
     });
 
+    // Echelle pour l'axe Oy
     const yScale = scaleLinear({
         range: [innerHeight, margin.top],
         domain: [minY, maxY],
         round: true,
     });
 
+    // Fonctions pour regrouper les points et les calculs qui y sont associés
     const regroupPointsByColor = (points) => {
         let pointsGr = {};
         for (let point of points) {
@@ -174,6 +198,14 @@ export default function PolytopeChart(props) {
         return result;
     }
 
+    // COLORATIONS
+    const handleChangeType = (newType) => {
+        setTypeSelected(newType);
+        typeCurrent = newType.value;
+        console.log(typeCurrent);
+    }
+
+    // Fonctions pour la coloration avec choix
     const computeNamesDomain = (currentGroupedPoints) => {
         let result = [];
         for (let group of currentGroupedPoints) {
@@ -198,7 +230,7 @@ export default function PolytopeChart(props) {
             let i = range.length;
             while (i < newDomain.length) { // Compléter avec suffisamment de couleurs
                 let color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
-                while (color in result) { //ToDo Ne fonctionne pas correctement ...
+                while (color in result) {
                     color = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
                 }
                 result.push(color);
@@ -208,6 +240,7 @@ export default function PolytopeChart(props) {
         return result;
     }
 
+    // Créer les balises de choix des couleurs pour une coloration avec choix
     const RenderInputColors = () => {
         let result = [];
         for (let i in range) {
@@ -218,7 +251,7 @@ export default function PolytopeChart(props) {
                         tempRange[i] = e.target.value;
                         setRange(tempRange);
                     }} />
-                    <label for={range[i]}> {props.invariantColor} = {domains[i]} </label>
+                    <label htmlFor={range[i]}> {props.invariantColor} = {domains[i]} </label>
                 </div>
 
             )
@@ -226,6 +259,15 @@ export default function PolytopeChart(props) {
         return result;
     }
 
+    const selectColorForOnePoint = (i, valueInvariantColor) => {
+        let col = colorScale(valueInvariantColor);
+        if (typeCurrent === 'indep') {
+            col = range[i];
+        }
+        return col;
+    }
+
+    // Créer les points sur le graphique
     const RenderCircleSeries = () => {
         let result = [];
         if (clusterList.length > 0) { // Important car parfois appelé avant que les données ne soient correctement initialisées
@@ -244,7 +286,7 @@ export default function PolytopeChart(props) {
                             cx={xScale(accessors(currentData, "x"))}
                             cy={yScale(accessors(currentData, "y"))}
                             r={4}
-                            fill={range[i]}
+                            fill={selectColorForOnePoint(i, accessors(currentData))}
                         />
                     </React.Fragment>
                 ));
@@ -276,7 +318,12 @@ export default function PolytopeChart(props) {
                     </Group>
                 </Group>
             </svg>
-            <RenderInputColors />
+            <Select options={optionsTypeColoration} onChange={handleChangeType}/>
+            {typeCurrent === 'indep' ?
+                <RenderInputColors /> :
+                null
+            }
+
             <p>
                 Combien souhaitez-vous de clusters pour colorier les graphes ? {clusterList.map(d => d + " ")}
             </p>
