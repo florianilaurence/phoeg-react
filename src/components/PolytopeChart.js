@@ -49,8 +49,6 @@ export default function PolytopeChart(props) {
     const [maxX, setMaxX] = useState(0);
     const [minY, setMinY] = useState(0);
     const [maxY, setMaxY] = useState(0);
-    const [minCol, setMinCol] = useState(0); // ToDo Supposé que invariantCol est un nombre, not good ...
-    const [maxCol, setMaxCol] = useState(0);
 
     // Permet de recalculer les domaines seulement si le nombre de cluster a été changé (éviter trop de re render qui plantent l'appli)
     const [previousState, setPreviousState] = useState(0);
@@ -60,20 +58,21 @@ export default function PolytopeChart(props) {
         { value: 'gradient', label: 'Coloration par gradient' },
         { value: 'indep', label: 'Coloration en choisissant les couleurs'}
     ];
-    const [typeSelected, setTypeSelected] = useState(optionsTypeColoration[1]);
+    const [typeSelected, setTypeSelected] = useState(optionsTypeColoration[0]);
     let typeCurrent = typeSelected.value;
 
-    //    * Pour une coloration aléatoire
+    //    * Pour une coloration indépendante
     //          Liste des domaines correspondants à chaque couleur
     const [domains, setDomains] = useState([]);
     //          Liste des inputs de sélection de couleurs
     const [range, setRange] = useState([]);
 
     //     * Pour une coloration par gradient
+    const [maxDomain, setMaxDomain] = useState(1);
     const [color1, setColor1] = useState('#FFFFFF');
     const [color2, setColor2] = useState('#FF0000');
     const colorScale = scaleLinear({
-        domain: [minCol, maxCol],
+        domain: [0, maxDomain],
         range: [color1, color2]
     });
 
@@ -102,6 +101,7 @@ export default function PolytopeChart(props) {
         let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
         setAllClusters(clusters.allClusters);
         setClusterList(clusters.clusterPossible);
+        setMaxDomain(clusterList[indexCluster]);
     },
         [props.invariantX, props.invariantY, props.invariantColor]);
 
@@ -241,7 +241,7 @@ export default function PolytopeChart(props) {
     }
 
     // Créer les balises de choix des couleurs pour une coloration avec choix
-    const RenderInputColors = () => {
+    const RenderInputColorsForIndep = () => {
         let result = [];
         for (let i in range) {
             result.push(
@@ -259,8 +259,16 @@ export default function PolytopeChart(props) {
         return result;
     }
 
-    const selectColorForOnePoint = (i, valueInvariantColor) => {
-        let col = colorScale(valueInvariantColor);
+    const RenderInputColorsForGradient = () => {
+        let result = [<input type="color" value={color2} onChange={e => setColor2(e.target.value)}/>];
+        if (clusterList[indexCluster] > 1) {
+            result.push(<input type="color" value={color1} onChange={e => setColor1(e.target.value)}/>);
+        }
+        return result;
+    }
+
+    const selectColorForOnePoint = (i) => {
+        let col = colorScale(i);
         if (typeCurrent === 'indep') {
             col = range[i];
         }
@@ -318,10 +326,10 @@ export default function PolytopeChart(props) {
                     </Group>
                 </Group>
             </svg>
-            <Select options={optionsTypeColoration} onChange={handleChangeType}/>
+            <Select defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
             {typeCurrent === 'indep' ?
-                <RenderInputColors /> :
-                null
+                <RenderInputColorsForIndep /> :
+                <RenderInputColorsForGradient />
             }
 
             <p>
