@@ -5,7 +5,7 @@ import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
 import {Circle, LinePath} from "@visx/shape";
 import {GridColumns, GridRows} from "@visx/grid";
-import { Dimensions } from 'react-native';
+import {Dimensions, Text} from 'react-native';
 import Select from "react-select";
 
 const accessors = (data, param) => {
@@ -52,9 +52,6 @@ export default function PolytopeChart(props) {
     const [minColor, setMinColor] = useState(0);
     const [maxColor, setMaxColor] = useState(0);
 
-    // Permet de recalculer les domaines seulement si le nombre de clusters a été changé (éviter trop de re render qui plantent l'appli)
-    const [previousState, setPreviousState] = useState(0);
-
     // COLORATIONS
     const optionsTypeColoration = [
         { value: 'gradient', label: 'Coloration par gradient' },
@@ -65,47 +62,63 @@ export default function PolytopeChart(props) {
 
     //    * Pour une coloration indépendante
     //          Liste des domaines correspondants à chaque couleur
-    const [domains, setDomains] = useState([]);
+    const [domainsIndep, setDomainsIndep] = useState([]);
     //          Liste des inputs de sélection de couleurs
     const [range, setRange] = useState([]);
 
     //     * Pour une coloration par gradient
     const [maxDomain, setMaxDomain] = useState(1); // 1 pour quand il n'y a qu'un cluster, les points prennent la couleur de color1
     const [color1, setColor1] = useState('#000000');
-    const [color2, setColor2] = useState('#fff200');
+    const [color2, setColor2] = useState('#00ff00');
     const colorScale = scaleLinear({
         domain: [0, maxDomain], // Le domaine doit être lié au nombre de clusters pas à la valeur de l'invariant couleur => Répartition fair des couleurs
         range: [color1, color2]
     });
+    let [tagsGradient, setTagsGradient] = useState([]);
+    let colorsGradient = [];
 
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
-        let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
-        let pathPoints = "assets/data_" + props.invariantX + "/points/points-" + props.invariantY + ".json";
+            let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
+            let pathPoints = "assets/data_" + props.invariantX + "/points/points-" + props.invariantY + ".json";
 
-        const tempLines = await fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (myJson) {
-                return readEnvelope(myJson);
-            });
-        const tempPoints = await fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (myJson) {
-                return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hardcodé
-            })
-        computeScaleDomains(tempPoints, tempLines);
-        setLines(tempLines);
-        let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
-        let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
-        setAllClusters(clusters.allClusters);
-        setClusterList(clusters.clusterPossible);
-        setMaxDomain(Math.max(1, clusterList[indexCluster]-1));
+            const tempLines = await fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (myJson) {
+                    return readEnvelope(myJson);
+                });
+            const tempPoints = await fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (myJson) {
+                    return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hardcodé
+                })
+            computeScaleDomains(tempPoints, tempLines);
+            setLines(tempLines);
+            let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
+            let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
+            setAllClusters(clusters.allClusters);
+            setClusterList(clusters.clusterPossible);
+
     },
         [props.invariantX, props.invariantY, props.invariantColor]);
+
+    useEffect(() => {
+            let currentClustersNumber = clusterList[indexCluster];
+            let currentGroupedPoints = allClusters[currentClustersNumber];
+            setMaxDomain(Math.max(1, currentClustersNumber - 1));
+            // Màj pour coloration avec choix
+            let currentDomainIndep = computeTagsDomainIndep(currentGroupedPoints);
+            setDomainsIndep(currentDomainIndep);
+            setRange(computeColorsRange(currentDomainIndep));
+            // Màj pour coloration par gradient
+            setTagsGradient(computeTagsDomainGradient(currentGroupedPoints));
+        },
+        [indexCluster, props.invariantX, props.invariantY, props.invariantColor]
+    )
 
     // Calcule les domaines pour les échelles en X et en Y
     const computeScaleDomains = (tempPoints, tempLines) => {
@@ -208,21 +221,37 @@ export default function PolytopeChart(props) {
         typeCurrent = newType.value;
     }
 
-    // Fonctions pour la coloration avec choix
-    const computeNamesDomain = (currentGroupedPoints) => {
+    // Fonctions pour construire les noms de domaine lors d'une coloration avec choix
+    const computeTagsDomainIndep = (currentGroupedPoints) => {
         let result = [];
         if (currentGroupedPoints !== undefined) {
             for (let group of currentGroupedPoints) {
-                let min = Math.min(...group.map((d) => d.col));
-                let max = Math.max(...group.map((d) => d.col));
-                if (min !== max) {
-                    result.push(`[${min} ; ${max}]`);
-                } else {
-                    result.push(`${min}`);
-                }
+                result.push(constructTagName(group));
             }
         }
         return result;
+    }
+
+    // Fonctions pour construire les noms de domaine lors d'une coloration avec gradient
+    const computeTagsDomainGradient = (currentGroupedPoints) => {
+        let resultTags = [];
+        if (currentGroupedPoints !== undefined) {
+            for (let i = 0; i < currentGroupedPoints.length; i++) {
+                let group = currentGroupedPoints[i];
+                resultTags.push(constructTagName(group));
+            }
+        }
+        return resultTags;
+    }
+
+    const constructTagName = (group) => {
+        let min = Math.min(...group.map((d) => d.col));
+        let max = Math.max(...group.map((d) => d.col));
+        if (min !== max) {
+            return `[${min} ; ${max}]`;
+        } else {
+            return `${min}`;
+        }
     }
 
     const computeColorsRange = (newDomain) => {
@@ -245,18 +274,17 @@ export default function PolytopeChart(props) {
     }
 
     // Créer les balises de choix des couleurs pour une coloration avec choix
-    const RenderInputColorsForIndep = () => {
-        let result = [];
+    const RenderInputColorsForIndep = () => { // ToDo Ne s'affiche correctement qu'avec un temps de retard (grrr les state)
+        let result = [<p> {props.invariantColor} : </p>];
         for (let i in range) {
             result.push(
-                <div>
+                <label  style={{fontWeight: 'bold'}}> {domainsIndep[i]} : {" "}
                     <input type="color" name={range[i]} id={range[i]} value={range[i]} onChange={e => {
                         let tempRange = range.slice();
                         tempRange[i] = e.target.value;
                         setRange(tempRange);
                     }} />
-                    <label htmlFor={range[i]}> {props.invariantColor} = {domains[i]} </label>
-                </div>
+                </label>
 
             )
         }
@@ -265,11 +293,17 @@ export default function PolytopeChart(props) {
 
     const RenderInputColorsForGradient = () => {
         if (clusterList[indexCluster] === 1) {
+            let tag = '';
+            if (minColor === maxColor) {
+                tag += minColor;
+            } else {
+                tag = minColor + " - " + maxColor;
+            }
             return (
                 <div>
                     <p> {props.invariantColor} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
-                    <label htmlFor="color1"> { minColor } - { maxColor } </label>
+                    <Text style={{color: color1, fontWeight: 'bold'}} > { tag } </Text>
                 </div>
             )
         } else {
@@ -277,9 +311,8 @@ export default function PolytopeChart(props) {
                 <div>
                     <p> {props.invariantColor} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
-                    <label htmlFor="color1"> { minColor } </label>
+                    {tagsGradient.map((tag, i) => <Text style={{color: colorsGradient[i], fontWeight: 'bold'}} key={`gradient_tag${i}`}> {tag} </Text>)}
                     <input type="color" name="color2" id="color2" value={color2} onChange={e => setColor2(e.target.value)}/>
-                    <label htmlFor="color2"> { maxColor } </label>
                 </div>
             )
         }
@@ -293,32 +326,22 @@ export default function PolytopeChart(props) {
         return col;
     }
 
-    const updateStates = () => {
-        let currentClustersNumber = clusterList[indexCluster];
-        let currentGroupedPoints = allClusters[currentClustersNumber];
-        if (previousState !== currentClustersNumber) { // Il faut modifier le range et le domain du color scale
-                setMaxDomain(Math.max(1, clusterList[indexCluster]-1));
-                setPreviousState(currentClustersNumber);
-                let currentDomain = computeNamesDomain(currentGroupedPoints);
-                setDomains(currentDomain);
-                setRange(computeColorsRange(currentDomain));
-            }
-    }
-
     // Créer les points sur le graphique
     const RenderCircleSeries = () => {
         let result = [];
         if (clusterList.length > 0) { // Important, car parfois appelé avant que les données ne soient correctement initialisées
             let currentClustersNumber = clusterList[indexCluster];
             let currentGroupedPoints = allClusters[currentClustersNumber];
+            colorsGradient = [];
             currentGroupedPoints.map((group, i) => {
+                colorsGradient.push(colorScale(i));
                 group.map((currentData, j) => result.push(
                     <React.Fragment key={`group-${i}-${j}`}>
                         <Circle
                             cx={xScale(accessors(currentData, "x"))}
                             cy={yScale(accessors(currentData, "y"))}
                             r={4}
-                            fill={selectColorForOnePoint(i, accessors(currentData))}
+                            fill={selectColorForOnePoint(i)}
                         />
                     </React.Fragment>
                 ));
@@ -331,7 +354,6 @@ export default function PolytopeChart(props) {
 
     return (
         <div>
-            {updateStates()}
             <svg width={width} height={height}>
                 <rect width={width} height={height} fill={background}/>
                 <Group left={margin.left} top={margin.top}>
