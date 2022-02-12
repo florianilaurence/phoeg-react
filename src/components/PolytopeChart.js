@@ -9,7 +9,7 @@ import { Dimensions } from 'react-native';
 import Select from "react-select";
 
 const accessors = (data, param) => {
-    if (data !== undefined) { // Obligatoire sinon problème car est parfois appelé avec un undefined
+    if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
         switch (param) {
             case 'x':
                 return data.x;
@@ -18,14 +18,14 @@ const accessors = (data, param) => {
             case 'r':
                 return data.r;
             default:
-                return data.c;
+                return data.col;
         }
     }
 }
 
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
-    const background = '#f3f3f3';
+    const background = '#fafafa';
     const width = Dimensions.get('window').width;
     const height = width / 2;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
@@ -41,16 +41,18 @@ export default function PolytopeChart(props) {
     // Liste des nom de clusters
     const [clusterList, setClusterList] = useState([]);
 
-    // Indice correspondant à la liste de cluster courrante
+    // Indice correspondant à la liste de cluster courant
     const [indexCluster, setIndexCluster] = useState(0);
 
-    // Valeurs nécessaires pour construie les axes et les échelles (xScale et yScale)
+    // Valeurs nécessaires pour construit les axes et les échelles (xScale et yScale)
     const [minX, setMinX] = useState(0);
     const [maxX, setMaxX] = useState(0);
     const [minY, setMinY] = useState(0);
     const [maxY, setMaxY] = useState(0);
+    const [minColor, setMinColor] = useState(0);
+    const [maxColor, setMaxColor] = useState(0);
 
-    // Permet de recalculer les domaines seulement si le nombre de cluster a été changé (éviter trop de re render qui plantent l'appli)
+    // Permet de recalculer les domaines seulement si le nombre de clusters a été changé (éviter trop de re render qui plantent l'appli)
     const [previousState, setPreviousState] = useState(0);
 
     // COLORATIONS
@@ -68,11 +70,11 @@ export default function PolytopeChart(props) {
     const [range, setRange] = useState([]);
 
     //     * Pour une coloration par gradient
-    const [maxDomain, setMaxDomain] = useState(1);
-    const [color1, setColor1] = useState('#FFFFFF');
-    const [color2, setColor2] = useState('#FF0000');
+    const [maxDomain, setMaxDomain] = useState(1); // 1 pour quand il n'y a qu'un cluster, les points prennent la couleur de color1
+    const [color1, setColor1] = useState('#000000');
+    const [color2, setColor2] = useState('#fff200');
     const colorScale = scaleLinear({
-        domain: [0, maxDomain],
+        domain: [0, maxDomain], // Le domaine doit être lié au nombre de clusters pas à la valeur de l'invariant couleur => Répartition fair des couleurs
         range: [color1, color2]
     });
 
@@ -101,7 +103,7 @@ export default function PolytopeChart(props) {
         let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
         setAllClusters(clusters.allClusters);
         setClusterList(clusters.clusterPossible);
-        setMaxDomain(clusterList[indexCluster]);
+        setMaxDomain(Math.max(1, clusterList[indexCluster]-1));
     },
         [props.invariantX, props.invariantY, props.invariantColor]);
 
@@ -123,6 +125,8 @@ export default function PolytopeChart(props) {
             Math.max(...tempPoints.map((d) => accessors(d, "y"))),
             Math.max(...tempLines.map((d) => accessors(d, "y"))))
         ));
+        setMinColor(Math.min(...tempPoints.map((d) => accessors(d))));
+        setMaxColor(Math.max(...tempPoints.map((d) => accessors(d))));
     }
 
     // Echelle pour l'axe Ox
@@ -202,21 +206,21 @@ export default function PolytopeChart(props) {
     const handleChangeType = (newType) => {
         setTypeSelected(newType);
         typeCurrent = newType.value;
-        console.log(typeCurrent);
     }
 
     // Fonctions pour la coloration avec choix
     const computeNamesDomain = (currentGroupedPoints) => {
         let result = [];
-        for (let group of currentGroupedPoints) {
-            let min = Math.min(...group.map((d) => d.col));
-            let max = Math.max(...group.map((d) => d.col));
-            if (min !== max) {
-                result.push(`[${min} ; ${max}]`);
-            } else {
-                result.push(`${min}`);
+        if (currentGroupedPoints !== undefined) {
+            for (let group of currentGroupedPoints) {
+                let min = Math.min(...group.map((d) => d.col));
+                let max = Math.max(...group.map((d) => d.col));
+                if (min !== max) {
+                    result.push(`[${min} ; ${max}]`);
+                } else {
+                    result.push(`${min}`);
+                }
             }
-
         }
         return result;
     }
@@ -260,11 +264,25 @@ export default function PolytopeChart(props) {
     }
 
     const RenderInputColorsForGradient = () => {
-        let result = [<input type="color" value={color2} onChange={e => setColor2(e.target.value)}/>];
-        if (clusterList[indexCluster] > 1) {
-            result.push(<input type="color" value={color1} onChange={e => setColor1(e.target.value)}/>);
+        if (clusterList[indexCluster] === 1) {
+            return (
+                <div>
+                    <p> {props.invariantColor} : </p>
+                    <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
+                    <label htmlFor="color1"> { minColor } - { maxColor } </label>
+                </div>
+            )
+        } else {
+            return (
+                <div>
+                    <p> {props.invariantColor} : </p>
+                    <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
+                    <label htmlFor="color1"> { minColor } </label>
+                    <input type="color" name="color2" id="color2" value={color2} onChange={e => setColor2(e.target.value)}/>
+                    <label htmlFor="color2"> { maxColor } </label>
+                </div>
+            )
         }
-        return result;
     }
 
     const selectColorForOnePoint = (i) => {
@@ -275,18 +293,24 @@ export default function PolytopeChart(props) {
         return col;
     }
 
-    // Créer les points sur le graphique
-    const RenderCircleSeries = () => {
-        let result = [];
-        if (clusterList.length > 0) { // Important car parfois appelé avant que les données ne soient correctement initialisées
-            let currentClustersNumber = clusterList[indexCluster];
-            let currentGroupedPoints = allClusters[currentClustersNumber];
-            if (previousState !== currentClustersNumber) { // Il faut modifier le range et le domain du color scale
+    const updateStates = () => {
+        let currentClustersNumber = clusterList[indexCluster];
+        let currentGroupedPoints = allClusters[currentClustersNumber];
+        if (previousState !== currentClustersNumber) { // Il faut modifier le range et le domain du color scale
+                setMaxDomain(Math.max(1, clusterList[indexCluster]-1));
                 setPreviousState(currentClustersNumber);
                 let currentDomain = computeNamesDomain(currentGroupedPoints);
                 setDomains(currentDomain);
                 setRange(computeColorsRange(currentDomain));
             }
+    }
+
+    // Créer les points sur le graphique
+    const RenderCircleSeries = () => {
+        let result = [];
+        if (clusterList.length > 0) { // Important, car parfois appelé avant que les données ne soient correctement initialisées
+            let currentClustersNumber = clusterList[indexCluster];
+            let currentGroupedPoints = allClusters[currentClustersNumber];
             currentGroupedPoints.map((group, i) => {
                 group.map((currentData, j) => result.push(
                     <React.Fragment key={`group-${i}-${j}`}>
@@ -307,6 +331,7 @@ export default function PolytopeChart(props) {
 
     return (
         <div>
+            {updateStates()}
             <svg width={width} height={height}>
                 <rect width={width} height={height} fill={background}/>
                 <Group left={margin.left} top={margin.top}>
