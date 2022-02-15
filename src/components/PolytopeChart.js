@@ -302,7 +302,7 @@ export default function PolytopeChart(props) {
             if (minColor === maxColor) {
                 tag += minColor;
             } else {
-                tag = minColor + " - " + maxColor;
+                tag = "[" + minColor + " ; " + maxColor + "]";
             }
             return (
                 <div>
@@ -323,6 +323,7 @@ export default function PolytopeChart(props) {
         }
     }
 
+    // Sélectionner la couleur pour un point selon le type de coloration actuelle
     const selectColorForOnePoint = (i) => {
         let col = colorScale(i);
         if (typeCurrent === 'indep') {
@@ -331,30 +332,25 @@ export default function PolytopeChart(props) {
         return col;
     }
 
-    // Créer les points sur le graphique
-    const RenderCircleSeries = () => {
+    // Construire la liste qui servira à placer les points
+    const constructPoints = () => {
         let result = [];
-        if (clusterList.length > 0) { // Important, car parfois appelé avant que les données ne soient correctement initialisées
-            let currentClustersNumber = clusterList[indexCluster];
-            let currentGroupedPoints = allClusters[currentClustersNumber];
-            colorsGradient = [];
-            currentGroupedPoints.map((group, i) => {
-                colorsGradient.push(colorScale(i));
-                group.map((currentData, j) => result.push(
-                    <React.Fragment key={`group-${i}-${j}`}>
-                        <Circle
-                            cx={xScale(accessors(currentData, "x"))}
-                            cy={yScale(accessors(currentData, "y"))}
-                            r={4}
-                            fill={selectColorForOnePoint(i)}
-                        />
-                    </React.Fragment>
-                ));
-            });
-            return result;
-        } else {
-            return null;
-        }
+        allClusters[clusterList[indexCluster]].map((group, i) => {
+            colorsGradient.push(colorScale(i));
+            group.map((currentData, j) => {
+                    let x = accessors(currentData, "x");
+                    let y = accessors(currentData, "y");
+                    let col = accessors(currentData);
+                    result.push({
+                        key: `(x:${x};y:${y};col:${col}`,
+                        x: x,
+                        y: y,
+                        r: 5,
+                        fill: selectColorForOnePoint(i)
+                    })
+                })
+        });
+        return result;
     }
 
     return (
@@ -366,7 +362,19 @@ export default function PolytopeChart(props) {
                     <Axis orientation="bottom" scale={xScale} top={innerHeight} />
                     <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
                     <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                    <Group pointerEvents="none">
+                    { clusterList.length > 0 ? colorsGradient = [] : null }
+                    <g>
+                        { clusterList.length > 0 ? constructPoints().map(circle => {
+                                return <circle
+                                    key={circle.key}
+                                    onClick={() => console.log(`x: ${circle.x} y : ${circle.y}`)}
+                                    onMouseEnter={() => console.log("enter")}
+                                    cx={xScale(circle.x)}
+                                    cy={yScale(circle.y)}
+                                    fillOpacity={0.75}
+                                    r={circle.r}
+                                    fill={circle.fill}/>
+                            }) : null }
                         <LinePath
                             stroke="black"
                             strokeWidth={ 1 }
@@ -374,8 +382,7 @@ export default function PolytopeChart(props) {
                             x={ (d) => xScale(accessors(d, "x")) }
                             y={ (d) => yScale(accessors(d, "y")) }
                         />
-                        <RenderCircleSeries />
-                    </Group>
+                    </g>
                 </Group>
             </svg>
             <Select defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
