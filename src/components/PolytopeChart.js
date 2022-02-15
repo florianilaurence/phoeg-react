@@ -102,23 +102,28 @@ export default function PolytopeChart(props) {
             let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
             setAllClusters(clusters.allClusters);
             setClusterList(clusters.clusterPossible);
+            updateStates(clusters.clusterPossible, 0, clusters.allClusters);
 
     },
         [props.invariantX, props.invariantY, props.invariantColor]);
 
     useEffect(() => {
-            let currentClustersNumber = clusterList[indexCluster];
-            let currentGroupedPoints = allClusters[currentClustersNumber];
-            setMaxDomain(Math.max(1, currentClustersNumber - 1));
-            // Màj pour coloration avec choix
-            let currentDomainIndep = computeTagsDomainIndep(currentGroupedPoints);
-            setDomainsIndep(currentDomainIndep);
-            setRange(computeColorsRange(currentDomainIndep));
-            // Màj pour coloration par gradient
-            setTagsGradient(computeTagsDomainGradient(currentGroupedPoints));
+            updateStates(clusterList, indexCluster, allClusters);
         },
         [indexCluster, props.invariantX, props.invariantY, props.invariantColor]
     )
+
+    const updateStates = (currentClusterList, currentIndexCluster, currentAllClusters) => {
+        let currentClustersName = currentClusterList[currentIndexCluster];
+        let currentGroupedPoints = currentAllClusters[currentClustersName];
+        setMaxDomain(Math.max(1, currentClustersName - 1));
+        // Màj pour coloration avec choix
+        let currentDomainIndep = computeTagsDomainIndep(currentGroupedPoints);
+        setDomainsIndep(currentDomainIndep);
+        setRange(computeColorsRange(currentDomainIndep));
+        // Màj pour coloration par gradient
+        setTagsGradient(computeTagsDomainGradient(currentGroupedPoints));
+    }
 
     // Calcule les domaines pour les échelles en X et en Y
     const computeScaleDomains = (tempPoints, tempLines) => {
@@ -274,7 +279,7 @@ export default function PolytopeChart(props) {
     }
 
     // Créer les balises de choix des couleurs pour une coloration avec choix
-    const RenderInputColorsForIndep = () => { // ToDo Ne s'affiche correctement qu'avec un temps de retard (grrr les state)
+    const RenderInputColorsForIndep = () => {
         let result = [<p> {props.invariantColor} : </p>];
         for (let i in range) {
             result.push(
