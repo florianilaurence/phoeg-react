@@ -3,10 +3,12 @@ import {readEnvelope, readPoints} from "../core/ParseFiles";
 import {Group} from "@visx/group";
 import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
-import {Circle, LinePath} from "@visx/shape";
+import {LinePath} from "@visx/shape";
 import {GridColumns, GridRows} from "@visx/grid";
 import {Dimensions, Text} from 'react-native';
 import Select from "react-select";
+import "../styles/PolytopeChart.css";
+import Graphs from "./Graphs";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
@@ -76,6 +78,11 @@ export default function PolytopeChart(props) {
     });
     let [tagsGradient, setTagsGradient] = useState([]);
     let colorsGradient = [];
+
+    // Pour sélectionner un point du graphe et passer à la suite
+    const [selectedX, setSelectedX] = useState(null);
+    const [selectedY, setSelectedY] = useState(null);
+    const [selected, setSelected] = useState(false);
 
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
@@ -278,6 +285,12 @@ export default function PolytopeChart(props) {
         return result;
     }
 
+    const handleClickOnCircle = (x, y) => {
+        setSelectedX(x);
+        setSelectedY(y);
+        setSelected(true);
+    }
+
     // Créer les balises de choix des couleurs pour une coloration avec choix
     const RenderInputColorsForIndep = () => {
         let result = [<p> {props.invariantColor} : </p>];
@@ -345,7 +358,7 @@ export default function PolytopeChart(props) {
                         key: `(x:${x};y:${y};col:${col}`,
                         x: x,
                         y: y,
-                        r: 5,
+                        r: 3,
                         fill: selectColorForOnePoint(i)
                     })
                 })
@@ -364,17 +377,6 @@ export default function PolytopeChart(props) {
                     <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
                     { clusterList.length > 0 ? colorsGradient = [] : null }
                     <g>
-                        { clusterList.length > 0 ? constructPoints().map(circle => {
-                                return <circle
-                                    key={circle.key}
-                                    onClick={() => console.log(`x: ${circle.x} y : ${circle.y}`)}
-                                    onMouseEnter={() => console.log("enter")}
-                                    cx={xScale(circle.x)}
-                                    cy={yScale(circle.y)}
-                                    fillOpacity={0.75}
-                                    r={circle.r}
-                                    fill={circle.fill}/>
-                            }) : null }
                         <LinePath
                             stroke="black"
                             strokeWidth={ 1 }
@@ -382,6 +384,17 @@ export default function PolytopeChart(props) {
                             x={ (d) => xScale(accessors(d, "x")) }
                             y={ (d) => yScale(accessors(d, "y")) }
                         />
+                        { clusterList.length > 0 ? constructPoints().map(circle => {
+                                return <circle
+                                    className="circle"
+                                    key={circle.key}
+                                    onClick={() => handleClickOnCircle(circle.x, circle.y)}
+                                    cx={xScale(circle.x)}
+                                    cy={yScale(circle.y)}
+                                    fillOpacity={0.75}
+                                    r={circle.r}
+                                    fill={circle.fill}/>
+                            }) : null }
                     </g>
                 </Group>
             </svg>
@@ -390,13 +403,21 @@ export default function PolytopeChart(props) {
                 <RenderInputColorsForIndep /> :
                 <RenderInputColorsForGradient />
             }
-
             <p>
                 Combien souhaitez-vous de clusters pour colorier les graphes ? {clusterList.map(d => d + " ")}
             </p>
             <button onClick={() => setIndexCluster(indexCluster > 0 ? indexCluster - 1 : clusterList.length - 1)}> Précédent </button>
             {" " + clusterList[indexCluster] + " "}
             <button onClick={() => setIndexCluster((indexCluster+1) % clusterList.length)}> Suivant </button>
+            {selected ?
+                <Graphs
+                    invariantXName={props.invariantX}
+                    numberVertices={props.invariantY}
+                    invariantXValue={selectedX}
+                    invariantYValue={selectedY}
+                />
+                : null
+            }
         </div>
     )
 }

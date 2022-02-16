@@ -1,4 +1,3 @@
-import {DragNodes, NodeShapes, RandomizeNodePositions, RelativeSize, Sigma} from "react-sigma";
 import React, {useEffect, useState} from "react";
 import {computeNodesEdges} from "../core/ParseSignature";
 
@@ -9,7 +8,7 @@ export default function Graph(props) {
         setGraph(computeNodesEdges(props.signature))
     }, [props.signature]);
 
-    return (
+    return null/*(
         <Sigma renderer="webgl"
                graph={graph}
                settings={{drawEdges:true}}
@@ -19,6 +18,6 @@ export default function Graph(props) {
             <NodeShapes default="pacman"/>
             <RandomizeNodePositions/>
         </Sigma>
-    )
+    )*/
 }
 
