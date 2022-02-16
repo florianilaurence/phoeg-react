@@ -2,7 +2,7 @@
 function constructNodes(n) {
     const nodes = [];
     for (let i = 0; i < n; i++) {
-        nodes.push({ id: `n${i}`, size: 15 });
+        nodes.push({ id: `n${i}`, size: 15 }); //ToDo Changer pour calculer la position en x et en y ({x: , y: })
     }
     return nodes;
 }
