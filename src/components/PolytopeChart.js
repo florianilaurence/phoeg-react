@@ -9,6 +9,7 @@ import {Dimensions, Text} from 'react-native';
 import Select from "react-select";
 import "../styles/PolytopeChart.css";
 import Graphs from "./Graphs";
+import {stringify} from "qs";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
@@ -86,25 +87,38 @@ export default function PolytopeChart(props) {
 
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
-            let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
-            let pathPoints = "assets/data_" + props.invariantX + "/points/points-" + props.invariantY + ".json";
+            // Invariants to display
+            const [x_invariant_name, x_invariant_min_bound, x_invariant_max_bound] = [props.invariants[0].name, props.invariants[0].minimum_bound, props.invariants[0].maximum_bound];
+            const [y_invariant_name, y_invariant_min_bound, y_invariant_max_bound] = [props.invariants[1].name, props.invariants[1].minimum_bound, props.invariants[1].maximum_bound];
 
-            const tempLines = await fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (myJson) {
-                    return readEnvelope(myJson);
+            // TODO handle if only two invariants
+            const [colour_invariant_name, colour_invariant_min_bound, colour_invariant_max_bound] = [props.invariants[2].name, props.invariants[2].minimum_bound, props.invariants[2].maximum_bound];
+
+            const graphPath = props.graphPath.value.path;
+            let envelope_request = new URL(`http://localhost:8080${graphPath}/polytope`);
+            envelope_request += "?" + stringify({
+                max_graph_size: props.max_graph_size,
+                invariants: props.invariants
+            })
+
+            const envelope = await fetch(envelope_request.toString())
+                .then(response => response.json())
+                .then(json => {
+                    return readEnvelope(json);
                 });
-            const tempPoints = await fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (myJson) {
-                    return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hardcodé
-                })
-            computeScaleDomains(tempPoints, tempLines);
-            setLines(tempLines);
+
+            let points_request = new URL(`http://localhost:8080${graphPath}/points`);
+            points_request += "?" + stringify({
+                max_graph_size: props.max_graph_size,
+                invariants: props.invariants
+            })
+
+            const tempPoints = await fetch(points_request.toString())
+                .then(response => response.json())
+                .then(json => readPoints(json, x_invariant_name, y_invariant_name, colour_invariant_name)) //TODO accept more than one colouring);
+
+            computeScaleDomains(tempPoints, envelope);
+            setLines(envelope);
             let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
             let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
             setAllClusters(clusters.allClusters);
@@ -112,12 +126,12 @@ export default function PolytopeChart(props) {
             updateStates(clusters.clusterPossible, 0, clusters.allClusters);
 
     },
-        [props.invariantX, props.invariantY, props.invariantColor]);
+        [props.invariants]);
 
     useEffect(() => {
             updateStates(clusterList, indexCluster, allClusters);
         },
-        [indexCluster, props.invariantX, props.invariantY, props.invariantColor]
+        [indexCluster, props.invariants]
     )
 
     const updateStates = (currentClusterList, currentIndexCluster, currentAllClusters) => {
