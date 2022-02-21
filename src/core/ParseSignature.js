@@ -1,11 +1,4 @@
 
-function constructNodes(n) {
-    const nodes = [];
-    for (let i = 0; i < n; i++) {
-        nodes.push({ id: `n${i}`, size: 15 }); //ToDo Changer pour calculer la position en x et en y ({x: , y: })
-    }
-    return nodes;
-}
 
 function parseToBits(data) {
     let bits = []
@@ -20,12 +13,10 @@ function parseToBits(data) {
 function constructEdges(bits, n) {
     const edges = [];
     let cnt = 0;
-    let edgesCnt = 0;
     for (let j = 1; j < n; j++) {
         for (let i = 0; i < j; i++) {
             if (bits[cnt]) {
-                edges.push({ id: `e${edgesCnt}`, source: `n${i}`, target: `n${j}` })
-                edgesCnt += 1;
+                edges.push({ source: i, target: j })
             }
             cnt += 1;
         }
@@ -63,11 +54,10 @@ export function computeNodesEdges(signature) {
     for (let i in bytesArr) {
         bytesArr[i] -= 63;
     }
-
     let [n, data] = bytesArrayToN(bytesArr);
     let bits = parseToBits(data);
     return {
-        nodes: constructNodes(n),
-        edges: constructEdges(bits, n)
+        number_nodes: n,
+        links: constructEdges(bits, n)
     };
 }
