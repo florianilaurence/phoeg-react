@@ -9,9 +9,9 @@ export default function MyGraph(props) {
         nodes,
         links: links
     });
-    const side = 550;
+    const side = 500;
     const margin = 25;
-    const background = '#d2cfcf'
+    const background = '#fafafa'
 
     useEffect( () => {
         let nodesEdges = computeNodesEdges(props.signature);
@@ -24,18 +24,18 @@ export default function MyGraph(props) {
     }, [props.signature]);
 
     const computeCirclePositionOfNodes = (n) => {
-        const range = Math.floor(2*Math.PI/n);
+        const range = 2*Math.PI/n;
         let result = [];
         if(n === 1) {
             result.push({
-                x: (side/2)-margin,
-                y: (side/2)-margin
+                x: (side/2),
+                y: (side/2)
             });
         } else {
             let i = 0;
             while (i < n) {
-                let x = (Math.cos(i*range)+1)*((side/2)-margin); // +1 pour décaler le cercle en positif
-                let y = (Math.sin(i*range)+1)*((side/2)-margin); // *(side/2) pour mettre à l'échelle dans le rectangle
+                let x = (Math.cos(i*range)+1)*((side/2)); // +1 pour décaler le cercle en positif
+                let y = (Math.sin(i*range)+1)*((side/2)); // *(side/2) pour mettre à l'échelle dans le rectangle
                 result.push({
                     x: x,
                     y: y
@@ -58,8 +58,8 @@ export default function MyGraph(props) {
     }
 
     return (
-        <svg width={side} height={side}>
-            <rect width={side} height={side} fill={background} />
+        <svg width={side+2*margin} height={side+2*margin}>
+            <rect width={side+2*margin} height={side+2*margin} fill={background} rx="15" ry="15" />
             <Graph
                 left={margin}
                 top={margin}
