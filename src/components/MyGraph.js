@@ -36,8 +36,12 @@ export default function MyGraph(props) {
         setGraph({
             nodes,
             links: links
-        })
+        });
         linksCompl = connectLinksToNodes(nodesEdges.linksCompl);
+        setGraphCompl({
+            nodes,
+            links: linksCompl
+        });
     }, [props.signature]);
 
     const computeCirclePositionOfNodes = (n) => {
@@ -74,15 +78,11 @@ export default function MyGraph(props) {
         return result;
     }
 
-    const handleChangeOption = (newOption) => {
-
-    }
-
-    return (
-        <div>
-            <svg width={side+2*margin} height={side+2*margin}>
-                <rect width={side+2*margin} height={side+2*margin} fill={background} rx="15" ry="15" />
+    const constructGraph = (isComplement) => {
+        if(isComplement) {
+            return ( // Afficher le complémentaire avec une couleur différente
                 <Graph
+                    key={`graph_compl_${props.signature}`}
                     left={margin}
                     top={margin}
                     right={margin}
@@ -95,18 +95,68 @@ export default function MyGraph(props) {
                             x2={target.x}
                             y2={target.y}
                             strokeWidth={3}
+                            stroke="#00ff00"
+                            strokeOpacity={0.5}
+                        />
+                    )}
+                    nodeComponent={() => <DefaultNode fill='#000000' />} />
+            )
+        } else {
+            return ( // Afficher le graphe de base en noir
+                <Graph
+                    key={`graph_${props.signature}`}
+                    left={margin}
+                    top={margin}
+                    right={margin}
+                    bottom={margin}
+                    graph={graphCompl}
+                    linkComponent={({ link: { source, target } }) => (
+                        <line
+                            x1={source.x}
+                            y1={source.y}
+                            x2={target.x}
+                            y2={target.y}
+                            strokeWidth={3}
                             stroke="#000000"
                             strokeOpacity={0.5}
                         />
                     )}
                     nodeComponent={() => <DefaultNode fill='#000000' />} />
+            )
+        }
+    }
+
+    const handleChangeOption = (newOption) => {
+        setOption(newOption);
+        currentOption = newOption.value;
+        return true;
+    }
+
+    const RenderGraph = () => {
+        if (currentOption === 1) {
+            return constructGraph(false);
+        } else if (currentOption === 2) {
+            return constructGraph(true);
+        } else {
+            return [
+                constructGraph(false),
+                constructGraph(true)
+            ];
+        }
+    }
+
+    return (
+        <div>
+            <svg width={side+2*margin} height={side+2*margin}>
+                <rect width={side+2*margin} height={side+2*margin} fill={background} rx="15" ry="15" />
+                <RenderGraph />
             </svg>
             <form>
                 <label>
                     Souhaitez-vous afficher le complément du graphe ?
                         <Select
-                            defaultValue={}
-                            onChange={}
+                            defaultValue={option}
+                            onChange={handleChangeOption}
                             options={OPTIONS}
                         />
                 </label>
