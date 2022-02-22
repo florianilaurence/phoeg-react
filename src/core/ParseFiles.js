@@ -32,7 +32,6 @@ function readEnvelopePolygone(data) {
 
 
 export function readPoints(data, invariantX, invariantY, invariantColor) {
-    console.log(data);
     const keys = Object.keys(data);
     const pointsGrouped = [];
 
@@ -51,7 +50,7 @@ export function readPoints(data, invariantX, invariantY, invariantColor) {
         const yValue = data[yName][i];
         const colorValue = data[colorName][i];
 
-        pointsGrouped.push({x: xValue, y: yValue, r: 5});
+        pointsGrouped.push({x: xValue, y: yValue, r: 5, col: colorValue});
         // ToDo possibilité d'ajouter un invariant supplémentaire pour le rayon des cercles de manière facultative
     }
     return pointsGrouped;
