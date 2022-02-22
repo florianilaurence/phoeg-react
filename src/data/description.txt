@@ -1,2 +1,0 @@
-Juste une essai.
-Un outil pour utiliser PHOEG. Dans le première section, vous trouverez les polytopes. Vous pouvez choisir un invariant.

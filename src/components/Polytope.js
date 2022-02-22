@@ -66,7 +66,7 @@ export default function Polytope(props) {
 
     const RenderPolytopeChart = () => {
         if (submit) {
-            return <PolytopeChart invariantName={currentInvariant} numberVertices={currentNumber} invariantColor={currentColor}/>;
+            return <PolytopeChart invariantX={currentInvariant} invariantY={currentNumber} invariantColor={currentColor}/>;
         } else {
             return null;
         }

@@ -1,9 +1,3 @@
-import {pickColorIntoGradient} from "./gradient";
-
-let GRADIENT = [
-  [0, 0, 255, 30],
-  [50, 255, 255, 30],
-  [100, 255, 0, 30]];
 
 export function readEnvelope(json) {
     if (json["type"] === "Point") {
@@ -36,37 +30,14 @@ function readEnvelopePolygone(data) {
     return result;
 }
 
-export function readPoints(data, invariantX, coloration) {
-    // "m" --> Oy
-    // "avcol" "eci" ... --> Ox
-    // "chi" --> Coloration
-    // "mult" --> Coloration
-
-    const pointsGrouped = {};
+export function readPoints(data, invariantX, invariantY, invariantColor) {
+    const result = [];
     for (let i in data) {
         let xVal = data[i][invariantX];
-        let yVal = data[i]["m"]; //TODO A modifier
-        let color = data[i][coloration];
-        if (pointsGrouped[color] == null) {
-            pointsGrouped[color] = [];
-        }
-        pointsGrouped[color].push({x: xVal, y: yVal, r: 5});
-    }
-    let result = [];
-    const groupsKeys = Object.keys(pointsGrouped).map(x => parseInt(x)).sort((a, b) => a >= b);
-    const min = groupsKeys[0];
-    const max = groupsKeys[groupsKeys.length - 1];
-    for (let i in groupsKeys) {
-        const groupVal = groupsKeys[i];
-        result.push({
-            type: 'bubble',
-            label: coloration + " = " + groupVal,
-            data: pointsGrouped[groupVal],
-            backgroundColor: pickColorIntoGradient(GRADIENT, 100 * (groupVal - min) / (max - min)),
-            borderWidth: 1,
-            hoverBorderColor: '0x000000',
-            pointStyle: 'triangle'
-        })
+        let yVal = data[i][invariantY];
+        let colorVal = data[i][invariantColor];
+        result.push({x: xVal, y: yVal, r: 1, col: colorVal});
+        // ToDo possibilité d'ajouter un invariant supplémentaire pour le rayon des cercles de manière facultative
     }
     return result;
 }
@@ -79,6 +50,7 @@ export function readPoints(data, invariantX, coloration) {
  * @param invariantName Nom de l'invariant
  * @returns {*[]} Liste des signatures de graphes correspondant aux critères
  */
+
 export function readGraph(data, numberEdges, invariantName, invariantValue) {
     let result =[];
     for (let d of data) {

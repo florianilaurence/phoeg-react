@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Graph from "./Graph";
+import MyGraph from "./MyGraph";
 
 export default function GraphSlider(props) {
     const [currentIndex, setCurrentIndex] = useState(0); // Indice du graphe à afficher
@@ -27,12 +27,12 @@ export default function GraphSlider(props) {
                                  // --> Déjà calculé => récupérer le graphe
                                  // --> Pas encore calculé => Calculer le graphe puis l'ajouter au dictionnaire
         if (props.graphList.length === 1) {
-            return <Graph signature={currentSign}/>
+            return <MyGraph signature={currentSign}/>
         } else {
             return (
                 <div>
                     <button onClick={handleClickPrevious}> Précédent </button>
-                    <Graph signature={currentSign}/>
+                    <MyGraph signature={currentSign}/>
                     <button onClick={handleClickNext}> Suivant </button>
                 </div>
             );

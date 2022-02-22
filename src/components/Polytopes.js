@@ -3,7 +3,7 @@ import {useState} from "react";
 
 // Component's core
 export default function Polytopes() {
-    const [count, setCount] = useState(0);
+    const [count, setCount] = useState(1);
     const [maxPolytopes, setMaxPolytopes] = useState(3);
 
     const RenderMultiPolytopes = () => {
