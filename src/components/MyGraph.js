@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {computeNodesEdges} from "../core/ParseSignature";
-import { Graph, DefaultLink, DefaultNode } from '@visx/network';
+import { Graph, DefaultNode } from '@visx/network';
+import Select from "react-select";
 
 export default function MyGraph(props) {
     let nodes = [];
@@ -9,6 +10,21 @@ export default function MyGraph(props) {
         nodes,
         links: links
     });
+
+    let linksCompl = [];
+    const [graphCompl, setGraphCompl] = useState({
+        nodes,
+        links: linksCompl
+    });
+
+    const OPTIONS = [
+        {value: 1, label: "non"},
+        {value: 2, label: "oui, seul"},
+        {value: 3, label: "oui, les deux"}
+    ];
+    const [option, setOption] = useState(OPTIONS[0]);
+    let currentOption = option.value;
+
     const side = 500;
     const margin = 25;
     const background = '#fafafa'
@@ -21,6 +37,7 @@ export default function MyGraph(props) {
             nodes,
             links: links
         })
+        linksCompl = connectLinksToNodes(nodesEdges.linksCompl);
     }, [props.signature]);
 
     const computeCirclePositionOfNodes = (n) => {
@@ -57,18 +74,44 @@ export default function MyGraph(props) {
         return result;
     }
 
+    const handleChangeOption = (newOption) => {
+
+    }
+
     return (
-        <svg width={side+2*margin} height={side+2*margin}>
-            <rect width={side+2*margin} height={side+2*margin} fill={background} rx="15" ry="15" />
-            <Graph
-                left={margin}
-                top={margin}
-                right={margin}
-                bottom={margin}
-                graph={graph}
-                linkComponent={DefaultLink}
-                nodeComponent={() => <DefaultNode fill='#000000' />} />
-        </svg>
+        <div>
+            <svg width={side+2*margin} height={side+2*margin}>
+                <rect width={side+2*margin} height={side+2*margin} fill={background} rx="15" ry="15" />
+                <Graph
+                    left={margin}
+                    top={margin}
+                    right={margin}
+                    bottom={margin}
+                    graph={graph}
+                    linkComponent={({ link: { source, target } }) => (
+                        <line
+                            x1={source.x}
+                            y1={source.y}
+                            x2={target.x}
+                            y2={target.y}
+                            strokeWidth={3}
+                            stroke="#000000"
+                            strokeOpacity={0.5}
+                        />
+                    )}
+                    nodeComponent={() => <DefaultNode fill='#000000' />} />
+            </svg>
+            <form>
+                <label>
+                    Souhaitez-vous afficher le complément du graphe ?
+                        <Select
+                            defaultValue={}
+                            onChange={}
+                            options={OPTIONS}
+                        />
+                </label>
+            </form>
+        </div>
     )
 }
 

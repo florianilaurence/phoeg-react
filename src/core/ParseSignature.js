@@ -49,6 +49,20 @@ function bytesArrayToN(bytesArray) {
         bytesArray.slice(8)];
 }
 
+const constructComplement = (bits, n) => {
+    const edgesCompl = [];
+    let cnt = 0;
+    for (let j = 1; j < n; j++) {
+        for (let i = 0; i < j; i++) {
+            if (!bits[cnt]) {
+                edgesCompl.push({ source: i, target: j })
+            }
+            cnt += 1;
+        }
+    }
+    return edgesCompl;
+}
+
 export function computeNodesEdges(signature) {
     const bytesArr = unpack(signature);
     for (let i in bytesArr) {
@@ -58,6 +72,7 @@ export function computeNodesEdges(signature) {
     let bits = parseToBits(data);
     return {
         number_nodes: n,
-        links: constructEdges(bits, n)
+        links: constructEdges(bits, n),
+        linksCompl: constructComplement(bits, n)
     };
 }
