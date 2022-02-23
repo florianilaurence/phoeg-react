@@ -425,9 +425,11 @@ export default function PolytopeChart(props) {
             <button onClick={() => setIndexCluster((indexCluster+1) % clusterList.length)}> Suivant </button>
             {selected ?
                 <Graphs
-                    invariantXName={props.invariantX}
-                    numberVertices={props.invariantY}
+                    graphPath={props.graphPath}
+                    invariantXName={props.invariants[0].name}
                     invariantXValue={selectedX}
+                    max_graph_size={props.max_graph_size}
+                    invariantYName={props.invariants[1].name}
                     invariantYValue={selectedY}
                 />
                 : null
