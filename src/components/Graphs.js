@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { readGraph } from "../core/ParseFiles";
 import GraphSlider from "./GraphSlider";
 import {API_URL} from "../.env";
+import {fetch_api} from "../core/utils";
 
 export default function Graphs(props) {
     const [graphlist, setGraphList] = useState(["@"]); // La liste des graphes correspondant aux critères
@@ -23,7 +24,7 @@ export default function Graphs(props) {
         graphs_request.searchParams.append("invariants[0][value]", props.invariantXValue);
         graphs_request.searchParams.append("invariants[1][value]", props.invariantYValue);
 
-        fetch(graphs_request.toString(), {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+        fetch_api(graphs_request.toString(), {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then(function (response) {
                 return response.json();
             })

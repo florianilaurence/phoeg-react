@@ -11,6 +11,7 @@ import "../styles/PolytopeChart.css";
 import Graphs from "./Graphs";
 import {stringify} from "qs";
 import {API_URL} from "../.env";
+import {fetch_api} from "../core/utils";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
@@ -102,7 +103,7 @@ export default function PolytopeChart(props) {
                 invariants: props.invariants
             })
 
-            const envelope = await fetch(envelope_request.toString())
+            const envelope = await fetch_api(envelope_request.toString())
                 .then(response => response.json())
                 .then(json => {
                     return readEnvelope(json);
@@ -114,7 +115,7 @@ export default function PolytopeChart(props) {
                 invariants: props.invariants
             })
 
-            const tempPoints = await fetch(points_request.toString())
+            const tempPoints = await fetch_api(points_request.toString())
                 .then(response => response.json())
                 .then(json => readPoints(json, x_invariant_name, y_invariant_name, colour_invariant_name)) //TODO accept more than one colouring);
 
