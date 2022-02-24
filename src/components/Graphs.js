@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { readGraph } from "../core/ParseFiles";
 import GraphSlider from "./GraphSlider";
+import {API_URL} from "../.env";
 
 export default function Graphs(props) {
     const [graphlist, setGraphList] = useState(["@"]); // La liste des graphes correspondant aux critères
@@ -9,7 +10,7 @@ export default function Graphs(props) {
     useEffect( () => {
 
         const graphPath = props.graphPath.value.path;
-        let graphs_request = new URL(`http://localhost:8080${graphPath}`)
+        let graphs_request = new URL(`${API_URL}${graphPath}`)
 
         console.log(props.invariantXName);
 

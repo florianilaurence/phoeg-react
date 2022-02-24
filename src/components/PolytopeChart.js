@@ -10,6 +10,7 @@ import Select from "react-select";
 import "../styles/PolytopeChart.css";
 import Graphs from "./Graphs";
 import {stringify} from "qs";
+import {API_URL} from "../.env";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
@@ -88,14 +89,14 @@ export default function PolytopeChart(props) {
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
             // Invariants to display
-            const [x_invariant_name, x_invariant_min_bound, x_invariant_max_bound] = [props.invariants[0].name, props.invariants[0].minimum_bound, props.invariants[0].maximum_bound];
-            const [y_invariant_name, y_invariant_min_bound, y_invariant_max_bound] = [props.invariants[1].name, props.invariants[1].minimum_bound, props.invariants[1].maximum_bound];
+            const x_invariant_name = props.invariants[0].name;
+            const y_invariant_name = props.invariants[1].name;
 
             // TODO handle if only two invariants
-            const [colour_invariant_name, colour_invariant_min_bound, colour_invariant_max_bound] = [props.invariants[2].name, props.invariants[2].minimum_bound, props.invariants[2].maximum_bound];
+            const colour_invariant_name = props.invariants[2].name;
 
             const graphPath = props.graphPath.value.path;
-            let envelope_request = new URL(`http://localhost:8080${graphPath}/polytope`);
+            let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
             envelope_request += "?" + stringify({
                 max_graph_size: props.max_graph_size,
                 invariants: props.invariants
@@ -107,7 +108,7 @@ export default function PolytopeChart(props) {
                     return readEnvelope(json);
                 });
 
-            let points_request = new URL(`http://localhost:8080${graphPath}/points`);
+            let points_request = new URL(`${API_URL}${graphPath}/points`);
             points_request += "?" + stringify({
                 max_graph_size: props.max_graph_size,
                 invariants: props.invariants

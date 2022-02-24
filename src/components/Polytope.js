@@ -2,11 +2,12 @@ import Select from 'react-select';
 import React, {useEffect, useState} from "react";
 import Form from '@rjsf/material-ui';
 import PolytopeChart from "./PolytopeChart.js";
+import {API_URL} from "../.env";
 
-const API_URL = "http://localhost:8080/endpoints";
+const API_URL_ENDPOINTS = `${API_URL}/endpoints`;
 
 async function get_endpoints() {
-    return await fetch(API_URL, {method: "GET"})
+    return await fetch(API_URL_ENDPOINTS, {method: "GET"})
         .then(response => response.json())
         .then(data => {
             const endpoints = [];
