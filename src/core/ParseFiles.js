@@ -30,16 +30,29 @@ function readEnvelopePolygone(data) {
     return result;
 }
 
+
 export function readPoints(data, invariantX, invariantY, invariantColor) {
-    const result = [];
-    for (let i in data) {
-        let xVal = data[i][invariantX];
-        let yVal = data[i][invariantY];
-        let colorVal = data[i][invariantColor];
-        result.push({x: xVal, y: yVal, r: 1, col: colorVal});
+    const keys = Object.keys(data);
+    const pointsGrouped = [];
+
+    const xName = keys[0];
+    const yName = keys[1];
+    const colorName = keys[2];
+    // Additional value for diameter ?
+
+    const invariants_length = data[keys[0]].length;
+    console.assert(keys.every(key => data[key].length === invariants_length), "Assert all invariants must have the same length");
+
+
+    for (let i = 0; i<invariants_length; i++) {
+        const xValue = data[xName][i];
+        const yValue = data[yName][i];
+        const colorValue = data[colorName][i];
+
+        pointsGrouped.push({x: xValue, y: yValue, r: 5, col: colorValue});
         // ToDo possibilité d'ajouter un invariant supplémentaire pour le rayon des cercles de manière facultative
     }
-    return result;
+    return pointsGrouped;
 }
 
 /**
@@ -51,12 +64,21 @@ export function readPoints(data, invariantX, invariantY, invariantColor) {
  * @returns {*[]} Liste des signatures de graphes correspondant aux critères
  */
 
-export function readGraph(data, numberEdges, invariantName, invariantValue) {
-    let result =[];
-    for (let d of data) {
-        if (d["m"] === numberEdges && d[invariantName] === invariantValue) {
-            result.push(d["sig"]);
+export function readGraph(data, x_invariant_name, x_invariant_value, y_invariant_name, y_invariant_value) {
+    const result =[];
+    const keys = Object.keys(data);
+    const invariants_length = data[keys[0]].length;
+    console.assert(keys.every(key => data[key].length === invariants_length), "Assert all invariants must have the same length");
+
+    for (let i = 0; i<invariants_length; i++) {
+        const xValue = data[x_invariant_name][i];
+        const yValue = data[y_invariant_name][i];
+        const sigValue = data["sig"][i];
+
+        if (xValue === x_invariant_value && yValue === y_invariant_value) {
+            result.push(sigValue);
         }
     }
+
     return result;
 }
