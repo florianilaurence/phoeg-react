@@ -18,6 +18,7 @@ import {
 import {Zoom} from "@visx/zoom";
 import { RectClipPath } from '@visx/clip-path';
 import {localPoint} from "@visx/event";
+import { Tooltip } from 'react-svg-tooltip';
 
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
@@ -271,15 +272,28 @@ export default function PolytopeChart(props) {
                         y={ (d) => yScale(accessors(d, "y")) }
                     />
                     { clusterList.length > 0 ? constructPoints().map(circle => {
-                        return <circle
-                            className="circle"
-                            key={circle.key}
-                            onClick={() => handleClickOnCircle(circle.x, circle.y)}
-                            cx={xScale(circle.x)}
-                            cy={yScale(circle.y)}
-                            fillOpacity={0.75}
-                            r={circle.r}
-                            fill={circle.fill}/>
+                        const ref = React.createRef();
+                        return (
+                            <>
+                                <circle
+                                    ref={ref}
+                                    className="circle"
+                                    key={circle.key}
+                                    onClick={() => handleClickOnCircle(circle.x, circle.y)}
+                                    cx={xScale(circle.x)}
+                                    cy={yScale(circle.y)}
+                                    fillOpacity={0.75}
+                                    r={circle.r}
+                                    fill={circle.fill}
+                                />
+                                <Tooltip triggerRef={ref}>
+                                    <text x={-125} y={-10} fontSize={15} fill='#000000' >
+                                        {props.invariantX} = {circle.x} | m = {circle.y //TODO Ne pas être hardcodé et ajouté les autres données
+                                        }
+                                    </text>
+                                </Tooltip>
+                            </>
+                        )
                     }) : null }
                 </g>
             </Group>
