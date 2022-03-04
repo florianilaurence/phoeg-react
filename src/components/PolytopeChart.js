@@ -9,9 +9,6 @@ import {Dimensions, Text} from 'react-native';
 import Select from "react-select";
 import "../styles/PolytopeChart.css";
 import Graphs from "./Graphs";
-import {stringify} from "qs";
-import {API_URL} from "../.env";
-import {fetch_api} from "../core/utils";
 
 const accessors = (data, param) => {
     if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
@@ -89,38 +86,25 @@ export default function PolytopeChart(props) {
 
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
-            // Invariants to display
-            const x_invariant_name = props.invariants[0].name;
-            const y_invariant_name = props.invariants[1].name;
+            let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
+            let pathPoints = "assets/data_" + props.invariantX + "/points/points-" + props.invariantY + ".json";
 
-            // TODO handle if only two invariants
-            const colour_invariant_name = props.invariants[2].name;
-
-            const graphPath = props.graphPath.value.path;
-            let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
-            envelope_request += "?" + stringify({
-                max_graph_size: props.max_graph_size,
-                invariants: props.invariants
-            })
-
-            const envelope = await fetch_api(envelope_request.toString())
-                .then(response => response.json())
-                .then(json => {
-                    return readEnvelope(json);
+            const tempLines = await fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (myJson) {
+                    return readEnvelope(myJson);
                 });
-
-            let points_request = new URL(`${API_URL}${graphPath}/points`);
-            points_request += "?" + stringify({
-                max_graph_size: props.max_graph_size,
-                invariants: props.invariants
-            })
-
-            const tempPoints = await fetch_api(points_request.toString())
-                .then(response => response.json())
-                .then(json => readPoints(json, x_invariant_name, y_invariant_name, colour_invariant_name)) //TODO accept more than one colouring);
-
-            computeScaleDomains(tempPoints, envelope);
-            setLines(envelope);
+            const tempPoints = await fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (myJson) {
+                    return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hardcodé
+                })
+            computeScaleDomains(tempPoints, tempLines);
+            setLines(tempLines);
             let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
             let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
             setAllClusters(clusters.allClusters);
@@ -128,12 +112,12 @@ export default function PolytopeChart(props) {
             updateStates(clusters.clusterPossible, 0, clusters.allClusters);
 
     },
-        [props.invariants]);
+        [props.invariantX, props.invariantY, props.invariantColor]);
 
     useEffect(() => {
             updateStates(clusterList, indexCluster, allClusters);
         },
-        [indexCluster, props.invariants]
+        [indexCluster, props.invariantX, props.invariantY, props.invariantColor]
     )
 
     const updateStates = (currentClusterList, currentIndexCluster, currentAllClusters) => {
@@ -427,11 +411,9 @@ export default function PolytopeChart(props) {
             <button onClick={() => setIndexCluster((indexCluster+1) % clusterList.length)}> Suivant </button>
             {selected ?
                 <Graphs
-                    graphPath={props.graphPath}
-                    invariantXName={props.invariants[0].name}
+                    invariantXName={props.invariantX}
+                    numberVertices={props.invariantY}
                     invariantXValue={selectedX}
-                    max_graph_size={props.max_graph_size}
-                    invariantYName={props.invariants[1].name}
                     invariantYValue={selectedY}
                 />
                 : null
