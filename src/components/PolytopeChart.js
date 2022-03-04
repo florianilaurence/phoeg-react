@@ -22,7 +22,7 @@ import {localPoint} from "@visx/event";
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
-    const background_mini_map = 'rgba(231,230,230,0.9)';
+    const background_mini_map = 'rgba(197,197,197,0.9)';
     const width = Dimensions.get('window').width;
     const height = width / 2;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
@@ -254,6 +254,38 @@ export default function PolytopeChart(props) {
         return result;
     }
 
+    const RenderData = () => {
+        return (
+            <Group left={margin.left} top={margin.top}>
+                <AxisLeft scale={yScale} left={margin.left} />
+                <Axis orientation="bottom" scale={xScale} top={innerHeight} />
+                <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                { clusterList.length > 0 ? colorsGradient = [] : null }
+                <g>
+                    <LinePath
+                        stroke="black"
+                        strokeWidth={ 1 }
+                        data={ lines }
+                        x={ (d) => xScale(accessors(d, "x")) }
+                        y={ (d) => yScale(accessors(d, "y")) }
+                    />
+                    { clusterList.length > 0 ? constructPoints().map(circle => {
+                        return <circle
+                            className="circle"
+                            key={circle.key}
+                            onClick={() => handleClickOnCircle(circle.x, circle.y)}
+                            cx={xScale(circle.x)}
+                            cy={yScale(circle.y)}
+                            fillOpacity={0.75}
+                            r={circle.r}
+                            fill={circle.fill}/>
+                    }) : null }
+                </g>
+            </Group>
+        )
+    }
+
     return (
         <>
             <Zoom width={width} height={height}>
@@ -284,33 +316,7 @@ export default function PolytopeChart(props) {
                                     zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
                                 }}/>
                             <g transform={zoom.toString()}>
-                                <Group left={margin.left} top={margin.top}>
-                                    <AxisLeft scale={yScale} left={margin.left} />
-                                    <Axis orientation="bottom" scale={xScale} top={innerHeight} />
-                                    <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                                    <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                                    { clusterList.length > 0 ? colorsGradient = [] : null }
-                                    <g>
-                                        <LinePath
-                                            stroke="black"
-                                            strokeWidth={ 1 }
-                                            data={ lines }
-                                            x={ (d) => xScale(accessors(d, "x")) }
-                                            y={ (d) => yScale(accessors(d, "y")) }
-                                        />
-                                        { clusterList.length > 0 ? constructPoints().map(circle => {
-                                            return <circle
-                                                className="circle"
-                                                key={circle.key}
-                                                onClick={() => handleClickOnCircle(circle.x, circle.y)}
-                                                cx={xScale(circle.x)}
-                                                cy={yScale(circle.y)}
-                                                fillOpacity={0.75}
-                                                r={circle.r}
-                                                fill={circle.fill}/>
-                                        }) : null }
-                                    </g>
-                                </Group>
+                                <RenderData />
                             </g>
                             {showMiniMap && (
                                 <g
@@ -321,38 +327,12 @@ export default function PolytopeChart(props) {
                                     `}
                                 >
                                     <rect width={width} height={height} fill={background_mini_map} />
-                                    <Group left={margin.left} top={margin.top}>
-                                        <AxisLeft scale={yScale} left={margin.left} />
-                                        <Axis orientation="bottom" scale={xScale} top={innerHeight} />
-                                        <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                                        <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                                        { clusterList.length > 0 ? colorsGradient = [] : null }
-                                        <g>
-                                            <LinePath
-                                                stroke="black"
-                                                strokeWidth={ 1 }
-                                                data={ lines }
-                                                x={ (d) => xScale(accessors(d, "x")) }
-                                                y={ (d) => yScale(accessors(d, "y")) }
-                                            />
-                                            { clusterList.length > 0 ? constructPoints().map(circle => {
-                                                return <circle
-                                                    className="circle"
-                                                    key={circle.key}
-                                                    onClick={() => handleClickOnCircle(circle.x, circle.y)}
-                                                    cx={xScale(circle.x)}
-                                                    cy={yScale(circle.y)}
-                                                    fillOpacity={0.75}
-                                                    r={circle.r}
-                                                    fill={circle.fill}/>
-                                            }) : null }
-                                        </g>
-                                    </Group>
+                                    <RenderData />
                                     <rect
                                         width={width}
                                         height={height}
                                         fill="white"
-                                        fillOpacity={0.2}
+                                        fillOpacity={0.75}
                                         stroke="white"
                                         strokeWidth={4}
                                         transform={zoom.toStringInvert()}
