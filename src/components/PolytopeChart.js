@@ -15,10 +15,14 @@ import {
     computeTagsDomainGradient,
     computeTagsDomainIndep, regroupPointsByColor
 } from "../core/utils_PolytopeChart";
+import {Zoom} from "@visx/zoom";
+import { RectClipPath } from '@visx/clip-path';
+import {localPoint} from "@visx/event";
 
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
+    const background_mini_map = 'rgba(231,230,230,0.9)';
     const width = Dimensions.get('window').width;
     const height = width / 2;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
@@ -160,6 +164,9 @@ export default function PolytopeChart(props) {
         round: true,
     });
 
+    // ZOOM
+    const [showMiniMap, setShowMiniMap] = useState(true);
+
     // COLORATIONS
     const handleChangeType = (newType) => {
         setTypeSelected(newType);
@@ -248,37 +255,148 @@ export default function PolytopeChart(props) {
     }
 
     return (
-        <div>
-            <svg width={width} height={height}>
-                <rect width={width} height={height} fill={background}/>
-                <Group left={margin.left} top={margin.top}>
-                    <AxisLeft scale={yScale} left={margin.left} />
-                    <Axis orientation="bottom" scale={xScale} top={innerHeight} />
-                    <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                    <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                    { clusterList.length > 0 ? colorsGradient = [] : null }
-                    <g>
-                        <LinePath
-                            stroke="black"
-                            strokeWidth={ 1 }
-                            data={ lines }
-                            x={ (d) => xScale(accessors(d, "x")) }
-                            y={ (d) => yScale(accessors(d, "y")) }
-                        />
-                        { clusterList.length > 0 ? constructPoints().map(circle => {
-                                return <circle
-                                    className="circle"
-                                    key={circle.key}
-                                    onClick={() => handleClickOnCircle(circle.x, circle.y)}
-                                    cx={xScale(circle.x)}
-                                    cy={yScale(circle.y)}
-                                    fillOpacity={0.75}
-                                    r={circle.r}
-                                    fill={circle.fill}/>
-                            }) : null }
-                    </g>
-                </Group>
-            </svg>
+        <>
+            <Zoom width={width} height={height}>
+                {(zoom) => (
+                    <div className="relative">
+                        <svg
+                            width={width}
+                            height={height}
+                            style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+                            ref={zoom.containerRef}
+                        >
+                            <RectClipPath id="zoom-clip" width={width} height={height} />
+                            <rect
+                                width={width}
+                                height={height}
+                                fill={background}
+                                onTouchStart={zoom.dragStart}
+                                onTouchMove={zoom.dragMove}
+                                onTouchEnd={zoom.dragEnd}
+                                onMouseDown={zoom.dragStart}
+                                onMouseMove={zoom.dragMove}
+                                onMouseUp={zoom.dragEnd}
+                                onMouseLeave={() => {
+                                    if (zoom.isDragging) zoom.dragEnd();
+                                }}
+                                onDoubleClick={(event) => {
+                                    const point = localPoint(event) || { x: 0, y: 0 };
+                                    zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
+                                }}/>
+                            <g transform={zoom.toString()}>
+                                <Group left={margin.left} top={margin.top}>
+                                    <AxisLeft scale={yScale} left={margin.left} />
+                                    <Axis orientation="bottom" scale={xScale} top={innerHeight} />
+                                    <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                                    <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                                    { clusterList.length > 0 ? colorsGradient = [] : null }
+                                    <g>
+                                        <LinePath
+                                            stroke="black"
+                                            strokeWidth={ 1 }
+                                            data={ lines }
+                                            x={ (d) => xScale(accessors(d, "x")) }
+                                            y={ (d) => yScale(accessors(d, "y")) }
+                                        />
+                                        { clusterList.length > 0 ? constructPoints().map(circle => {
+                                            return <circle
+                                                className="circle"
+                                                key={circle.key}
+                                                onClick={() => handleClickOnCircle(circle.x, circle.y)}
+                                                cx={xScale(circle.x)}
+                                                cy={yScale(circle.y)}
+                                                fillOpacity={0.75}
+                                                r={circle.r}
+                                                fill={circle.fill}/>
+                                        }) : null }
+                                    </g>
+                                </Group>
+                            </g>
+                            {showMiniMap && (
+                                <g
+                                    clipPath="url(#zoom-clip)"
+                                    transform={`
+                                        scale(0.25)
+                                        translate(${width * 4 - width - 60}, ${height * 4 - height - 60})
+                                    `}
+                                >
+                                    <rect width={width} height={height} fill={background_mini_map} />
+                                    <Group left={margin.left} top={margin.top}>
+                                        <AxisLeft scale={yScale} left={margin.left} />
+                                        <Axis orientation="bottom" scale={xScale} top={innerHeight} />
+                                        <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                                        <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                                        { clusterList.length > 0 ? colorsGradient = [] : null }
+                                        <g>
+                                            <LinePath
+                                                stroke="black"
+                                                strokeWidth={ 1 }
+                                                data={ lines }
+                                                x={ (d) => xScale(accessors(d, "x")) }
+                                                y={ (d) => yScale(accessors(d, "y")) }
+                                            />
+                                            { clusterList.length > 0 ? constructPoints().map(circle => {
+                                                return <circle
+                                                    className="circle"
+                                                    key={circle.key}
+                                                    onClick={() => handleClickOnCircle(circle.x, circle.y)}
+                                                    cx={xScale(circle.x)}
+                                                    cy={yScale(circle.y)}
+                                                    fillOpacity={0.75}
+                                                    r={circle.r}
+                                                    fill={circle.fill}/>
+                                            }) : null }
+                                        </g>
+                                    </Group>
+                                    <rect
+                                        width={width}
+                                        height={height}
+                                        fill="white"
+                                        fillOpacity={0.2}
+                                        stroke="white"
+                                        strokeWidth={4}
+                                        transform={zoom.toStringInvert()}
+                                    />
+                                </g>
+                            )}
+                        </svg>
+                        <div className="controls">
+                            <button
+                                type="button"
+                                className="btn btn-zoom"
+                                onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
+                            >
+                                +
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-zoom btn-bottom"
+                                onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
+                            >
+                                -
+                            </button>
+                            <button type="button" className="btn btn-lg" onClick={zoom.center}>
+                                Center
+                            </button>
+                            <button type="button" className="btn btn-lg" onClick={zoom.reset}>
+                                Reset
+                            </button>
+                            <button type="button" className="btn btn-lg" onClick={zoom.clear}>
+                                Clear
+                            </button>
+                        </div>
+                        <div className="mini-map">
+                            <button
+                                type="button"
+                                className="btn btn-lg"
+                                onClick={() => setShowMiniMap(!showMiniMap)}
+                            >
+                                {showMiniMap ? 'Hide' : 'Show'} Mini Map
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </Zoom>
             <Select defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
             {typeCurrent === 'indep' ?
                 <RenderInputColorsForIndep /> :
@@ -299,6 +417,6 @@ export default function PolytopeChart(props) {
                 />
                 : null
             }
-        </div>
+        </>
     )
 }
