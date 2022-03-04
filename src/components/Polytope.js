@@ -1,75 +1,75 @@
 import Select from 'react-select';
-import React, {useEffect, useState} from "react";
-import Form from '@rjsf/material-ui';
+import React, {useState} from "react";
 import PolytopeChart from "./PolytopeChart.js";
-import {API_URL} from "../.env";
-import {fetch_api} from "../core/utils";
 
-const API_URL_ENDPOINTS = `${API_URL}/endpoints`;
+// List of invariants possible
+const INVARIANTS = [
+    {value: "avcol", label: "avcol"},
+    {value: "eci", label: "eci"},
+    {value: "numcol", label: "numcol"}
+];
 
-async function get_endpoints() {
-    return await fetch_api(API_URL_ENDPOINTS, {method: "GET"})
-        .then(response => response.json())
-        .then(data => {
-            const endpoints = [];
-            for (const endpt in data.endpoints) {
-                if (data.endpoints.hasOwnProperty(endpt)) {
-                    endpoints.push(data.endpoints[endpt]);
-                }
-            }
-            return endpoints.map(endpt => ({value: endpt, label: endpt.name}));
-        })
-}
+// List of number vertices possible
+const NUMBERS = [
+    {value : "1", label : "1"},
+    {value : "2", label : "2"},
+    {value : "3", label : "3"},
+    {value : "4", label : "4"},
+    {value : "5", label : "5"},
+    {value : "6", label : "6"},
+    {value : "7", label : "7"},
+    {value : "8", label : "8"},
+    {value : "9", label : "9"},
+]
 
+// List of possible colors
+const COLORS = [
+    {value: "mult", label: "mult"},
+    {value: "chi", label: "chi"}
+];
 
 // Component's core
 export default function Polytope(props) {
-    let first_run = true;
-
-    const [endpoints, setEndpoints] = useState([]); // No endpoints by default, then query from API
-    const [endpoint, setEndpoint] = useState(null);
-
-    const [formResults, setFormResults] = useState(null);
+    const [invariant, setInvariant] = useState(INVARIANTS[0]);
+    const [number, setNumber] = useState(NUMBERS[0]);
+    const [color, setColor] = useState(COLORS[0]);
     const [submit, setSubmit] = useState(false);
 
-    useEffect(() => {
-        if (!first_run) return;
-        first_run = false;
-        get_endpoints()
-            .then((endpoints) => {
-                setEndpoints(endpoints);
-            })
-    }, [])
+    let currentInvariant = invariant.value;
+    let currentNumber = number.value;
+    let currentColor = color.value;
 
-
-    const handleChangePolytopeType = (newPolytopeType) => {
-        setEndpoint(newPolytopeType);
+    const handleChangeInvariant = (newInvariant) => {
+        setInvariant(newInvariant);
+        currentInvariant = newInvariant.value;
         setSubmit(false);
         return true;
     }
 
-
-    const RenderPolytopeChart = () => {
-        if (submit && formResults) {
-            const max_graph_size = formResults.max_graph_size;
-            return <PolytopeChart graphPath={endpoint} max_graph_size={max_graph_size} invariants={formResults.invariants}/>;
-        } else {
-            return null;
-        }
+    const handleChangeNumber = (newNumber) => {
+        setNumber(newNumber);
+        currentNumber = newNumber.value;
+        setSubmit(false);
+        return true;
     }
 
+    const handleChangeMeasure = (newColor) => {
+        setColor(newColor);
+        currentColor = newColor.value;
+        setSubmit(false);
+        return true;
+    }
 
-    function onFormSubmit(event) {
-        console.log("---Form submitted---");
-        console.log(event.formData);
-        setFormResults(event.formData);
+    const clickSubmit = () => {
         setSubmit(true);
     }
 
-    const uiSchema = {
-        "max_graph_size": {
-            "ui:widget": "range"
-        },
+    const RenderPolytopeChart = () => {
+        if (submit) {
+            return <PolytopeChart invariantX={currentInvariant} invariantY={currentNumber} invariantColor={currentColor}/>;
+        } else {
+            return null;
+        }
     }
 
     return (
@@ -77,23 +77,33 @@ export default function Polytope(props) {
             <h3> Polytope {props.num}</h3>
             <form>
                 <label>
-                    Quel type de polytopes souhaitez-vous étudier ?
+                    Quel invariant souhaitez-vous étudier ?
                     <Select
-                        //defaultValue={endpoints}
-                        onChange={handleChangePolytopeType}
-                        options={endpoints}
+                        defaultValue={invariant}
+                        onChange={handleChangeInvariant}
+                        options={INVARIANTS}
                     />
                 </label>
+                <br/>
+                <label>
+                    Combien de sommet souhaitez-vous pour les graphes ?
+                    <Select
+                        defaultValue={number}
+                        onChange={handleChangeNumber}
+                        options={NUMBERS}
+                    />
+                </label>
+                <br/>
+                <label>
+                    Quelle mesure voulez-vous employer pour colorer les points ?
+                    <Select
+                        defaultValue={color}
+                        onChange={handleChangeMeasure}
+                        options={COLORS}/>
+                </label>
             </form>
-            {!!endpoint &&
-                <Form
-                    formData={formResults}
-                    schema={endpoint.value.params}
-                    uiSchema={uiSchema}
-                    onSubmit={onFormSubmit}
-                    onError={console.error}/>
-            }
-            <RenderPolytopeChart/>
+            <button onClick={clickSubmit}> Soumettre </button>
+            <RenderPolytopeChart />
         </div>
     )
 }
