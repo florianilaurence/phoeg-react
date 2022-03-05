@@ -73,7 +73,7 @@ export default function GraphSlider(props) {
                     <Text style={{color: '#00ff00', fontWeight: 'bold'}} > Complément du graphe </Text> :
                     <>
                         <Text style={{fontWeight: 'bold'}} > Graphe d'origine  </Text>
-                        <Text style={{color: '#00ff00', fontWeight: 'bold'}} > Complémentaire du graphe </Text>
+                        <Text style={{color: '#00ff00', fontWeight: 'bold'}} > Complément du graphe </Text>
                     </>
             }
             <RenderGraphs />

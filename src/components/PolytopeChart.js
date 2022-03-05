@@ -24,7 +24,7 @@ export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
     const background_mini_map = 'rgba(197,197,197,0.9)';
-    const width = Dimensions.get('window').width - 50;
+    const width = Dimensions.get('window').width - 25;
     const height = width / 2;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
     const innerWidth = width - margin.left - margin.right;
@@ -182,7 +182,7 @@ export default function PolytopeChart(props) {
 
     // Créer les balises de choix des couleurs pour une coloration avec choix
     const RenderInputColorsForIndep = () => {
-        let result = [<p> {props.invariantColor} : </p>];
+        let result = [];
         for (let i in range) {
             result.push(
                 <label  style={{fontWeight: 'bold'}}> {domainsIndep[i]} : {" "}
@@ -208,7 +208,6 @@ export default function PolytopeChart(props) {
             }
             return (
                 <div>
-                    <p> {props.invariantColor} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     <Text style={{color: color1, fontWeight: 'bold'}} > { tag } </Text>
                 </div>
@@ -302,6 +301,7 @@ export default function PolytopeChart(props) {
 
     return (
         <>
+            <h5> Graphique :</h5>
             <Zoom width={width} height={height}>
                 {(zoom) => (
                     <div className="relative">
@@ -315,6 +315,10 @@ export default function PolytopeChart(props) {
                             <rect
                                 width={width}
                                 height={height}
+                                rx="10"
+                                ry="10"
+                                stroke="#000000"
+                                strokeWidth="5"
                                 fill={background}
                                 onTouchStart={zoom.dragStart}
                                 onTouchMove={zoom.dragMove}
@@ -328,7 +332,8 @@ export default function PolytopeChart(props) {
                                 onDoubleClick={(event) => {
                                     const point = localPoint(event) || { x: 0, y: 0 };
                                     zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
-                                }}/>
+                                }}
+                            />
                             <g transform={zoom.toString()}>
                                 <RenderData />
                             </g>
@@ -355,50 +360,57 @@ export default function PolytopeChart(props) {
                             )}
                         </svg>
                         <div className="controls">
-                            <button
-                                type="button"
-                                className="btn btn-zoom"
-                                onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
-                            >
-                                +
-                            </button>
-                            <button
-                                type="button"
-                                className="btn btn-zoom btn-bottom"
-                                onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
-                            >
-                                -
-                            </button>
-                            <button type="button" className="btn btn-lg" onClick={zoom.center}>
-                                Center
-                            </button>
-                            <button type="button" className="btn btn-lg" onClick={zoom.reset}>
-                                Reset
-                            </button>
-                            <button type="button" className="btn btn-lg" onClick={zoom.clear}>
-                                Clear
-                            </button>
-                        </div>
-                        <div className="mini-map">
-                            <button
-                                type="button"
-                                className="btn btn-lg"
-                                onClick={() => setShowMiniMap(!showMiniMap)}
-                            >
-                                {showMiniMap ? 'Hide' : 'Show'} Mini Map
-                            </button>
+                            <p>
+                                <Text>Options de zoom pour le graphique : </Text>
+                                <button
+                                    type="button"
+                                    className="btn btn-zoom"
+                                    onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
+                                >
+                                    +
+                                </button>
+                                {" "}
+                                <button
+                                    type="button"
+                                    className="btn btn-zoom btn-bottom"
+                                    onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
+                                >
+                                    -
+                                </button>
+                                {" "}
+                                <button type="button" className="btn btn-lg" onClick={zoom.center}>
+                                    Center
+                                </button>
+                                {" "}
+                                <button type="button" className="btn btn-lg" onClick={zoom.reset}>
+                                    Reset
+                                </button>
+                                {" "}
+                                <button type="button" className="btn btn-lg" onClick={zoom.clear}>
+                                    Clear
+                                </button>
+                                {" "}
+                                <button
+                                    type="button"
+                                    className="btn btn-lg"
+                                    onClick={() => setShowMiniMap(!showMiniMap)}
+                                >
+                                    {showMiniMap ? 'Hide' : 'Show'} Mini Map
+                                </button>
+                                <br/>
+                                <Text>Choix du type de coloration : </Text>
+                                <Select className="select" defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
+                            </p>
                         </div>
                     </div>
                 )}
             </Zoom>
-            <Select defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
+            <Text>Légende (coloration avec l'invariant {props.invariantColor}) :</Text>
             {typeCurrent === 'indep' ?
                 <RenderInputColorsForIndep /> :
                 <RenderInputColorsForGradient />
             }
-            <p>
-                Combien souhaitez-vous de clusters pour colorier les graphes ? {clusterList.map(d => d + " ")}
-            </p>
+            <Text>Nombre de clusters pour colorier les graphes {clusterList.map(d => d + " ; ")}</Text>
             <button onClick={() => setIndexCluster(indexCluster > 0 ? indexCluster - 1 : clusterList.length - 1)}> Précédent </button>
             {" " + clusterList[indexCluster] + " "}
             <button onClick={() => setIndexCluster((indexCluster+1) % clusterList.length)}> Suivant </button>

@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {computeNodesEdges} from "../core/ParseSignature";
 import { Graph, DefaultNode } from '@visx/network';
-import {Text} from "react-native";
 
 export default function MyGraph(props) {
     let nodes = [];
