@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {computeNodesEdges} from "../core/ParseSignature";
 import { Graph, DefaultNode } from '@visx/network';
-import Select from "react-select";
+import {Text} from "react-native";
 
 export default function MyGraph(props) {
     let nodes = [];
@@ -16,14 +16,6 @@ export default function MyGraph(props) {
         nodes,
         links: linksCompl
     });
-
-    const OPTIONS = [
-        {value: 1, label: "non"},
-        {value: 2, label: "oui, seul"},
-        {value: 3, label: "oui, les deux"}
-    ];
-    const [option, setOption] = useState(OPTIONS[0]);
-    let currentOption = option.value;
 
     const side = 500;
     const margin = 25;
@@ -126,16 +118,10 @@ export default function MyGraph(props) {
         }
     }
 
-    const handleChangeOption = (newOption) => {
-        setOption(newOption);
-        currentOption = newOption.value;
-        return true;
-    }
-
     const RenderGraph = () => {
-        if (currentOption === 1) {
+        if (props.displayOption === 1) {
             return constructGraph(false);
-        } else if (currentOption === 2) {
+        } else if (props.displayOption === 2) {
             return constructGraph(true);
         } else {
             return [
@@ -151,16 +137,6 @@ export default function MyGraph(props) {
                 <rect width={side+2*margin} height={side+2*margin} fill={background} rx="15" ry="15" />
                 <RenderGraph />
             </svg>
-            <form>
-                <label>
-                    Souhaitez-vous afficher le complément du graphe ?
-                        <Select
-                            defaultValue={option}
-                            onChange={handleChangeOption}
-                            options={OPTIONS}
-                        />
-                </label>
-            </form>
         </div>
     )
 }

@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from "react";
 import MyGraph from "./MyGraph";
+import Select from "react-select";
+import {Text} from "react-native";
 
 export default function GraphSlider(props) {
     const [currentIndex, setCurrentIndex] = useState(0); // Indice du graphe à afficher
     const [currentSign, setCurrentSign] = useState(props.graphList[currentIndex]);
+
+    const OPTIONS = [
+        {value: 1, label: "non"},
+        {value: 2, label: "oui, seul"},
+        {value: 3, label: "oui, les deux"}
+    ];
+    const [option, setOption] = useState(OPTIONS[0]);
+    let currentOption = option.value;
 
     useEffect( () => {
         setCurrentSign(props.graphList[currentIndex]);
@@ -23,16 +33,20 @@ export default function GraphSlider(props) {
         return null;
     }
 
-    const RenderSlider = () => { // TODO Avoir un dictionnaire qui contient les graphes qu'on a déjà rencontré (Donc avoir deux cas)
-                                 // --> Déjà calculé => récupérer le graphe
-                                 // --> Pas encore calculé => Calculer le graphe puis l'ajouter au dictionnaire
+    const handleChangeOption = (newOption) => {
+        setOption(newOption);
+        currentOption = newOption.value;
+        return true;
+    }
+
+    const RenderGraphs = () => {
         if (props.graphList.length === 1) {
-            return <MyGraph signature={currentSign}/>
+            return <MyGraph signature={currentSign} displayOprion={currentOption} />
         } else {
             return (
                 <div>
                     <button onClick={handleClickPrevious}> Précédent </button>
-                    <MyGraph signature={currentSign}/>
+                    <MyGraph signature={currentSign} displayOption={currentOption} />
                     <button onClick={handleClickNext}> Suivant </button>
                 </div>
             );
@@ -43,7 +57,26 @@ export default function GraphSlider(props) {
         <div className="graphslider">
             <p> Nous avons trouvé {props.graphList.length} graphe(s) différent(s) </p>
             <h3> Graphe dont la signature est : {currentSign} </h3>
-            <RenderSlider />
+            <form>
+                <label>
+                    Souhaitez-vous afficher le complément du graphe ?
+                    <Select
+                        defaultValue={option}
+                        onChange={handleChangeOption}
+                        options={OPTIONS}
+                    />
+                </label>
+            </form>
+            {currentOption === 1 ?
+                <Text style={{fontWeight: 'bold'}} > Graphe d'origine  </Text> :
+                currentOption === 2 ?
+                    <Text style={{color: '#00ff00', fontWeight: 'bold'}} > Complément du graphe </Text> :
+                    <>
+                        <Text style={{fontWeight: 'bold'}} > Graphe d'origine  </Text>
+                        <Text style={{color: '#00ff00', fontWeight: 'bold'}} > Complémentaire du graphe </Text>
+                    </>
+            }
+            <RenderGraphs />
         </div>
     );
 
