@@ -24,7 +24,7 @@ export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
     const background_mini_map = 'rgba(197,197,197,0.9)';
-    const width = Dimensions.get('window').width;
+    const width = Dimensions.get('window').width - 50;
     const height = width / 2;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
     const innerWidth = width - margin.left - margin.right;
