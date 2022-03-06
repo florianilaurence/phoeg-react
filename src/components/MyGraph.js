@@ -16,8 +16,8 @@ export default function MyGraph(props) {
         links: linksCompl
     });
 
-    const side = 500;
-    const margin = 25;
+    const side = 400;
+    const margin = 20;
     const background = '#fafafa'
 
     useEffect( () => {

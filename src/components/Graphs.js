@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { readGraph } from "../core/ParseFiles";
 import GraphSlider from "./GraphSlider";
+import "../styles/Graphs.css";
 
 export default function Graphs(props) {
     const [graphlist, setGraphList] = useState([""]); // La liste des graphes correspondant aux critères
@@ -49,11 +50,18 @@ export default function Graphs(props) {
             <h2 className="graphs-title">Graphe(s)</h2>
             <p> Données associés au point sélectionné : Nom de l'invariant : {props.invariantXName} | Nombre d'arêtes : {props.invariantYValue} | Nombre de sommets : {props.numberVertices} | Valeur de l'invariant : {props.invariantXValue} </p>
             <p> Vous pouvez afficher jusqu'à {maxSlider} containers en même temps : {" "}
-                <button type="button" onClick={() => numberSlider > 1 ? setNumberSlider(numberSlider - 1) : setNumberSlider(1) }> - </button>
+                <button type="button" onClick={() =>
+                    numberSlider > 1 ?
+                        setNumberSlider(numberSlider - 1) : setNumberSlider(1) }> - </button>
                 {" " + numberSlider + " "}
-                <button type="button" onClick={() => setNumberSlider((numberSlider+1)%(maxSlider+1) === 0 ? 1 : (numberSlider + 1) % (maxSlider + 1))}> + </button>
+                <button type="button" onClick={() =>
+                    setNumberSlider((numberSlider+1)%(maxSlider+1) === 0 ?
+                        1 : (numberSlider + 1) % (maxSlider + 1))}> + </button> <br/>
+                Il y a <b> {graphlist.length} </b> {graphlist.length === 1 ? "graphe pouvant être affiché" : "graphes différents pouvant être affichés"}
             </p>
-            <RenderGraphSlider />
+            <ul className="graph-slider-list">
+                <RenderGraphSlider />
+            </ul>
         </div>
     );
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MyGraph from "./MyGraph";
 import Select from "react-select";
 import {Text} from "react-native";
+import "../styles/GraphSlider.css";
 
 export default function GraphSlider(props) {
     const [currentIndex, setCurrentIndex] = useState(0); // Indice du graphe à afficher
@@ -54,19 +55,17 @@ export default function GraphSlider(props) {
     }
 
     return (
-        <div className="graphslider">
-            <p> Nous avons trouvé {props.graphList.length} graphe(s) différent(s) </p>
-            <h3> Graphe dont la signature est : {currentSign} </h3>
-            <form>
-                <label>
-                    Souhaitez-vous afficher le complément du graphe ?
-                    <Select
-                        defaultValue={option}
-                        onChange={handleChangeOption}
-                        options={OPTIONS}
-                    />
-                </label>
-            </form>
+        <div className="graphslider-div">
+            <p style={{textAlign:"center"}}>
+                Le graphe courant affiché a la signature : <b> {currentSign} </b> <br/>
+                Souhaitez-vous afficher le complément du graphe ?
+            </p>
+            <Select
+                defaultValue={option}
+                onChange={handleChangeOption}
+                options={OPTIONS}
+                className="select"
+            />
             {currentOption === 1 ?
                 <Text style={{fontWeight: 'bold'}} > Graphe d'origine  </Text> :
                 currentOption === 2 ?
