@@ -81,8 +81,9 @@ export default function PolytopeChart(props) {
     const [selected, setSelected] = useState(false);
 
     // Pour sélectionner un point à partir de la légende
-    const [selectedMin, setSelectedMin] = useState(0);
-    const [selectedMax, setSelectedMax] = useState(0);
+    const [selectedMin, setSelectedMin] = useState(-Infinity);
+    const [selectedMax, setSelectedMax] = useState(+Infinity);
+    const [selectedTag, setSelectedTag] = useState("");
     const [isLegendClicked, setIsLegendClicked] = useState(false);
 
     // Fonction d'initialisation à la création du graphique
@@ -189,17 +190,25 @@ export default function PolytopeChart(props) {
     const RenderInputColorsForIndep = () => {
         let result = [];
         for (let i in range) {
+            let tag = domainsIndep[i];
             result.push(
-                <label  style={{fontWeight: 'bold'}}> {domainsIndep[i]} : {" "}
+                <>
                     <input type="color" name={range[i]} id={range[i]} value={range[i]} onChange={e => {
                         let tempRange = range.slice();
                         tempRange[i] = e.target.value;
                         setRange(tempRange);
                     }} />
-                </label>
-
+                    <Text
+                        onPress={() => handleOnPressLegend(tag)}
+                        style={tag === selectedTag ?
+                            {fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {fontWeight: 'bold'}}
+                    >
+                        { tag } </Text>
+                </>
             )
         }
+        result.push(<br/>);
         return result;
     }
 
@@ -214,15 +223,25 @@ export default function PolytopeChart(props) {
             return (
                 <div>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
-                    <Text onPress={() => handleOnPressLegend(tag)} style={{color: color1, fontWeight: 'bold'}} > { tag } </Text>
+                    <Text
+                        onPress={() => handleOnPressLegend(tag)}
+                        style={tag === selectedTag ?
+                            {color: color1, fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {color: color1, fontWeight: 'bold'}}>
+                        { tag } </Text>
                 </div>
             )
         } else {
             return (
                 <div>
-                    <p> {props.invariantColor} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
-                    {tagsGradient.map((tag, i) => <Text  onPress={() => handleOnPressLegend(tag)} style={{color: colorsGradient[i], fontWeight: 'bold'}} key={`gradient_tag${i}`}> {tag} </Text>)}
+                    {tagsGradient.map((tag, i) => <Text
+                        onPress={() => handleOnPressLegend(tag)}
+                        style={tag === selectedTag ?
+                            {color: colorsGradient[i], fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {color: colorsGradient[i], fontWeight: 'bold'}}
+                        key={`gradient_tag${i}`}>
+                        { tag } </Text>)}
                     <input type="color" name="color2" id="color2" value={color2} onChange={e => setColor2(e.target.value)}/>
                 </div>
             )
@@ -233,23 +252,29 @@ export default function PolytopeChart(props) {
         if (tag[0] === "[") {
             let result = tag.slice(1, tag.length - 1);
             result = result.split(";");
-            updateStatesOfLegend(parseFloat(result[0]), parseFloat(result[1]));
+            updateStatesOfLegend(parseFloat(result[0]), parseFloat(result[1]), tag);
 
         } else {
-            updateStatesOfLegend(parseFloat(tag), parseFloat(tag));
+            updateStatesOfLegend(parseFloat(tag), parseFloat(tag), tag);
         }
     };
 
-    const updateStatesOfLegend = (min, max) => {
+    const updateStatesOfLegend = (min, max, tag) => {
         if(min === selectedMin && max === selectedMax) {
-            setIsLegendClicked(false);
-            setSelectedMin(-Infinity);
-            setSelectedMax(+Infinity);
+            resetStatesofLegend()
         } else {
             setIsLegendClicked(true);
             setSelectedMin(min);
             setSelectedMax(max);
+            setSelectedTag(tag);
         }
+    }
+
+    const resetStatesofLegend = () => {
+        setIsLegendClicked(false);
+        setSelectedMin(-Infinity);
+        setSelectedMax(+Infinity);
+        setSelectedTag("");
     }
 
     // Sélectionner la couleur pour un point selon le type de coloration actuelle
@@ -330,6 +355,16 @@ export default function PolytopeChart(props) {
                 </g>
             </Group>
         )
+    }
+
+    const handlePrevious = () => {
+        resetStatesofLegend();
+        setIndexCluster(indexCluster > 0 ? indexCluster - 1 : clusterList.length - 1)
+    }
+
+    const handleNext = () => {
+        resetStatesofLegend();
+        setIndexCluster((indexCluster+1) % clusterList.length);
     }
 
     return (
@@ -444,9 +479,9 @@ export default function PolytopeChart(props) {
                 <RenderInputColorsForGradient />
             }
             <Text>Nombre de clusters pour colorier les graphes {clusterList.map(d => d + " ; ")}</Text>
-            <button onClick={() => setIndexCluster(indexCluster > 0 ? indexCluster - 1 : clusterList.length - 1)}> Précédent </button>
+            <button onClick={() => handlePrevious()}> Précédent </button>
             {" " + clusterList[indexCluster] + " "}
-            <button onClick={() => setIndexCluster((indexCluster+1) % clusterList.length)}> Suivant </button>
+            <button onClick={() => handleNext()}> Suivant </button>
             {selected ?
                 <Graphs
                     invariantXName={props.invariantX}
