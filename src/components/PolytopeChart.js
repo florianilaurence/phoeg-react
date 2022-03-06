@@ -80,6 +80,11 @@ export default function PolytopeChart(props) {
     const [selectedY, setSelectedY] = useState(null);
     const [selected, setSelected] = useState(false);
 
+    // Pour sélectionner un point à partir de la légende
+    const [selectedMin, setSelectedMin] = useState(0);
+    const [selectedMax, setSelectedMax] = useState(0);
+    const [isLegendClicked, setIsLegendClicked] = useState(false);
+
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
             let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
@@ -209,7 +214,7 @@ export default function PolytopeChart(props) {
             return (
                 <div>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
-                    <Text style={{color: color1, fontWeight: 'bold'}} > { tag } </Text>
+                    <Text onPress={() => handleOnPressLegend(tag)} style={{color: color1, fontWeight: 'bold'}} > { tag } </Text>
                 </div>
             )
         } else {
@@ -217,10 +222,33 @@ export default function PolytopeChart(props) {
                 <div>
                     <p> {props.invariantColor} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
-                    {tagsGradient.map((tag, i) => <Text style={{color: colorsGradient[i], fontWeight: 'bold'}} key={`gradient_tag${i}`}> {tag} </Text>)}
+                    {tagsGradient.map((tag, i) => <Text  onPress={() => handleOnPressLegend(tag)} style={{color: colorsGradient[i], fontWeight: 'bold'}} key={`gradient_tag${i}`}> {tag} </Text>)}
                     <input type="color" name="color2" id="color2" value={color2} onChange={e => setColor2(e.target.value)}/>
                 </div>
             )
+        }
+    }
+
+    const handleOnPressLegend = (tag) => {
+        if (tag[0] === "[") {
+            let result = tag.slice(1, tag.length - 1);
+            result = result.split(";");
+            updateStatesOfLegend(parseFloat(result[0]), parseFloat(result[1]));
+
+        } else {
+            updateStatesOfLegend(parseFloat(tag), parseFloat(tag));
+        }
+    };
+
+    const updateStatesOfLegend = (min, max) => {
+        if(min === selectedMin && max === selectedMax) {
+            setIsLegendClicked(false);
+            setSelectedMin(-Infinity);
+            setSelectedMax(+Infinity);
+        } else {
+            setIsLegendClicked(true);
+            setSelectedMin(min);
+            setSelectedMax(max);
         }
     }
 
@@ -247,6 +275,7 @@ export default function PolytopeChart(props) {
                         x: x,
                         y: y,
                         r: 3,
+                        col: col,
                         fill: selectColorForOnePoint(i)
                     })
                 })
@@ -282,7 +311,11 @@ export default function PolytopeChart(props) {
                                     cx={xScale(circle.x)}
                                     cy={yScale(circle.y)}
                                     fillOpacity={0.75}
-                                    r={circle.r}
+                                    r={isLegendClicked ?
+                                        circle.col >= selectedMin && circle.col <= selectedMax ?
+                                            circle.r+5 :
+                                            circle.r :
+                                        circle.r}
                                     fill={circle.fill}
                                 />
                                 <Tooltip triggerRef={ref}>

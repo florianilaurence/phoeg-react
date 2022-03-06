@@ -101,7 +101,7 @@ export const constructTagName = (group) => {
     let min = Math.min(...group.map((d) => d.col));
     let max = Math.max(...group.map((d) => d.col));
     if (min !== max) {
-        return `[${min} ; ${max}]`;
+        return `[${min};${max}]`;
     } else {
         return `${min}`;
     }
