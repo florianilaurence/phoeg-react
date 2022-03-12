@@ -12,4 +12,12 @@ export function API_HTTP_BASIC_AUTH_HEADER() {
   }
 }
 
-export const fetch_api = (input, init) => fetch(input, {headers: API_HTTP_BASIC_AUTH_HEADER(),...init}); //TODO merge headers that are already present in init ?
+function API_CORS_HEADERS() {
+  return new Headers({
+    "Access-Control-Allow-Origin": "*",
+    "Content-Type": "application/json"
+  });
+}
+
+//export const fetch_api = (input, init) => fetch(input, {headers: API_CORS_HEADERS(),...init}); //TODO merge headers that are already present in init ?
+export const fetch_api = fetch;

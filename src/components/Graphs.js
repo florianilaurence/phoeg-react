@@ -13,12 +13,10 @@ export default function Graphs(props) {
         const graphPath = props.graphPath.value.path;
         let graphs_request = new URL(`${API_URL}${graphPath}`)
 
-        console.log(props.invariantXName);
+        graphs_request.searchParams.append("max_graph_size", props.formData.max_graph_size);
 
-        graphs_request.searchParams.append("max_graph_size", props.max_graph_size);
-
-        graphs_request.searchParams.append("invariants[0][name]", props.invariantXName);
-        graphs_request.searchParams.append("invariants[1][name]", props.invariantYName);
+        graphs_request.searchParams.append("invariants[0][name]", props.formData.x_invariant);
+        graphs_request.searchParams.append("invariants[1][name]", props.formData.y_invariant);
 
         // Filter for specific invariant values
         graphs_request.searchParams.append("invariants[0][value]", props.invariantXValue);
@@ -29,7 +27,7 @@ export default function Graphs(props) {
                 return response.json();
             })
             .then(function (myJson) {
-                let temp = readGraph(myJson, props.invariantXName, props.invariantXValue, props.invariantYName, props.invariantYValue);
+                let temp = readGraph(myJson, props.formData.x_invariant, props.invariantXValue, props.formData.y_invariant, props.invariantYValue);
                 if (temp !== null) {
                     setGraphList(temp);
                     setComputedList(true);
@@ -37,7 +35,7 @@ export default function Graphs(props) {
                     setComputedList(false);
                 }
             })
-    }, [props.invariantXName, props.invariantXValue, props.numberVertices, props.invariantYValue] );
+    }, [props.invariantXName, props.invariantXValue, props.formData, props.invariantYValue] );
 
     const RenderGraphSlider = () => {
         if (computedList) {
@@ -50,7 +48,7 @@ export default function Graphs(props) {
     return (
         <div className="graphs">
             <h2 className="graphs-title">Graphe(s)</h2>
-            <p> Nom de l'invariant : {props.invariantXName} | Nombre d'arêtes : {props.invariantYValue} | Nombre de sommets : {props.numberVertices} | Valeur de l'invariant : {props.invariantXValue} </p>
+            <p> Nom de l'invariant : {props.invariantXName} | Nombre d'arêtes : {props.invariantYValue} | Nombre de sommets : {<props className="formData max_graph_size"></props>} | Valeur de l'invariant : {props.invariantXValue} </p>
             <RenderGraphSlider />
         </div>
     );

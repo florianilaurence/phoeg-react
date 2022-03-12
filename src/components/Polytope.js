@@ -52,7 +52,7 @@ export default function Polytope(props) {
     const RenderPolytopeChart = () => {
         if (submit && formResults) {
             const max_graph_size = formResults.max_graph_size;
-            return <PolytopeChart graphPath={endpoint} max_graph_size={max_graph_size} invariants={formResults.invariants}/>;
+            return <PolytopeChart graphPath={endpoint} max_graph_size={max_graph_size} invariants={formResults.invariants} formData={formResults}/>;
         } else {
             return null;
         }
@@ -77,10 +77,11 @@ export default function Polytope(props) {
             <h3> Polytope {props.num}</h3>
             <form>
                 <label>
-                    Quel type de polytopes souhaitez-vous étudier ?
+                    Quel type de polytopes souhaitez-vous étudier ? Which type of polytope template do you want to study ?
                     <Select
                         //defaultValue={endpoints}
                         onChange={handleChangePolytopeType}
+                        //defaultInputValue={endpoints[0].value}
                         options={endpoints}
                     />
                 </label>

@@ -87,20 +87,28 @@ export default function PolytopeChart(props) {
     const [selectedY, setSelectedY] = useState(null);
     const [selected, setSelected] = useState(false);
 
+    const get_invariant_colour = (formData) => {
+        return props.formData.add_colouring["Add colouring?"] === "Yes"
+                ? props.formData.add_colouring["The invariant to use for the colouring."]
+                : null;
+    };
+
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
             // Invariants to display
-            const x_invariant_name = props.invariants[0].name;
-            const y_invariant_name = props.invariants[1].name;
+            const x_invariant_name = props.formData.x_invariant;
+            const y_invariant_name = props.formData.y_invariant;
 
             // TODO handle if only two invariants
-            const colour_invariant_name = props.invariants[2].name;
+            const colour_invariant_name = get_invariant_colour(props.formData);
 
             const graphPath = props.graphPath.value.path;
             let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
             envelope_request += "?" + stringify({
                 max_graph_size: props.max_graph_size,
-                invariants: props.invariants
+                x_invariant: x_invariant_name,
+                y_invariant: y_invariant_name,
+                constraints: props.constraints
             })
 
             const envelope = await fetch_api(envelope_request.toString())
@@ -112,7 +120,9 @@ export default function PolytopeChart(props) {
             let points_request = new URL(`${API_URL}${graphPath}/points`);
             points_request += "?" + stringify({
                 max_graph_size: props.max_graph_size,
-                invariants: props.invariants
+                x_invariant: x_invariant_name,
+                y_invariant: y_invariant_name,
+                constraints: props.constraints
             })
 
             const tempPoints = await fetch_api(points_request.toString())
@@ -309,7 +319,7 @@ export default function PolytopeChart(props) {
 
     // Créer les balises de choix des couleurs pour une coloration avec choix
     const RenderInputColorsForIndep = () => {
-        let result = [<p> {props.invariantColor} : </p>];
+        let result = [<p> {get_invariant_colour(props.formData)} : </p>];
         for (let i in range) {
             result.push(
                 <label  style={{fontWeight: 'bold'}}> {domainsIndep[i]} : {" "}
@@ -335,7 +345,7 @@ export default function PolytopeChart(props) {
             }
             return (
                 <div>
-                    <p> {props.invariantColor} : </p>
+                    <p> {get_invariant_colour(props.formData)} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     <Text style={{color: color1, fontWeight: 'bold'}} > { tag } </Text>
                 </div>
@@ -343,7 +353,7 @@ export default function PolytopeChart(props) {
         } else {
             return (
                 <div>
-                    <p> {props.invariantColor} : </p>
+                    <p> {get_invariant_colour(props.formData)} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     {tagsGradient.map((tag, i) => <Text style={{color: colorsGradient[i], fontWeight: 'bold'}} key={`gradient_tag${i}`}> {tag} </Text>)}
                     <input type="color" name="color2" id="color2" value={color2} onChange={e => setColor2(e.target.value)}/>
@@ -428,10 +438,8 @@ export default function PolytopeChart(props) {
             {selected ?
                 <Graphs
                     graphPath={props.graphPath}
-                    invariantXName={props.invariants[0].name}
+                    formData={props.formData}
                     invariantXValue={selectedX}
-                    max_graph_size={props.max_graph_size}
-                    invariantYName={props.invariants[1].name}
                     invariantYValue={selectedY}
                 />
                 : null
