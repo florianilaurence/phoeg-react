@@ -7,7 +7,7 @@ export default function Welcome() {
 
     setTimeout(() => {
         navigate("/home")
-    }, 1500)
+    }, 1750)
 
     return (
         <div className="center-welcome">
@@ -16,7 +16,7 @@ export default function Welcome() {
             </Box>
             <Box display="flex" alignItems="center" justifyContent="center">
                 <Typography variant="h3" align="center">
-                    Welcome in the new user interface for PHOEG !!!
+                    Welcome in the new user interface for PHOEG
                 </Typography>
             </Box>
         </div>

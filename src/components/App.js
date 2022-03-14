@@ -8,6 +8,7 @@ import { faInfo } from '@fortawesome/free-solid-svg-icons/faInfo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import '../styles/App.css'
 
 const options = [
     'Tutorial',
@@ -73,12 +74,10 @@ export default function App() {
                         <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
                             Phoeg UI
                         </Typography>
+                        <img src={"logo.png"} alt="logo" className="logo-medium" />
                     </Toolbar>
                 </AppBar>
             </Box>
-            <Button variant="contained" startIcon={<FontAwesomeIcon icon={faInfo} />} >
-                Tuto
-            </Button>
             <Polytopes/>
         </div>
     )

@@ -13,6 +13,7 @@ export default function Tutorial() {
             <IconButton
                 aria-label="more"
                 id="home-button"
+                color='inherit'
                 sx={{ fontSize: 40 }}
                 onClick={() => (navigate("/home"))}
             >
