@@ -9,13 +9,15 @@ import {
 } from "react-router-dom";
 import About from "./components/About.js"
 import Tutorial from "./components/Tutorial.js"
+import Welcome from "./components/Welcome";
 
 const rootElement = document.getElementById('root');
 
 ReactDOM.render(
     <BrowserRouter>
         <Routes>
-            <Route path="/" exact element={<App />} />
+            <Route path="/" element={<Welcome />} />
+            <Route path="/home" exact element={<App />} />
             <Route path="/about" element={<About />} />
             <Route path="/tutorial" element={<Tutorial />} />
         </Routes>
