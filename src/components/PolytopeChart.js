@@ -9,6 +9,9 @@ import {Dimensions, Text} from 'react-native';
 import Select from "react-select";
 import "../styles/PolytopeChart.css";
 import Graphs from "./Graphs";
+import {stringify} from "qs";
+import {API_URL} from "../.env";
+import {fetch_api} from "../core/utils";
 import {
     accessors, computeAllCluster,
     computeColorsRange,
@@ -19,6 +22,21 @@ import {Zoom} from "@visx/zoom";
 import { RectClipPath } from '@visx/clip-path';
 import {localPoint} from "@visx/event";
 import { Tooltip } from 'react-svg-tooltip';
+
+const accessors = (data, param) => {
+    if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
+        switch (param) {
+            case 'x':
+                return data.x;
+            case 'y':
+                return data.y;
+            case 'r':
+                return data.r;
+            default:
+                return data.col;
+        }
+    }
+}
 
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
@@ -86,27 +104,50 @@ export default function PolytopeChart(props) {
     const [selectedTag, setSelectedTag] = useState("");
     const [isLegendClicked, setIsLegendClicked] = useState(false);
 
+    const get_invariant_colour = (formData) => {
+        return props.formData.add_colouring["Add colouring?"] === "Yes"
+                ? props.formData.add_colouring["The invariant to use for the colouring."]
+                : null;
+    };
+
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
-            let pathEnv = "assets/data_" + props.invariantX + "/enveloppes/enveloppe-" + props.invariantY + ".json";
-            let pathPoints = "assets/data_" + props.invariantX + "/points/points-" + props.invariantY + ".json";
+            // Invariants to display
+            const x_invariant_name = props.formData.x_invariant;
+            const y_invariant_name = props.formData.y_invariant;
 
-            const tempLines = await fetch(pathEnv, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (myJson) {
-                    return readEnvelope(myJson);
+            // TODO handle if only two invariants
+            const colour_invariant_name = get_invariant_colour(props.formData);
+
+            const graphPath = props.graphPath.value.path;
+            let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
+            envelope_request += "?" + stringify({
+                max_graph_size: props.max_graph_size,
+                x_invariant: x_invariant_name,
+                y_invariant: y_invariant_name,
+                constraints: props.constraints
+            })
+
+            const envelope = await fetch_api(envelope_request.toString())
+                .then(response => response.json())
+                .then(json => {
+                    return readEnvelope(json);
                 });
-            const tempPoints = await fetch(pathPoints, {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-                .then(function (response) {
-                    return response.json();
-                })
-                .then(function (myJson) {
-                    return readPoints(myJson, props.invariantX, "m", props.invariantColor); // ToDo A modifier pour ne pas être hardcodé
-                })
-            computeScaleDomains(tempPoints, tempLines);
-            setLines(tempLines);
+
+            let points_request = new URL(`${API_URL}${graphPath}/points`);
+            points_request += "?" + stringify({
+                max_graph_size: props.max_graph_size,
+                x_invariant: x_invariant_name,
+                y_invariant: y_invariant_name,
+                constraints: props.constraints
+            })
+
+            const tempPoints = await fetch_api(points_request.toString())
+                .then(response => response.json())
+                .then(json => readPoints(json, x_invariant_name, y_invariant_name, colour_invariant_name)) //TODO accept more than one colouring);
+
+            computeScaleDomains(tempPoints, envelope);
+            setLines(envelope);
             let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
             let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
             setAllClusters(clusters.allClusters);
@@ -173,7 +214,6 @@ export default function PolytopeChart(props) {
 
     // ZOOM
     const [showMiniMap, setShowMiniMap] = useState(true);
-
     // COLORATIONS
     const handleChangeType = (newType) => {
         setTypeSelected(newType);
@@ -222,6 +262,7 @@ export default function PolytopeChart(props) {
             }
             return (
                 <div>
+                    <p> {get_invariant_colour(props.formData)} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
@@ -234,6 +275,7 @@ export default function PolytopeChart(props) {
         } else {
             return (
                 <div>
+                    <p> {get_invariant_colour(props.formData)} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     {tagsGradient.map((tag, i) => <Text
                         onPress={() => handleOnPressLegend(tag)}
@@ -484,8 +526,8 @@ export default function PolytopeChart(props) {
             <button onClick={() => handleNext()}> Suivant </button>
             {selected ?
                 <Graphs
-                    invariantXName={props.invariantX}
-                    numberVertices={props.invariantY}
+                    graphPath={props.graphPath}
+                    formData={props.formData}
                     invariantXValue={selectedX}
                     invariantYValue={selectedY}
                 />
