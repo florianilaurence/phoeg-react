@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import { faInfo } from '@fortawesome/free-solid-svg-icons/faInfo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {useState} from "react";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import {Link, useNavigate} from "react-router-dom";
 
 const options = [
     'Tutorial',
@@ -18,18 +18,19 @@ const ITEM_HEIGHT = 48;
 
 // Component's core
 export default function App() {
+    let navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
     const handleClose = (event) => {
-        setAnchorEl(null);
         if(event.target.innerText === "Tutorial") {
-            alert("Coming soon!");
+            navigate("/tutorial", {replace: true});
         } else if (event.target.innerText === "About") {
-            alert("Coming soon also!");
+            navigate("/about");
         }
+        setAnchorEl(null);
     };
 
     return (
@@ -75,7 +76,6 @@ export default function App() {
                     </Toolbar>
                 </AppBar>
             </Box>
-            TODO : Ajouter Titre + Logo !!!
             <Button variant="contained" startIcon={<FontAwesomeIcon icon={faInfo} />} >
                 Tuto
             </Button>
