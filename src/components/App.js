@@ -1,33 +1,77 @@
 import Polytopes from "./Polytopes.js";
-import Menu from "./Menu.js";
 import "react-banner/dist/style.css";
-import {AppBar, Box, IconButton, Toolbar} from "@mui/material";
+import {AppBar, Box, IconButton, Menu, MenuItem, Toolbar} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { faInfo } from '@fortawesome/free-solid-svg-icons/faInfo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {useState} from "react";
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+
+const options = [
+    'Tutorial',
+    'About',
+];
+
+const ITEM_HEIGHT = 48;
 
 // Component's core
 export default function App() {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = (event) => {
+        setAnchorEl(null);
+        if(event.target.innerText === "Tutorial") {
+            alert("Coming soon!");
+        } else if (event.target.innerText === "About") {
+            alert("Coming soon also!");
+        }
+    };
+
     return (
         <div className="app">
             <Box sx={{flexGrow: 1}}>
                 <AppBar position="static" style={{ background: '#000000'}}>
                     <Toolbar>
                         <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            sx={{mr: 2}}
+                            aria-label="more"
+                            id="long-button"
+                            color='inherit'
+                            aria-controls={open ? 'long-menu' : undefined}
+                            aria-expanded={open ? 'true' : undefined}
+                            aria-haspopup="true"
+                            onClick={handleClick}
                         >
-                            <MenuIcon/>
+                            <MenuIcon />
                         </IconButton>
+                        <Menu
+                            id="long-menu"
+                            MenuListProps={{
+                                'aria-labelledby': 'long-button',
+                            }}
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            PaperProps={{
+                                style: {
+                                    maxHeight: ITEM_HEIGHT * 4.5,
+                                    width: '20ch',
+                                },
+                            }}
+                        >
+                            {options.map((option) => (
+                                <MenuItem key={option} selected={option === 'Pyxis'} onClick={handleClose}>
+                                    {option}
+                                </MenuItem>
+                            ))}
+                        </Menu>
                         <Typography variant="h6" component="div" sx={{flexGrow: 1}}>
-                            News
+                            Phoeg UI
                         </Typography>
-                        <Button color="inherit">Login</Button>
                     </Toolbar>
                 </AppBar>
             </Box>
