@@ -23,21 +23,6 @@ import { RectClipPath } from '@visx/clip-path';
 import {localPoint} from "@visx/event";
 import { Tooltip } from 'react-svg-tooltip';
 
-const accessors = (data, param) => {
-    if (data !== undefined) { // Obligatoire sinon problème, car est parfois appelé avec un undefined
-        switch (param) {
-            case 'x':
-                return data.x;
-            case 'y':
-                return data.y;
-            case 'r':
-                return data.r;
-            default:
-                return data.col;
-        }
-    }
-}
-
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
