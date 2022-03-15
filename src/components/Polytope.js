@@ -1,6 +1,6 @@
 import Select from 'react-select';
 import React, {useEffect, useState} from "react";
-import Form from '@rjsf/material-ui';
+import { MuiForm5 as Form } from '@rjsf/material-ui';
 import PolytopeChart from "./PolytopeChart.js";
 import {API_URL} from "../.env";
 import {fetch_api} from "../core/utils";
