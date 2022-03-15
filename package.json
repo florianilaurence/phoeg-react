@@ -2,6 +2,7 @@
   "name": "phoeg-react",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://phoeg.umons.ac.be/ui",
   "dependencies": {
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",

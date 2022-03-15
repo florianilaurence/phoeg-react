@@ -14,7 +14,7 @@ import Welcome from "./components/Welcome";
 const rootElement = document.getElementById('root');
 
 ReactDOM.render(
-    <BrowserRouter>
+    <BrowserRouter basename={"/ui"}>
         <Routes>
             <Route path="/" element={<Welcome />} />
             <Route path="/home" exact element={<App />} />
