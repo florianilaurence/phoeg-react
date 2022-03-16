@@ -60,8 +60,6 @@ export default function Polytope(props) {
 
 
     function onFormSubmit(event) {
-        console.log("---Form submitted---");
-        console.log(event.formData);
         setFormResults(event.formData);
         setSubmit(true);
     }

@@ -107,10 +107,10 @@ export default function PolytopeChart(props) {
             const graphPath = props.graphPath.value.path;
             let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
             envelope_request += "?" + stringify({
-                max_graph_size: props.max_graph_size,
+                max_graph_size: props.formData.max_graph_size,
                 x_invariant: x_invariant_name,
                 y_invariant: y_invariant_name,
-                constraints: props.constraints
+                constraints: props.formData.constraints
             })
 
             const envelope = await fetch_api(envelope_request.toString())
@@ -121,10 +121,10 @@ export default function PolytopeChart(props) {
 
             let points_request = new URL(`${API_URL}${graphPath}/points`);
             points_request += "?" + stringify({
-                max_graph_size: props.max_graph_size,
+                max_graph_size: props.formData.max_graph_size,
                 x_invariant: x_invariant_name,
                 y_invariant: y_invariant_name,
-                constraints: props.constraints
+                constraints: props.formData.constraints
             })
 
             const tempPoints = await fetch_api(points_request.toString())
@@ -140,13 +140,13 @@ export default function PolytopeChart(props) {
             updateStates(clusters.clusterPossible, 0, clusters.allClusters);
 
     },
-        [props.invariantX, props.invariantY, props.invariantColor]);
+        [props.formData]);
 
     // Fait séparément pour ne pas recalculer systématiquement tous les clusters
     useEffect(() => {
             updateStates(clusterList, indexCluster, allClusters);
         },
-        [indexCluster, props.invariantX, props.invariantY, props.invariantColor]
+        [indexCluster, props.formData]
     )
 
     const updateStates = (currentClusterList, currentIndexCluster, currentAllClusters) => {
@@ -372,7 +372,7 @@ export default function PolytopeChart(props) {
                                 />
                                 <Tooltip triggerRef={ref}>
                                     <text x={-125} y={-10} fontSize={15} fill='#000000' >
-                                        {props.invariantX} = {circle.x} | m = {circle.y //TODO Ne pas être hardcodé et ajouté les autres données
+                                        {props.formData.x_invariant} = {circle.x} | m = {circle.y //TODO Ne pas être hardcodé et ajouté les autres données
                                         }
                                     </text>
                                 </Tooltip>
