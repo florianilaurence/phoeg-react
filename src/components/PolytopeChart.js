@@ -372,7 +372,8 @@ export default function PolytopeChart(props) {
                                 />
                                 <Tooltip triggerRef={ref}>
                                     <text x={-125} y={-10} fontSize={15} fill='#000000' >
-                                        {props.formData.x_invariant} = {circle.x} | m = {circle.y //TODO Ne pas être hardcodé et ajouté les autres données
+
+                                        {props.formData.x_invariant} = {circle.x} | {props.formData.y_invariant} = {circle.y //TODO Ne pas être hardcodé et ajouté les autres données
                                         }
                                     </text>
                                 </Tooltip>
