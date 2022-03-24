@@ -24,7 +24,7 @@ export const regroupPointsByColor = (points) => {
         pointsGr[point.col].push(point);
     }
     return {
-        cols: Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a - b),
+        cols: Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a - b), //TODO Problème si se sont des boolean
         pointsGr: pointsGr
     };
 }

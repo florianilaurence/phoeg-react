@@ -12,3 +12,7 @@
 .select {
     max-width: 300px;
 }
+
+.main-container {
+    display: flex;
+}

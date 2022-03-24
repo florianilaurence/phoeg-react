@@ -3,9 +3,6 @@ import "react-banner/dist/style.css";
 import {AppBar, Box, IconButton, Menu, MenuItem, Toolbar} from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { faInfo } from '@fortawesome/free-solid-svg-icons/faInfo';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import '../styles/App.css'

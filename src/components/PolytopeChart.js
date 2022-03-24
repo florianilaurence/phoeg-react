@@ -129,16 +129,26 @@ export default function PolytopeChart(props) {
 
             const tempPoints = await fetch_api(points_request.toString())
                 .then(response => response.json())
-                .then(json => readPoints(json, x_invariant_name, y_invariant_name, colour_invariant_name)) //TODO accept more than one colouring);
+                .then(json => readPoints(json)) //TODO accept more than one colouring);
 
+            console.log(tempPoints);
             computeScaleDomains(tempPoints, envelope);
             setLines(envelope);
-            let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
-            let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
-            setAllClusters(clusters.allClusters);
-            setClusterList(clusters.clusterPossible);
-            updateStates(clusters.clusterPossible, 0, clusters.allClusters);
-
+            if(props.formData.add_colouring["Add colouring?"]) {
+                let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
+                let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
+                setAllClusters(clusters.allClusters);
+                setClusterList(clusters.clusterPossible);
+                updateStates(clusters.clusterPossible, 0, clusters.allClusters);
+            } else {
+                let clusters = {
+                    clusterPossible: [1],
+                    allClusters: {1: [tempPoints]}
+                }
+                setClusterList(clusters.clusterPossible);
+                setAllClusters(clusters.allClusters);
+                updateStates(clusters.clusterPossible, 0, clusters.allClusters);
+            }
     },
         [props.formData]);
 
@@ -351,7 +361,7 @@ export default function PolytopeChart(props) {
                         x={ (d) => xScale(accessors(d, "x")) }
                         y={ (d) => yScale(accessors(d, "y")) }
                     />
-                    { clusterList.length > 0 ? constructPoints().map(circle => {
+                    { (clusterList.length > 0 && allClusters[indexCluster]) ? constructPoints().map(circle => {
                         const ref = React.createRef();
                         return (
                             <>
@@ -398,109 +408,111 @@ export default function PolytopeChart(props) {
     return (
         <>
             <h5> Graphique :</h5>
-            <Zoom width={width} height={height}>
-                {(zoom) => (
-                    <div className="relative">
-                        <svg
-                            width={width}
-                            height={height}
-                            style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
-                            ref={zoom.containerRef}
-                        >
-                            <RectClipPath id="zoom-clip" width={width} height={height} />
-                            <rect
+            <div className="main-container" >
+                <Zoom width={width} height={height}>
+                    {(zoom) => (
+                        <div className="relative">
+                            <svg
                                 width={width}
                                 height={height}
-                                rx="10"
-                                ry="10"
-                                stroke="#000000"
-                                strokeWidth="5"
-                                fill={background}
-                                onTouchStart={zoom.dragStart}
-                                onTouchMove={zoom.dragMove}
-                                onTouchEnd={zoom.dragEnd}
-                                onMouseDown={zoom.dragStart}
-                                onMouseMove={zoom.dragMove}
-                                onMouseUp={zoom.dragEnd}
-                                onMouseLeave={() => {
-                                    if (zoom.isDragging) zoom.dragEnd();
-                                }}
-                                onDoubleClick={(event) => {
-                                    const point = localPoint(event) || { x: 0, y: 0 };
-                                    zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
-                                }}
-                            />
-                            <g transform={zoom.toString()}>
-                                <RenderData />
-                            </g>
-                            {showMiniMap && (
-                                <g
-                                    clipPath="url(#zoom-clip)"
-                                    transform={`
-                                        scale(0.25)
-                                        translate(${width * 4 - width - 60}, ${height * 4 - height - 60})
-                                    `}
-                                >
-                                    <rect width={width} height={height} fill={background_mini_map} />
+                                style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+                                ref={zoom.containerRef}
+                            >
+                                <RectClipPath id="zoom-clip" width={width} height={height} />
+                                <rect
+                                    width={width}
+                                    height={height}
+                                    rx="10"
+                                    ry="10"
+                                    stroke="#000000"
+                                    strokeWidth="5"
+                                    fill={background}
+                                    onTouchStart={zoom.dragStart}
+                                    onTouchMove={zoom.dragMove}
+                                    onTouchEnd={zoom.dragEnd}
+                                    onMouseDown={zoom.dragStart}
+                                    onMouseMove={zoom.dragMove}
+                                    onMouseUp={zoom.dragEnd}
+                                    onMouseLeave={() => {
+                                        if (zoom.isDragging) zoom.dragEnd();
+                                    }}
+                                    onDoubleClick={(event) => {
+                                        const point = localPoint(event) || { x: 0, y: 0 };
+                                        zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
+                                    }}
+                                />
+                                <g transform={zoom.toString()}>
                                     <RenderData />
-                                    <rect
-                                        width={width}
-                                        height={height}
-                                        fill="white"
-                                        fillOpacity={0.75}
-                                        stroke="white"
-                                        strokeWidth={4}
-                                        transform={zoom.toStringInvert()}
-                                    />
                                 </g>
-                            )}
-                        </svg>
-                        <div className="controls">
-                            <p>
-                                <Text>Options de zoom pour le graphique : </Text>
-                                <button
-                                    type="button"
-                                    className="btn btn-zoom"
-                                    onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
-                                >
-                                    +
-                                </button>
-                                {" "}
-                                <button
-                                    type="button"
-                                    className="btn btn-zoom btn-bottom"
-                                    onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
-                                >
-                                    -
-                                </button>
-                                {" "}
-                                <button type="button" className="btn btn-lg" onClick={zoom.center}>
-                                    Center
-                                </button>
-                                {" "}
-                                <button type="button" className="btn btn-lg" onClick={zoom.reset}>
-                                    Reset
-                                </button>
-                                {" "}
-                                <button type="button" className="btn btn-lg" onClick={zoom.clear}>
-                                    Clear
-                                </button>
-                                {" "}
-                                <button
-                                    type="button"
-                                    className="btn btn-lg"
-                                    onClick={() => setShowMiniMap(!showMiniMap)}
-                                >
-                                    {showMiniMap ? 'Hide' : 'Show'} Mini Map
-                                </button>
-                                <br/>
-                                <Text>Choix du type de coloration : </Text>
-                                <Select className="select" defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
-                            </p>
+                                {showMiniMap && (
+                                    <g
+                                        clipPath="url(#zoom-clip)"
+                                        transform={`
+                                            scale(0.25)
+                                            translate(${width * 4 - width - 60}, ${height * 4 - height - 60})
+                                        `}
+                                    >
+                                        <rect width={width} height={height} fill={background_mini_map} />
+                                        <RenderData />
+                                        <rect
+                                            width={width}
+                                            height={height}
+                                            fill="white"
+                                            fillOpacity={0.75}
+                                            stroke="white"
+                                            strokeWidth={4}
+                                            transform={zoom.toStringInvert()}
+                                        />
+                                    </g>
+                                )}
+                            </svg>
+                            <div className="controls">
+                                <p>
+                                    <Text>Options de zoom pour le graphique : </Text>
+                                    <button
+                                        type="button"
+                                        className="btn btn-zoom"
+                                        onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
+                                    >
+                                        +
+                                    </button>
+                                    {" "}
+                                    <button
+                                        type="button"
+                                        className="btn btn-zoom btn-bottom"
+                                        onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
+                                    >
+                                        -
+                                    </button>
+                                    {" "}
+                                    <button type="button" className="btn btn-lg" onClick={zoom.center}>
+                                        Center
+                                    </button>
+                                    {" "}
+                                    <button type="button" className="btn btn-lg" onClick={zoom.reset}>
+                                        Reset
+                                    </button>
+                                    {" "}
+                                    <button type="button" className="btn btn-lg" onClick={zoom.clear}>
+                                        Clear
+                                    </button>
+                                    {" "}
+                                    <button
+                                        type="button"
+                                        className="btn btn-lg"
+                                        onClick={() => setShowMiniMap(!showMiniMap)}
+                                    >
+                                        {showMiniMap ? 'Hide' : 'Show'} Mini Map
+                                    </button>
+                                    <br/>
+                                    <Text>Choix du type de coloration : </Text>
+                                    <Select className="select" defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </Zoom>
+                    )}
+                </Zoom>
+            </div>
             <Text>Légende (coloration avec l'invariant {props.invariantColor}) :</Text>
             {typeCurrent === 'indep' ?
                 <RenderInputColorsForIndep /> :

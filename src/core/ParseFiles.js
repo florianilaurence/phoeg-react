@@ -30,7 +30,7 @@ function readEnvelopePolygone(data) {
     return result;
 }
 
-export function readPoints(data, invariantX, invariantY, invariantColor) {
+export function readPoints(data) {
     const keys = Object.keys(data);
     const pointsGrouped = [];
 
