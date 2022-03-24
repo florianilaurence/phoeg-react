@@ -60,6 +60,7 @@ export default function Polytope(props) {
 
 
     function onFormSubmit(event) {
+        event.formData.add_colouring["Add colouring?"] = event.formData.add_colouring["Add colouring?"] === "Yes" ? true : false;
         setFormResults(event.formData);
         setSubmit(true);
     }

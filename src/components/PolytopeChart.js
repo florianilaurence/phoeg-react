@@ -90,7 +90,7 @@ export default function PolytopeChart(props) {
     const [isLegendClicked, setIsLegendClicked] = useState(false);
 
     const get_invariant_colour = (formData) => {
-        return props.formData.add_colouring["Add colouring?"] === "Yes"
+        return props.formData.add_colouring["Add colouring?"]
                 ? props.formData.add_colouring["The invariant to use for the colouring."]
                 : null;
     };
