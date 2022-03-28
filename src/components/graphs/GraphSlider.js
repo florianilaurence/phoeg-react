@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MyGraph from "./MyGraph";
 import Select from "react-select";
 import {Text} from "react-native";
-import "../styles/GraphSlider.css";
+import "./Graphs.css";
 
 export default function GraphSlider(props) {
     const [currentIndex, setCurrentIndex] = useState(0); // Indice du graphe à afficher

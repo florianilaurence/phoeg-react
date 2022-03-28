@@ -1,9 +1,14 @@
 import Select from 'react-select';
 import React, {useEffect, useState} from "react";
 import { MuiForm5 as Form } from '@rjsf/material-ui';
-import PolytopeChart from "./PolytopeChart.js";
-import {API_URL} from "../.env";
-import {fetch_api} from "../core/utils";
+import PolytopeChart from "./PolytopeChart";
+import {API_URL} from "../../.env";
+import {fetch_api} from "../../core/utils";
+import {View} from "react-native-web";
+import SubTitleText from "../styles_and_settings/SubTitleText";
+import InnerText from "../styles_and_settings/InnerText";
+import "./Polytopes.css"
+import {PADDING_LEFT, PADDING_RIGHT} from "../../designVars";
 
 const API_URL_ENDPOINTS = `${API_URL}/endpoints`;
 
@@ -20,7 +25,6 @@ async function get_endpoints() {
             return endpoints.map(endpt => ({value: endpt, label: endpt.name}));
         })
 }
-
 
 // Component's core
 export default function Polytope(props) {
@@ -58,7 +62,6 @@ export default function Polytope(props) {
         }
     }
 
-
     function onFormSubmit(event) {
         event.formData.add_colouring["Add colouring?"] = event.formData.add_colouring["Add colouring?"] === "Yes" ? true : false;
         setFormResults(event.formData);
@@ -72,28 +75,37 @@ export default function Polytope(props) {
     }
 
     return (
-        <div>
-            <h3> Polytope {props.num}</h3>
-            <form>
-                <label>
-                    Quel type de polytopes souhaitez-vous étudier ? Which type of polytope template do you want to study ?
-                    <Select
-                        //defaultValue={endpoints}
-                        onChange={handleChangePolytopeType}
-                        //defaultInputValue={endpoints[0].value}
-                        options={endpoints}
-                    />
-                </label>
-            </form>
-            {!!endpoint &&
-                <Form
-                    formData={formResults}
-                    schema={endpoint.value.params}
-                    uiSchema={uiSchema}
-                    onSubmit={onFormSubmit}
-                    onError={console.error}/>
-            }
+        <View style={{flexDirection: 'column', alignItems: 'left', flexGrow: 1}}>
+            <View>
+                <SubTitleText>Polytope {props.num}</SubTitleText>
+            </View>
+            <View style={{flexDirection: 'row', flexGrow: 1}}>
+                <View>
+                    <InnerText>Which type of polytope template do you want to study ?</InnerText>
+                </View>
+                {
+                    //TODO Probleme à l'avoir à la taille voulue, il reste trop petit ...
+                }
+                <Select
+                    className="select"
+                    //defaultValue={endpoints}
+                    onChange={handleChangePolytopeType}
+                    //defaultInputValue={endpoints[0]}
+                    options={endpoints}
+                />
+            </View>
+            <View style={{paddingLeft: PADDING_LEFT, paddingRight: PADDING_RIGHT}}>
+                {!!endpoint &&
+                    <Form
+                        formData={formResults}
+                        schema={endpoint.value.params}
+                        uiSchema={uiSchema}
+                        onSubmit={onFormSubmit}
+                        onError={console.error}/>
+                }
+            </View>
             <RenderPolytopeChart/>
-        </div>
+        </View>
+
     )
 }

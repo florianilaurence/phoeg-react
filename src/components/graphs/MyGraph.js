@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {computeNodesEdges} from "../core/ParseSignature";
+import {computeNodesEdges} from "../../core/ParseSignature";
 import { Graph, DefaultNode } from '@visx/network';
 
 export default function MyGraph(props) {

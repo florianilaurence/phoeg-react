@@ -10,7 +10,8 @@
 }
 
 .select {
-    max-width: 300px;
+    max-width: 500px;
+    padding-left: 25px;
 }
 
 .main-container {

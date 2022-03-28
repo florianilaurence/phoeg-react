@@ -61,7 +61,7 @@ export function readPoints(data) {
  * @param numberEdges Nombre d'arrêtes demandé (y)
  * @param invariantValue Valeur de l'invariant demandée (x)
  * @param invariantName Nom de l'invariant
- * @returns {*[]} Liste des signatures de graphes correspondant aux critères
+ * @returns {*[]} Liste des signatures de graphs correspondant aux critères
  */
 
 export function readGraph(data, x_invariant_name, x_invariant_value, y_invariant_name, y_invariant_value) {

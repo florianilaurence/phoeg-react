@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {readEnvelope, readPoints} from "../core/ParseFiles";
+import {readEnvelope, readPoints} from "../../core/ParseFiles";
 import {Group} from "@visx/group";
 import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
@@ -7,17 +7,17 @@ import {LinePath} from "@visx/shape";
 import {GridColumns, GridRows} from "@visx/grid";
 import {Dimensions, Text} from 'react-native';
 import Select from "react-select";
-import "../styles/PolytopeChart.css";
-import Graphs from "./Graphs";
+import "./Polytopes.css";
+import Graphs from "../graphs/Graphs";
 import {stringify} from "qs";
-import {API_URL} from "../.env";
-import {fetch_api} from "../core/utils";
+import {API_URL} from "../../.env";
+import {fetch_api} from "../../core/utils";
 import {
     accessors, computeAllCluster,
     computeColorsRange,
     computeTagsDomainGradient,
     computeTagsDomainIndep, regroupPointsByColor
-} from "../core/utils_PolytopeChart";
+} from "../../core/utils_PolytopeChart";
 import {Zoom} from "@visx/zoom";
 import { RectClipPath } from '@visx/clip-path';
 import {localPoint} from "@visx/event";

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { readGraph } from "../core/ParseFiles";
+import { readGraph } from "../../core/ParseFiles";
 import GraphSlider from "./GraphSlider";
-import {API_URL} from "../.env";
-import {fetch_api} from "../core/utils";
-import "../styles/Graphs.css";
+import {API_URL} from "../../.env";
+import {fetch_api} from "../../core/utils";
+import "./Graphs.css";
 
 export default function Graphs(props) {
-    const [graphlist, setGraphList] = useState([""]); // La liste des graphes correspondant aux critères
+    const [graphlist, setGraphList] = useState([""]); // La liste des graphs correspondant aux critères
     const [computedList, setComputedList] = useState(false);
     const [numberSlider, setNumberSlider] = useState(1);
     const [maxSlider, setMaxSlider] = useState(1);
@@ -70,7 +70,7 @@ export default function Graphs(props) {
                 <button type="button" onClick={() =>
                     setNumberSlider((numberSlider+1)%(maxSlider+1) === 0 ?
                         1 : (numberSlider + 1) % (maxSlider + 1))}> + </button> <br/>
-                Il y a <b> {graphlist.length} </b> {graphlist.length === 1 ? "graphe pouvant être affiché" : "graphes différents pouvant être affichés"}
+                Il y a <b> {graphlist.length} </b> {graphlist.length === 1 ? "graphe pouvant être affiché" : "graphs différents pouvant être affichés"}
             </p>
             <ul className="graph-slider-list">
                 <RenderGraphSlider />
