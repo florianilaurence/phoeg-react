@@ -42,15 +42,9 @@ export default function Polytope(props) {
         get_endpoints()
             .then((endpoints) => {
                 setEndpoints(endpoints);
+                setEndpoint(endpoints[0])
             })
     }, [])
-
-
-    const handleChangePolytopeType = (newPolytopeType) => {
-        setEndpoint(newPolytopeType);
-        setSubmit(false);
-        return true;
-    }
 
 
     const RenderPolytopeChart = () => {
@@ -78,21 +72,6 @@ export default function Polytope(props) {
         <View style={{flexDirection: 'column', alignItems: 'left', flexGrow: 1}}>
             <View>
                 <SubTitleText>Polytope {props.num}</SubTitleText>
-            </View>
-            <View style={{flexDirection: 'row', flexGrow: 1}}>
-                <View>
-                    <InnerText>Which type of polytope template do you want to study ?</InnerText>
-                </View>
-                {
-                    //TODO Probleme à l'avoir à la taille voulue, il reste trop petit ...
-                }
-                <Select
-                    className="select"
-                    //defaultValue={endpoints}
-                    onChange={handleChangePolytopeType}
-                    //defaultInputValue={endpoints[0]}
-                    options={endpoints}
-                />
             </View>
             <View style={{paddingLeft: PADDING_LEFT, paddingRight: PADDING_RIGHT}}>
                 {!!endpoint &&
