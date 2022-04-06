@@ -1,8 +1,9 @@
 // Paddings
-export const PADDING_TOP=10;
-export const PADDING_BOTTOM=10;
-export const PADDING_LEFT=50;
-export const PADDING_RIGHT=50;
+export const PADDING_TOP='2%';
+export const PADDING_BOTTOM='2%';
+export const PADDING_LEFT='10%';
+export const PADDING_RIGHT='10%';
+export const PADDING_INNER='1%';
 
 // Font size
 export const TITLE_SIZE=50;

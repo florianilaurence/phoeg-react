@@ -27,7 +27,7 @@ export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
     const background_mini_map = 'rgba(197,197,197,0.9)';
-    const width = Dimensions.get('window').width - 25;
+    const width = Dimensions.get('window').width*70/100;
     const height = width / 2;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
     const innerWidth = width - margin.left - margin.right;
@@ -89,28 +89,19 @@ export default function PolytopeChart(props) {
     const [selectedTag, setSelectedTag] = useState("");
     const [isLegendClicked, setIsLegendClicked] = useState(false);
 
-    const get_invariant_colour = (formData) => {
-        return props.formData.add_colouring["Add colouring?"]
-                ? props.formData.add_colouring["The invariant to use for the colouring."]
-                : null;
-    };
-
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
-            // Invariants to display
-            const x_invariant_name = props.formData.x_invariant;
-            const y_invariant_name = props.formData.y_invariant;
+        const invariantX = props.invariantX.replace(' ', '_');
+        const invariantY = props.invariantY.replace(' ', '_');
 
-            // TODO handle if only two invariants
-            const colour_invariant_name = get_invariant_colour(props.formData);
-
-            const graphPath = props.graphPath.value.path;
+            // Récupération des données du polytope
+            const graphPath = props.endpoint.value.path;
             let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
             envelope_request += "?" + stringify({
-                max_graph_size: props.formData.max_graph_size,
-                x_invariant: x_invariant_name,
-                y_invariant: y_invariant_name,
-                constraints: props.formData.constraints
+                max_graph_size: props.maxOrder,
+                x_invariant: invariantX,
+                y_invariant: invariantY,
+                constraints: props.others
             })
 
             const envelope = await fetch_api(envelope_request.toString())
@@ -121,20 +112,19 @@ export default function PolytopeChart(props) {
 
             let points_request = new URL(`${API_URL}${graphPath}/points`);
             points_request += "?" + stringify({
-                max_graph_size: props.formData.max_graph_size,
-                x_invariant: x_invariant_name,
-                y_invariant: y_invariant_name,
-                constraints: props.formData.constraints
+                max_graph_size: props.maxOrder,
+                x_invariant: invariantX,
+                y_invariant: invariantY,
+                constraints: props.others,
             })
 
             const tempPoints = await fetch_api(points_request.toString())
                 .then(response => response.json())
-                .then(json => readPoints(json)) //TODO accept more than one colouring);
+                .then(json => readPoints(json))
 
-            console.log(tempPoints);
             computeScaleDomains(tempPoints, envelope);
             setLines(envelope);
-            if(props.formData.add_colouring["Add colouring?"]) {
+            if(!props.hasColor) {
                 let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
                 let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
                 setAllClusters(clusters.allClusters);
@@ -150,14 +140,13 @@ export default function PolytopeChart(props) {
                 updateStates(clusters.clusterPossible, 0, clusters.allClusters);
             }
     },
-        [props.formData]);
+        [props.invariantX, props.invariantY, props.others, props.maxOrder, props.endpoint, props.hasColor]);
 
     // Fait séparément pour ne pas recalculer systématiquement tous les clusters
     useEffect(() => {
             updateStates(clusterList, indexCluster, allClusters);
         },
-        [indexCluster, props.formData]
-    )
+        [indexCluster, clusterList, allClusters]);
 
     const updateStates = (currentClusterList, currentIndexCluster, currentAllClusters) => {
         let currentClustersName = currentClusterList[currentIndexCluster];
@@ -257,7 +246,7 @@ export default function PolytopeChart(props) {
             }
             return (
                 <div>
-                    <p> {get_invariant_colour(props.formData)} : </p>
+                    <p> {props.invariantColor} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
@@ -270,7 +259,7 @@ export default function PolytopeChart(props) {
         } else {
             return (
                 <div>
-                    <p> {get_invariant_colour(props.formData)} : </p>
+                    <p> {props.invariantColor} : </p>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     {tagsGradient.map((tag, i) => <Text
                         onPress={() => handleOnPressLegend(tag)}

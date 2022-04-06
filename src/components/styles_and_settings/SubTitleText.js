@@ -4,22 +4,23 @@ import {
     COLOR_TITLES,
     DIVIDING_LINE_STYLE,
     PADDING_BOTTOM,
+    PADDING_INNER,
     PADDING_LEFT,
-    PADDING_RIGHT,
     SUBTITLE_SIZE
 } from "../../designVars";
 
 export default function SubTitleText(props) {
     return (
         <View style={{flexDirection: 'row', alignItems: 'left'}}>
-            <View style={{paddingLeft: PADDING_LEFT}}>
+            <View>
                 <Text
                     style={{
                         fontSize: SUBTITLE_SIZE,
                         fontStyle: "italic",
-                        paddingRight: PADDING_RIGHT,
+                        paddingRight: PADDING_INNER,
                         paddingBottom: PADDING_BOTTOM,
-                        color: COLOR_TITLES
+                        color: COLOR_TITLES,
+                        minWidth: '150px'
                 }}>
                     {props.children}
                 </Text>

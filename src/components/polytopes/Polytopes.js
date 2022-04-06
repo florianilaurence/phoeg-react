@@ -32,35 +32,47 @@ export default function Polytopes() {
     }
 
     return (
-        <View style={{flexDirection: 'column', alignItems: 'left', flexGrow: 1}}>
+        <View style={{
+            flexDirection: 'column',
+            alignItems: 'left',
+            flexGrow: 1,
+        }}>
             <TitleText>Polytopes</TitleText>
-            <InnerText>Please select polytopes number you want analyse in parallel</InnerText>
             <View
                 style={{
                     paddingLeft: PADDING_LEFT,
                     paddingTop: PADDING_TOP,
                     paddingRight: PADDING_RIGHT,
                     paddingBottom: PADDING_BOTTOM
-            }}>
-                <Slider
-                    aria-label="PolytopesNumber"
-                    defaultValue={DEFAULT_NUMBER_OF_POLYTOPES}
-                    valueLabelDisplay="auto"
-                    step={1}
-                    marks
-                    min={MIN_NUMBER_OF_POLYTOPES}
-                    max={MAX_NUMBER_OF_POLYTOPES}
-                    sx={{
-                        color: 'success.main',
-                        '& .MuiSlider-thumb': {
-                            borderRadius: '1px',
-                        },
-                    }}
-                    onChange={(event) => {setCount(event.target.value)}}
-                />
-                <br />
-                <RenderMultiPolytopes />
+                }}>
+                <InnerText>Please select number of polytopes that you want analyse in parallel</InnerText>
+                <br/>
+                <View style={{
+                    alignItems: 'center',
+                    paddingBottom: PADDING_BOTTOM,
+                }}>
+                    <Slider
+                        aria-label="PolytopesNumber"
+                        defaultValue={DEFAULT_NUMBER_OF_POLYTOPES}
+                        valueLabelDisplay="auto"
+                        step={1}
+                        marks
+                        min={MIN_NUMBER_OF_POLYTOPES}
+                        max={MAX_NUMBER_OF_POLYTOPES}
+                        sx={{
+                            color: 'success.main',
+                            '& .MuiSlider-thumb': {
+                                borderRadius: '1px',
+                            },
+                        }}
+                        style={{
+                            width: '75%',
+                        }}
+                        onChange={(event) => {setCount(event.target.value)}}
+                    />
+                </View>
             </View>
+            <RenderMultiPolytopes />
         </View>
 
     );
