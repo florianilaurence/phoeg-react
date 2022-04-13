@@ -91,54 +91,51 @@ export default function PolytopeChart(props) {
 
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
-        const invariantX = props.invariantX.replace(' ', '_');
-        const invariantY = props.invariantY.replace(' ', '_');
+        // Récupération des données du polytope
+        const graphPath = props.endpoint.value.path;
+        let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
+        envelope_request += "?" + stringify({
+            max_graph_size: props.maxOrder,
+            x_invariant: props.invariantX,
+            y_invariant: props.invariantY,
+            constraints: props.others
+        })
 
-            // Récupération des données du polytope
-            const graphPath = props.endpoint.value.path;
-            let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
-            envelope_request += "?" + stringify({
-                max_graph_size: props.maxOrder,
-                x_invariant: invariantX,
-                y_invariant: invariantY,
-                constraints: props.others
-            })
+        const envelope = await fetch_api(envelope_request.toString())
+            .then(response => response.json())
+            .then(json => {
+                return readEnvelope(json);
+            });
 
-            const envelope = await fetch_api(envelope_request.toString())
-                .then(response => response.json())
-                .then(json => {
-                    return readEnvelope(json);
-                });
+        let points_request = new URL(`${API_URL}${graphPath}/points`);
+        points_request += "?" + stringify({
+            max_graph_size: props.maxOrder,
+            x_invariant: props.invariantX,
+            y_invariant: props.invariantY, //TODO manque la couleur non ?
+            constraints: props.others,
+        });
 
-            let points_request = new URL(`${API_URL}${graphPath}/points`);
-            points_request += "?" + stringify({
-                max_graph_size: props.maxOrder,
-                x_invariant: invariantX,
-                y_invariant: invariantY,
-                constraints: props.others,
-            })
-
-            const tempPoints = await fetch_api(points_request.toString())
-                .then(response => response.json())
-                .then(json => readPoints(json))
-
+        const tempPoints = await fetch_api(points_request.toString())
+            .then(response => response.json())
+            .then(json => readPoints(json))
             computeScaleDomains(tempPoints, envelope);
-            setLines(envelope);
-            if(!props.hasColor) {
-                let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
-                let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
-                setAllClusters(clusters.allClusters);
-                setClusterList(clusters.clusterPossible);
-                updateStates(clusters.clusterPossible, 0, clusters.allClusters);
-            } else {
-                let clusters = {
-                    clusterPossible: [1],
-                    allClusters: {1: [tempPoints]}
-                }
-                setClusterList(clusters.clusterPossible);
-                setAllClusters(clusters.allClusters);
-                updateStates(clusters.clusterPossible, 0, clusters.allClusters);
+        setLines(envelope);
+
+        if(props.hasColor) {
+            let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
+            let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
+            setAllClusters(clusters.allClusters);
+            setClusterList(clusters.clusterPossible);
+            updateStates(clusters.clusterPossible, 0, clusters.allClusters);
+        } else {
+            let clusters = {
+                clusterPossible: [1],
+                allClusters: {1: [tempPoints]}
             }
+            setClusterList(clusters.clusterPossible);
+            setAllClusters(clusters.allClusters);
+            updateStates(clusters.clusterPossible, 0, clusters.allClusters);
+        }
     },
         [props.invariantX, props.invariantY, props.others, props.maxOrder, props.endpoint, props.hasColor]);
 

@@ -1,5 +1,4 @@
 
-
 function parseToBits(data) {
     let bits = []
     for (let b of data) {
@@ -8,20 +7,6 @@ function parseToBits(data) {
         }
     }
     return bits;
-}
-
-function constructEdges(bits, n) {
-    const edges = [];
-    let cnt = 0;
-    for (let j = 1; j < n; j++) {
-        for (let i = 0; i < j; i++) {
-            if (bits[cnt]) {
-                edges.push({ source: i, target: j })
-            }
-            cnt += 1;
-        }
-    }
-    return edges;
 }
 
 function unpack(str) {
@@ -49,18 +34,44 @@ function bytesArrayToN(bytesArray) {
         bytesArray.slice(8)];
 }
 
-const constructComplement = (bits, n) => {
+function constructEdges(bits, n) {
+    const edges = [];
+    let cnt = 0;
+    for (let j = 1; j < n; j++) {
+        for (let i = 0; i < j; i++) {
+            if (bits[cnt]) {
+                edges.push({data: {source: i, target: j}});
+            }
+            cnt += 1;
+        }
+    }
+    return edges;
+}
+
+const constructComplementEdges = (bits, n) => {
     const edgesCompl = [];
     let cnt = 0;
     for (let j = 1; j < n; j++) {
         for (let i = 0; i < j; i++) {
             if (!bits[cnt]) {
-                edgesCompl.push({ source: i, target: j })
+                edgesCompl.push({data: {source: i, target: j}});
             }
             cnt += 1;
         }
     }
     return edgesCompl;
+}
+
+const computeDegrees = (nodes, edges) => {
+    let degrees = [];
+    for (let i = 0; i < nodes.length; i++) {
+        degrees[i] = 0;
+    }
+    for (let i = 0; i < edges.length; i++) {
+        degrees[edges[i].data.source]++;
+        degrees[edges[i].data.target]++;
+    }
+    return degrees;
 }
 
 export function computeNodesEdges(signature) {
@@ -70,9 +81,10 @@ export function computeNodesEdges(signature) {
     }
     let [n, data] = bytesArrayToN(bytesArr);
     let bits = parseToBits(data);
+
     return {
-        number_nodes: n,
-        links: constructEdges(bits, n),
-        linksCompl: constructComplement(bits, n)
+        nodes: Array.from(Array(n).keys()).map(i => ({data: {id: i}})),
+        edges: constructEdges(bits, n),
+        edgesComplement: constructComplementEdges(bits, n),
     };
 }

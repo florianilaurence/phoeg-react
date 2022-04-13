@@ -22,7 +22,7 @@ export default function PolytopeForm(props) {
         invariantX: null,
         invariantY: null,
         invariantColor: null,
-        others: {},
+        others: null,
     })
     const [otherInvariants, setOtherInvariants] = useState([]);
     const [submitted, setSubmitted] = useState(false);
@@ -36,7 +36,7 @@ export default function PolytopeForm(props) {
         setFormData({
             invariantX: event.target.innerText,
             invariantY: formData.invariantY,
-            invariantCol: formData.invariantCol,
+            invariantColor: formData.invariantColor,
             others: formData.others
         });
         setSubmitted(false);
@@ -47,7 +47,7 @@ export default function PolytopeForm(props) {
         setFormData({
             invariantX: formData.invariantX,
             invariantY: event.target.innerText,
-            invariantCol: formData.invariantCol,
+            invariantColor: formData.invariantColor,
             others: formData.others
         });
         setSubmitted(false);
@@ -58,7 +58,7 @@ export default function PolytopeForm(props) {
         setFormData({
             invariantX: formData.invariantX,
             invariantY: formData.invariantY,
-            invariantCol: event.target.innerText,
+            invariantColor: event.target.innerText,
             others: formData.others
         });
         setSubmitted(false);
@@ -68,20 +68,23 @@ export default function PolytopeForm(props) {
     const handleAddClick = () => {
         let num = otherInvariants.length + 1;
         let list = otherInvariants;
-        list.push("Invariant " + num);
+        list.push("Invariant_" + num);
         setOtherInvariants(list);
         setSubmitted(false);
         forceUpdate();
     };
 
     const handleChangeOther = (event, keyName) => {
-        let others = formData.others;
-        others[keyName] = event.target.innerText;
+        let newOthers = formData.others;
+        if (newOthers === null) {
+            newOthers = {}; // Dictionnaire pour éviter qu'un questionnaire puisse ajouter plusieurs fois des invariants
+        }
+        newOthers[keyName] = event.target.innerText;
         setFormData({
             invariantX: formData.invariantX,
             invariantY: formData.invariantY,
-            invariantCol: formData.invariantCol,
-            others: others
+            invariantColor: formData.invariantColor,
+            others: newOthers
         });
         setSubmitted(false);
         forceUpdate();
@@ -90,7 +93,7 @@ export default function PolytopeForm(props) {
     const handleSubmit = (event) => {
         if (formData.invariantX === null || formData.invariantX === undefined
                 || formData.invariantY === null || formData.invariantY === undefined
-                || (checked && (formData.invariantCol === null || formData.invariantCol === undefined))) {
+                || (checked && (formData.invariantColor === null || formData.invariantColor === undefined))) {
             alert("Please fill in all fields");
             return;
         }
@@ -99,14 +102,26 @@ export default function PolytopeForm(props) {
 
     const RenderPolytopeChart = () => {
         if (submitted) {
+            const invariantX = formData.invariantX.replace(' ', '_');
+            const invariantY = formData.invariantY.replace(' ', '_');
+            let invariantColor = formData.invariantColor;
+            if (checked && invariantColor !== null) {
+                invariantColor = formData.invariantColor.replace(' ', '_');
+            }
+            let others = formData.others;
+            if (others !== null) {
+                others = Object.values(others).map((value) => value.replace(' ', '_'));
+            } else {
+                others = [];
+            }
             return <PolytopeChart
                 endpoint={props.endpoint}
                 maxOrder={formData.order}
-                invariantX={formData.invariantX}
-                invariantY={formData.invariantY}
+                invariantX={invariantX}
+                invariantY={invariantY}
                 hasColor={checked}
-                invariantColor={formData.invariantCol}
-                others={formData.others}
+                invariantColor={invariantColor}
+                others={others}
             />;
         } else {
             return null;
@@ -127,51 +142,48 @@ export default function PolytopeForm(props) {
 
     const constructOtherViews = () => {
         let result = [];
-        if (otherInvariants.length > 0) {
-            for (let index = 0; index < otherInvariants.length; index += 3) {
-                let temp = [];
-                for (let j = index; j < index+3 && j < otherInvariants.length; j++) {
-                    let inv = otherInvariants[j];
-                    temp.push(
-                        <View style={{
-                            key: inv,
-                            marginRight: '5%',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginTop: '5%',
-                            paddingBottom: PADDING_BOTTOM,
-                            paddingTop: PADDING_TOP,
-                            background: '#eaeaea',
-                            width: '30%'
-                        }}>
-                            <Text style={{
-                                fontSize: '25px'
-                            }}>{inv}</Text>
-                            <br/>
-                            <Autocomplete
-                                disablePortal
-                                id="combo-box"
-                                clearIcon={null}
-                                options={invariants}
-                                onChange={(event) => handleChangeOther(event, inv)}
-                                sx={{width: '90%'}}
-                                renderInput={(params) =>
-                                    <TextField {...params} label={inv}/>}
-                            />
-                        </View>)
-                    if (j === index+2) {
-                        result.push(temp);
-                        temp = [];
-                    }
-                }
-                if (temp.length > 0) {
+        for (let index = 0; index < otherInvariants.length; index += 3) {
+            let temp = [];
+            for (let j = index; j < index+3 && j < otherInvariants.length; j++) {
+                let inv = otherInvariants[j];
+                temp.push(
+                    <View style={{
+                        key: inv,
+                        marginRight: '5%',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: '5%',
+                        paddingBottom: PADDING_BOTTOM,
+                        paddingTop: PADDING_TOP,
+                        background: '#eaeaea',
+                        width: '30%'
+                    }}>
+                        <Text style={{
+                            fontSize: '25px'
+                        }}>{inv}</Text>
+                        <br/>
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box"
+                            clearIcon={null}
+                            options={invariants}
+                            onChange={(event) => handleChangeOther(event, inv)}
+                            sx={{width: '90%'}}
+                            renderInput={(params) =>
+                                <TextField {...params} label={inv}/>}
+                        />
+
+                    </View>)
+                if (j === index+2) {
                     result.push(temp);
+                    temp = [];
                 }
             }
-            return result;
-        } else {
-            return [];
+            if (temp.length > 0) {
+                result.push(temp);
+            }
         }
+        return result;
     }
 
     return (
@@ -338,17 +350,18 @@ export default function PolytopeForm(props) {
                                 </View>
                             }
                         </View>
-                        {constructOtherViews().map((group, i) => {
-                            return (
-                                <View style={{
-                                    key: `view${i}`,
-                                    flexDirection: 'row',
-                                    flex: 1,
-                                    width: '100%'
-                                }}>
-                                    {group}
-                                </View>)
-                            })}
+                        {otherInvariants.length > 0 ?
+                            constructOtherViews().map((group, i) => {
+                                return (
+                                    <View style={{
+                                        key: `view${i}`,
+                                        flexDirection: 'row',
+                                        flex: 1,
+                                        width: '100%'
+                                    }}>
+                                        {group}
+                                    </View>)
+                                }) : null}
                         <View style={{
                             paddingTop: PADDING_TOP,
                             flexDirection: 'row',

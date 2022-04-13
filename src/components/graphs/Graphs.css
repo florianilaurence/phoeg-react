@@ -13,3 +13,10 @@
     stroke: black;
     stroke-width: 3px;
 }
+
+
+.simple-react-cytoscape {
+    width: 600px;
+    height: 600px;
+    border-style: dashed;
+}
