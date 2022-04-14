@@ -8,6 +8,7 @@ export const PADDING_INNER='1%';
 // Font size
 export const TITLE_SIZE=50;
 export const SUBTITLE_SIZE=30;
+export const SUBSUBTITLE_SIZE=25;
 export const INNER_TEXT_SIZE=20;
 
 // Dividing line style

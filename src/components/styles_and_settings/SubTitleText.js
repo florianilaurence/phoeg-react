@@ -17,6 +17,7 @@ export default function SubTitleText(props) {
                     style={{
                         fontSize: SUBTITLE_SIZE,
                         fontStyle: "italic",
+                        fontWeight: 'bold',
                         paddingRight: PADDING_INNER,
                         paddingBottom: PADDING_BOTTOM,
                         color: COLOR_TITLES,

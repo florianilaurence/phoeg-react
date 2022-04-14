@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {readEnvelope, readPoints} from "../../core/ParseFiles";
 import {Group} from "@visx/group";
 import {Axis, AxisLeft} from "@visx/axis";
 import {scaleLinear} from "@visx/scale";
 import {LinePath} from "@visx/shape";
 import {GridColumns, GridRows} from "@visx/grid";
-import {Dimensions, Text} from 'react-native';
+import {Text} from 'react-native';
 import Select from "react-select";
 import "./Polytopes.css";
 import Graphs from "../graphs/Graphs";
@@ -22,13 +22,29 @@ import {Zoom} from "@visx/zoom";
 import { RectClipPath } from '@visx/clip-path';
 import {localPoint} from "@visx/event";
 import { Tooltip } from 'react-svg-tooltip';
+import { ScaleSVG } from '@visx/responsive';
+import {View} from "react-native-web";
+import {
+    INNER_TEXT_SIZE,
+    PADDING_BOTTOM,
+    PADDING_INNER,
+    PADDING_LEFT,
+    PADDING_RIGHT,
+    PADDING_TOP
+} from "../../designVars";
+import SubSubTitleText from "../styles_and_settings/SubSubTitleText";
+import InnerText from "../styles_and_settings/InnerText";
+import Button from "@mui/material/Button";
 
 export default function PolytopeChart(props) {
+    const [, updateState] = useState();
+    const forceUpdate = useCallback(() => updateState({}), []);
+
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
     const background_mini_map = 'rgba(197,197,197,0.9)';
-    const width = Dimensions.get('window').width*70/100;
-    const height = width / 2;
+    const width = 800;
+    const height = width*2/3;
     const margin = { top: 35, right: 35, bottom: 35, left: 35 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -55,8 +71,8 @@ export default function PolytopeChart(props) {
 
     // COLORATIONS
     const optionsTypeColoration = [
-        { value: 'gradient', label: 'Coloration par gradient' },
-        { value: 'indep', label: 'Coloration en choisissant les couleurs'}
+        { value: 'gradient', label: 'Coloration with automatic gradient' },
+        { value: 'indep', label: 'Coloration with selected colors'}
     ];
     const [typeSelected, setTypeSelected] = useState(optionsTypeColoration[0]);
     let typeCurrent = typeSelected.value;
@@ -91,53 +107,42 @@ export default function PolytopeChart(props) {
 
     // Fonction d'initialisation à la création du graphique
     useEffect( async () => {
-        // Récupération des données du polytope
-        const graphPath = props.endpoint.value.path;
-        let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
-        envelope_request += "?" + stringify({
-            max_graph_size: props.maxOrder,
-            x_invariant: props.invariantX,
-            y_invariant: props.invariantY,
-            constraints: props.others
-        })
+            // Récupération des données du polytope
+            const graphPath = props.endpoint.value.path;
+            let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
+            envelope_request += "?" + stringify({
+                max_graph_size: props.order,
+                x_invariant: props.invariantX,
+                y_invariant: props.invariantY,
+                constraints: props.others
+            })
 
-        const envelope = await fetch_api(envelope_request.toString())
-            .then(response => response.json())
-            .then(json => {
-                return readEnvelope(json);
+            const envelope = await fetch_api(envelope_request.toString())
+                .then(response => response.json())
+                .then(json => {
+                    return readEnvelope(json);
+                });
+
+            let points_request = new URL(`${API_URL}${graphPath}/points`);
+            points_request += "?" + stringify({
+                max_graph_size: props.order,
+                x_invariant: props.invariantX,
+                y_invariant: props.invariantY,
+                constraints: props.others,
             });
 
-        let points_request = new URL(`${API_URL}${graphPath}/points`);
-        points_request += "?" + stringify({
-            max_graph_size: props.maxOrder,
-            x_invariant: props.invariantX,
-            y_invariant: props.invariantY, //TODO manque la couleur non ?
-            constraints: props.others,
-        });
+            const tempPoints = await fetch_api(points_request.toString())
+                .then(response => response.json())
+                .then(json => readPoints(json))
 
-        const tempPoints = await fetch_api(points_request.toString())
-            .then(response => response.json())
-            .then(json => readPoints(json))
             computeScaleDomains(tempPoints, envelope);
-        setLines(envelope);
-
-        if(props.hasColor) {
+            setLines(envelope);
             let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
             let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
             setAllClusters(clusters.allClusters);
             setClusterList(clusters.clusterPossible);
             updateStates(clusters.clusterPossible, 0, clusters.allClusters);
-        } else {
-            let clusters = {
-                clusterPossible: [1],
-                allClusters: {1: [tempPoints]}
-            }
-            setClusterList(clusters.clusterPossible);
-            setAllClusters(clusters.allClusters);
-            updateStates(clusters.clusterPossible, 0, clusters.allClusters);
-        }
-    },
-        [props.invariantX, props.invariantY, props.others, props.maxOrder, props.endpoint, props.hasColor]);
+        },[]);
 
     // Fait séparément pour ne pas recalculer systématiquement tous les clusters
     useEffect(() => {
@@ -155,6 +160,7 @@ export default function PolytopeChart(props) {
         setRange(computeColorsRange(currentDomainIndep, range));
         // Màj pour coloration par gradient
         setTagsGradient(computeTagsDomainGradient(currentGroupedPoints));
+        forceUpdate();
     }
 
     // Calcule les domaines pour les échelles en X et en Y
@@ -213,7 +219,9 @@ export default function PolytopeChart(props) {
         for (let i in range) {
             let tag = domainsIndep[i];
             result.push(
-                <>
+                <View style={{
+                    aligneItems: "center",
+                }}>
                     <input type="color" name={range[i]} id={range[i]} value={range[i]} onChange={e => {
                         let tempRange = range.slice();
                         tempRange[i] = e.target.value;
@@ -222,14 +230,13 @@ export default function PolytopeChart(props) {
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
                         style={tag === selectedTag ?
-                            {fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
-                            {fontWeight: 'bold'}}
+                            {fontsize: INNER_TEXT_SIZE, fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {fontsize: INNER_TEXT_SIZE, fontWeight: 'bold'}}
                     >
                         { tag } </Text>
-                </>
+                </View>
             )
         }
-        result.push(<br/>);
         return result;
     }
 
@@ -242,31 +249,42 @@ export default function PolytopeChart(props) {
                 tag = "[" + minColor + " ; " + maxColor + "]";
             }
             return (
-                <div>
-                    <p> {props.invariantColor} : </p>
+                <View style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    paddingLeft: PADDING_INNER,
+                    alignItems: 'center',
+                    width: '100%',
+                }}>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
                         style={tag === selectedTag ?
-                            {color: color1, fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
-                            {color: color1, fontWeight: 'bold'}}>
-                        { tag } </Text>
-                </div>
+                            {fontsize: INNER_TEXT_SIZE, color: color1, fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {fontsize: INNER_TEXT_SIZE, color: color1, fontWeight: 'bold'}}>
+                        { tag }
+                    </Text>
+                </View>
             )
         } else {
             return (
-                <div>
-                    <p> {props.invariantColor} : </p>
+                <View style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    paddingLeft: PADDING_INNER,
+                    alignItems: 'center',
+                    width: '100%',
+                }}>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     {tagsGradient.map((tag, i) => <Text
                         onPress={() => handleOnPressLegend(tag)}
                         style={tag === selectedTag ?
-                            {color: colorsGradient[i], fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
-                            {color: colorsGradient[i], fontWeight: 'bold'}}
+                            {fontsize: INNER_TEXT_SIZE, color: colorsGradient[i], fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {fontsize: INNER_TEXT_SIZE, color: colorsGradient[i], fontWeight: 'bold'}}
                         key={`gradient_tag${i}`}>
                         { tag } </Text>)}
                     <input type="color" name="color2" id="color2" value={color2} onChange={e => setColor2(e.target.value)}/>
-                </div>
+                </View>
             )
         }
     }
@@ -315,18 +333,18 @@ export default function PolytopeChart(props) {
         allClusters[clusterList[indexCluster]].map((group, i) => {
             colorsGradient.push(colorScale(i));
             group.map((currentData, j) => {
-                    let x = accessors(currentData, "x");
-                    let y = accessors(currentData, "y");
-                    let col = accessors(currentData);
-                    result.push({
-                        key: `(x:${x};y:${y};col:${col}`,
-                        x: x,
-                        y: y,
-                        r: 3,
-                        col: col,
-                        fill: selectColorForOnePoint(i)
-                    })
+                let x = accessors(currentData, "x");
+                let y = accessors(currentData, "y");
+                let col = accessors(currentData);
+                result.push({
+                    key: `(x:${x};y:${y};col:${col};index:${j})`,
+                    x: x,
+                    y: y,
+                    r: 3,
+                    col: col,
+                    fill: selectColorForOnePoint(i)
                 })
+            })
         });
         return result;
     }
@@ -347,7 +365,7 @@ export default function PolytopeChart(props) {
                         x={ (d) => xScale(accessors(d, "x")) }
                         y={ (d) => yScale(accessors(d, "y")) }
                     />
-                    { (clusterList.length > 0 && allClusters[indexCluster]) ? constructPoints().map(circle => {
+                    {(clusterList.length > 0 && allClusters[clusterList[indexCluster]]) ? constructPoints().map(circle => {
                         const ref = React.createRef();
                         return (
                             <>
@@ -368,9 +386,7 @@ export default function PolytopeChart(props) {
                                 />
                                 <Tooltip triggerRef={ref}>
                                     <text x={-125} y={-10} fontSize={15} fill='#000000' >
-
-                                        {props.formData.x_invariant} = {circle.x} | {props.formData.y_invariant} = {circle.y //TODO Ne pas être hardcodé et ajouté les autres données
-                                        }
+                                        {props.invariantX} = {circle.x} | {props.invariantY} = {circle.y}
                                     </text>
                                 </Tooltip>
                             </>
@@ -392,131 +408,148 @@ export default function PolytopeChart(props) {
     }
 
     return (
-        <>
-            <h5> Graphique :</h5>
-            <div className="main-container" >
+        <View style={{
+            marginTop: PADDING_TOP,
+            marginLeft: PADDING_LEFT,
+            marginRight: PADDING_RIGHT,
+        }}>
+            <View>
+                <SubSubTitleText>Chart:</SubSubTitleText>
                 <Zoom width={width} height={height}>
                     {(zoom) => (
-                        <div className="relative">
-                            <svg
-                                width={width}
-                                height={height}
-                                style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
-                                ref={zoom.containerRef}
-                            >
-                                <RectClipPath id="zoom-clip" width={width} height={height} />
-                                <rect
+                        <View style={{
+                            flexDirection: 'row',
+                            flex: 1,
+                        }}>
+                            <View style={{
+                                width: '85%',
+                            }}>
+                                <ScaleSVG
                                     width={width}
                                     height={height}
-                                    rx="10"
-                                    ry="10"
-                                    stroke="#000000"
-                                    strokeWidth="5"
-                                    fill={background}
-                                    onTouchStart={zoom.dragStart}
-                                    onTouchMove={zoom.dragMove}
-                                    onTouchEnd={zoom.dragEnd}
-                                    onMouseDown={zoom.dragStart}
-                                    onMouseMove={zoom.dragMove}
-                                    onMouseUp={zoom.dragEnd}
-                                    onMouseLeave={() => {
-                                        if (zoom.isDragging) zoom.dragEnd();
-                                    }}
-                                    onDoubleClick={(event) => {
-                                        const point = localPoint(event) || { x: 0, y: 0 };
-                                        zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
-                                    }}
-                                />
-                                <g transform={zoom.toString()}>
-                                    <RenderData />
-                                </g>
-                                {showMiniMap && (
-                                    <g
-                                        clipPath="url(#zoom-clip)"
-                                        transform={`
-                                            scale(0.25)
-                                            translate(${width * 4 - width - 60}, ${height * 4 - height - 60})
-                                        `}
-                                    >
-                                        <rect width={width} height={height} fill={background_mini_map} />
+                                    style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+                                    ref={zoom.containerRef}
+                                >
+                                    <RectClipPath id="zoom-clip" width={width} height={height} />
+                                    <rect
+                                        width={width}
+                                        height={height}
+                                        rx="10"
+                                        ry="10"
+                                        stroke="#000000"
+                                        strokeWidth="5"
+                                        fill={background}
+                                        onTouchStart={zoom.dragStart}
+                                        onTouchMove={zoom.dragMove}
+                                        onTouchEnd={zoom.dragEnd}
+                                        onMouseDown={zoom.dragStart}
+                                        onMouseMove={zoom.dragMove}
+                                        onMouseUp={zoom.dragEnd}
+                                        onMouseLeave={() => {
+                                            if (zoom.isDragging) zoom.dragEnd();
+                                        }}
+                                        onDoubleClick={(event) => {
+                                            const point = localPoint(event) || { x: 0, y: 0 };
+                                            zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
+                                        }}
+                                    />
+                                    <g transform={zoom.toString()}>
                                         <RenderData />
-                                        <rect
-                                            width={width}
-                                            height={height}
-                                            fill="white"
-                                            fillOpacity={0.75}
-                                            stroke="white"
-                                            strokeWidth={4}
-                                            transform={zoom.toStringInvert()}
-                                        />
                                     </g>
-                                )}
-                            </svg>
-                            <div className="controls">
-                                <p>
-                                    <Text>Options de zoom pour le graphique : </Text>
-                                    <button
-                                        type="button"
-                                        className="btn btn-zoom"
-                                        onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
-                                    >
-                                        +
-                                    </button>
-                                    {" "}
-                                    <button
-                                        type="button"
-                                        className="btn btn-zoom btn-bottom"
-                                        onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
-                                    >
-                                        -
-                                    </button>
-                                    {" "}
-                                    <button type="button" className="btn btn-lg" onClick={zoom.center}>
-                                        Center
-                                    </button>
-                                    {" "}
-                                    <button type="button" className="btn btn-lg" onClick={zoom.reset}>
-                                        Reset
-                                    </button>
-                                    {" "}
-                                    <button type="button" className="btn btn-lg" onClick={zoom.clear}>
-                                        Clear
-                                    </button>
-                                    {" "}
-                                    <button
-                                        type="button"
-                                        className="btn btn-lg"
-                                        onClick={() => setShowMiniMap(!showMiniMap)}
-                                    >
-                                        {showMiniMap ? 'Hide' : 'Show'} Mini Map
-                                    </button>
-                                    <br/>
-                                    <Text>Choix du type de coloration : </Text>
-                                    <Select className="select" defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
-                                </p>
-                            </div>
-                        </div>
+                                    {showMiniMap && (
+                                        <g
+                                            clipPath="url(#zoom-clip)"
+                                            transform={`
+                                                scale(0.25)
+                                                translate(${width * 4 - width - 60}, ${height * 4 - height - 60})
+                                            `}
+                                        >
+                                            <rect width={width} height={height} fill={background_mini_map} />
+                                            <RenderData />
+                                            <rect
+                                                width={width}
+                                                height={height}
+                                                fill="white"
+                                                fillOpacity={0.75}
+                                                stroke="white"
+                                                strokeWidth={4}
+                                                transform={zoom.toStringInvert()}
+                                            />
+                                        </g>
+                                    )}
+                                </ScaleSVG>
+                            </View>
+                            <View style={{
+                                width: '15%',
+                                paddingLeft: PADDING_INNER,
+                            }}>
+                                <InnerText>Zoom:</InnerText>
+                                <br/>
+                                <Button variant="contained" color="success" onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}> + </Button>
+                                <br/>
+                                <Button  variant="contained" color="success" onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}> - </Button>
+                                <br/>
+                                <Button  variant="contained" color="success" onClick={zoom.center}> Center </Button>
+                                <br/>
+                                <Button  variant="contained" color="success" className="btn btn-lg" onClick={zoom.reset}> Reset </Button>
+                                <br/>
+                                <Button  variant="contained" color="success" className="btn btn-lg" onClick={zoom.clear}> Clear </Button>
+                                <br/>
+                                <Button  variant="contained" color="success" onClick={() => setShowMiniMap(!showMiniMap)}>
+                                    {showMiniMap ? 'Hide' : 'Show'} Mini Map
+                                </Button>
+                            </View>
+                        </View>
                     )}
                 </Zoom>
-            </div>
-            <Text>Légende (coloration avec l'invariant {props.invariantColor}) :</Text>
-            {typeCurrent === 'indep' ?
-                <RenderInputColorsForIndep /> :
-                <RenderInputColorsForGradient />
-            }
-            <Text>Nombre de clusters pour colorier les graphes {clusterList.map(d => d + " ; ")}</Text>
-            <button onClick={() => handlePrevious()}> Précédent </button>
-            {" " + clusterList[indexCluster] + " "}
-            <button onClick={() => handleNext()}> Suivant </button>
-            {selected ?
-                <Graphs
-                    graphPath={props.graphPath}
-                    formData={props.formData}
-                    invariantXValue={selectedX}
-                    invariantYValue={selectedY}
-                />
-                : null
-            }
-        </>
+            </View>
+            <View>
+                <View style={{paddingBottom: PADDING_BOTTOM}}>
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}>
+                        <InnerText>Choose type of coloration: </InnerText>
+                        <Select style={{
+                            width: '250px',
+                            marginLeft: PADDING_INNER,
+                            marginRight: PADDING_INNER,
+                        }} defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
+                    </View>
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        width: '100%',
+                    }}>
+                        <InnerText>Legend (coloration with {props.constraints[0]}) :</InnerText>
+                        { typeCurrent === 'indep' ? <RenderInputColorsForIndep/> : <RenderInputColorsForGradient/> }
+                    </View>
+                </View>
+                <InnerText>Number of clusters to colour the graphs: {clusterList.map(d => d + " ; ")}</InnerText>
+                <View style={{
+                    width: '100%',
+                    flex: 1,
+                    flexDirection: 'row',
+                    paddingTop: PADDING_INNER,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <Button  variant="contained" color="success" onClick={() => handlePrevious()}> Previous </Button>
+                    <InnerText> {clusterList[indexCluster]} cluste{clusterList[indexCluster]===1?"r":"rs"} used </InnerText>
+                    <Button  variant="contained" color="success"  onClick={() => handleNext()}> Next </Button>
+                </View>
+                {selected ?
+                    <Graphs
+                        graphPath={props.graphPath}
+                        formData={props.formData}
+                        invariantXValue={selectedX}
+                        invariantYValue={selectedY}
+                    />
+                    : null
+                }
+                </View>
+        </View>
     )
 }

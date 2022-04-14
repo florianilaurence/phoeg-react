@@ -57,6 +57,7 @@ export default function Polytope(props) {
                         invariants={endpoint.value.params.properties.x_invariant.enum}
                         params={endpoint.value.params}
                         endpoint={endpoint}
+                        graphPath={endpoint}
                     />: null}
             </View>
         </View>

@@ -9,8 +9,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import Button from '@mui/material/Button';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SendIcon from '@mui/icons-material/Send';
-import PolytopeChart from "./PolytopeChart";
-
+import PolytopeChart from "../polytopes/PolytopeChart";
 
 export default function PolytopeForm(props) {
     const [invariants, setInvariants] = useState([]);
@@ -21,16 +20,38 @@ export default function PolytopeForm(props) {
         order: props.params.properties.max_graph_size.default,
         invariantX: null,
         invariantY: null,
-        invariantColor: null,
+        invariantColor: "num_vertices", // Default coloration, all points are the same color because number of vertices is selected
         others: null,
     })
     const [otherInvariants, setOtherInvariants] = useState([]);
     const [submitted, setSubmitted] = useState(false);
 
     const handleChangeChecked = (event) => {
+        if (!event.target.checked) {
+            setFormData({
+                order: formData.order,
+                invariantX: formData.invariantX,
+                invariantY: formData.invariantY,
+                invariantColor: "num_vertices",
+                others: formData.others
+            });
+        }
         setChecked(event.target.checked);
+        setSubmitted(false);
         forceUpdate();
     };
+
+    const handleChangeOrder = (event) => {
+        setFormData({
+            order: event.target.value,
+            invariantX: formData.invariantX,
+            invariantY: formData.invariantY,
+            invariantColor: formData.invariantColor,
+            others: formData.others,
+        });
+        setSubmitted(false);
+        forceUpdate();
+    }
 
     const handleChangeX = (event) => {
         setFormData({
@@ -66,12 +87,16 @@ export default function PolytopeForm(props) {
     }
 
     const handleAddClick = () => {
-        let num = otherInvariants.length + 1;
-        let list = otherInvariants;
-        list.push("Invariant_" + num);
-        setOtherInvariants(list);
-        setSubmitted(false);
-        forceUpdate();
+        if (checked) {
+            let num = otherInvariants.length + 1;
+            let list = otherInvariants;
+            list.push("Invariant_" + num);
+            setOtherInvariants(list);
+            setSubmitted(false);
+            forceUpdate();
+        } else {
+            alert("Please add a color before add another invariant");
+        }
     };
 
     const handleChangeOther = (event, keyName) => {
@@ -105,7 +130,7 @@ export default function PolytopeForm(props) {
             const invariantX = formData.invariantX.replace(' ', '_');
             const invariantY = formData.invariantY.replace(' ', '_');
             let invariantColor = formData.invariantColor;
-            if (checked && invariantColor !== null) {
+            if (checked) {
                 invariantColor = formData.invariantColor.replace(' ', '_');
             }
             let others = formData.others;
@@ -115,13 +140,12 @@ export default function PolytopeForm(props) {
                 others = [];
             }
             return <PolytopeChart
+                graphPath={props.graphPath}
                 endpoint={props.endpoint}
-                maxOrder={formData.order}
+                order={formData.order}
                 invariantX={invariantX}
                 invariantY={invariantY}
-                hasColor={checked}
-                invariantColor={invariantColor}
-                others={others}
+                constraints={others.unshift(invariantColor)}
             />;
         } else {
             return null;
@@ -147,8 +171,9 @@ export default function PolytopeForm(props) {
             for (let j = index; j < index+3 && j < otherInvariants.length; j++) {
                 let inv = otherInvariants[j];
                 temp.push(
-                    <View style={{
-                        key: inv,
+                    <View
+                        key={`inv${index}-${j}`}
+                        style={{
                         marginRight: '5%',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -160,17 +185,17 @@ export default function PolytopeForm(props) {
                     }}>
                         <Text style={{
                             fontSize: '25px'
-                        }}>{inv}</Text>
+                        }}>{inv.replace('_', ' ')}</Text>
                         <br/>
                         <Autocomplete
                             disablePortal
-                            id="combo-box"
+                            id={`select${j}`}
                             clearIcon={null}
                             options={invariants}
                             onChange={(event) => handleChangeOther(event, inv)}
                             sx={{width: '90%'}}
                             renderInput={(params) =>
-                                <TextField {...params} label={inv}/>}
+                                <TextField {...params} label={inv.replace('_', ' ')}/>}
                         />
 
                     </View>)
@@ -187,13 +212,15 @@ export default function PolytopeForm(props) {
     }
 
     return (
-        <div>
-            <View style={{
+        <View>
+            <View
+                style={{
                     paddingLeft: PADDING_LEFT,
                     paddingRight: PADDING_RIGHT,
                 }}>
                     <form>
-                        <View style={{
+                        <View
+                            style={{
                             alignItems: 'center',
                             paddingBottom: PADDING_BOTTOM
                         }}>
@@ -202,7 +229,8 @@ export default function PolytopeForm(props) {
                             }}>Please complete your request</Text>
                         </View>
                         <InnerText>Please select number of vertices by graph (order)</InnerText>
-                        <View style={{
+                        <View
+                            style={{
                             alignItems: 'center',
                             paddingBottom: PADDING_BOTTOM,
                             paddingTop: PADDING_TOP,
@@ -224,22 +252,17 @@ export default function PolytopeForm(props) {
                                 style={{
                                     width: '75%',
                                 }}
-                                onChange={(event) => {
-                                    setFormData({
-                                        order: event.target.value,
-                                        invariantX: formData.invariantX,
-                                        invariantY: formData.invariantY,
-                                        invariantColor: formData.invariantColor,
-                                        others: formData.others,
-                                    })}}
+                                onChange={handleChangeOrder}
                             />
                         </View>
-                        <View style={{
+                        <View
+                            style={{
                             flexDirection: 'row',
                             flex: 1,
                             width: '100%'
                         }}>
-                            <View style={{
+                            <View
+                                style={{
                                 marginRight: '5%',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -264,7 +287,8 @@ export default function PolytopeForm(props) {
                                 />
 
                             </View>
-                            <View style={{
+                            <View
+                                style={{
                                 marginRight: '5%',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -289,7 +313,8 @@ export default function PolytopeForm(props) {
                                 />
                             </View>
                             {checked?
-                                <View style={{
+                                <View
+                                    style={{
                                     marginRight: '5%',
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -298,7 +323,8 @@ export default function PolytopeForm(props) {
                                     background: '#eaeaea',
                                     width: '30%'
                                 }}>
-                                    <View style={{
+                                    <View
+                                        style={{
                                         flewDirection: 'row',
                                     }}>
                                         <Text style={{
@@ -318,7 +344,8 @@ export default function PolytopeForm(props) {
                                     />
                                 </View>
                                 :
-                                <View style={{
+                                <View
+                                    style={{
                                     marginRight: '5%',
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -327,7 +354,8 @@ export default function PolytopeForm(props) {
                                     background: '#ffffff',
                                     width: '30%'
                                 }}>
-                                    <View style={{
+                                    <View
+                                        style={{
                                         flewDirection: 'row',
                                     }}>
 
@@ -353,8 +381,9 @@ export default function PolytopeForm(props) {
                         {otherInvariants.length > 0 ?
                             constructOtherViews().map((group, i) => {
                                 return (
-                                    <View style={{
-                                        key: `view${i}`,
+                                    <View
+                                        key={`view${i}`}
+                                        style={{
                                         flexDirection: 'row',
                                         flex: 1,
                                         width: '100%'
@@ -362,7 +391,9 @@ export default function PolytopeForm(props) {
                                         {group}
                                     </View>)
                                 }) : null}
-                        <View style={{
+                        <View
+                            key="AddInvariant"
+                            style={{
                             paddingTop: PADDING_TOP,
                             flexDirection: 'row',
                             width: '100%',
@@ -379,6 +410,6 @@ export default function PolytopeForm(props) {
                     </form>
             </View>
             <RenderPolytopeChart/>
-        </div>
+        </View>
     )
 }
