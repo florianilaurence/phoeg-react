@@ -23,10 +23,7 @@ export const regroupPointsByColor = (points) => {
         }
         pointsGr[point.col].push(point);
     }
-    return {
-        cols: Object.keys(pointsGr).map(x => parseInt(x)).sort((a, b) => a - b), //TODO Problème si se sont des boolean
-        pointsGr: pointsGr
-    };
+    return pointsGr;
 }
 
 export const computeAllCluster = (groupedByColor, colors, points) => {
@@ -46,7 +43,7 @@ export const computeAllCluster = (groupedByColor, colors, points) => {
         currentSizeCluster = Math.ceil(colors.length / currentNbCluster);
     }
     return {
-        clusterPossible: viewedNb.sort((a, b) => a - b),
+        clustersList: viewedNb.sort((a, b) => a - b),
         allClusters: result
     };
 }
@@ -101,9 +98,9 @@ export const constructTagName = (group) => {
     let min = Math.min(...group.map((d) => d.col));
     let max = Math.max(...group.map((d) => d.col));
     if (min !== max) {
-        return `[${min};${max}]`;
+        return `[${min} ; ${max}]`;
     } else {
-        return `${min}`;
+        return ` ${min} `;
     }
 }
 

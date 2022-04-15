@@ -10,6 +10,7 @@ import Button from '@mui/material/Button';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SendIcon from '@mui/icons-material/Send';
 import PolytopeChart from "../polytopes/PolytopeChart";
+import PolytopeFetch from "./PolytopeFetch";
 
 export default function PolytopeForm(props) {
     const [invariants, setInvariants] = useState([]);
@@ -125,7 +126,7 @@ export default function PolytopeForm(props) {
         setSubmitted(true);
     };
 
-    const RenderPolytopeChart = () => {
+    const RenderPolytopeFetch = () => {
         if (submitted) {
             const invariantX = formData.invariantX.replace(' ', '_');
             const invariantY = formData.invariantY.replace(' ', '_');
@@ -139,8 +140,7 @@ export default function PolytopeForm(props) {
             } else {
                 others = [];
             }
-            return <PolytopeChart
-                graphPath={props.graphPath}
+            return <PolytopeFetch
                 endpoint={props.endpoint}
                 order={formData.order}
                 invariantX={invariantX}
@@ -409,7 +409,7 @@ export default function PolytopeForm(props) {
                         </View>
                     </form>
             </View>
-            <RenderPolytopeChart/>
+            <RenderPolytopeFetch/>
         </View>
     )
 }

@@ -1,29 +1,13 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {readEnvelope, readPoints} from "../../core/ParseFiles";
-import {Group} from "@visx/group";
-import {Axis, AxisLeft} from "@visx/axis";
-import {scaleLinear} from "@visx/scale";
-import {LinePath} from "@visx/shape";
-import {GridColumns, GridRows} from "@visx/grid";
-import {Text} from 'react-native';
-import Select from "react-select";
-import "./Polytopes.css";
-import Graphs from "../graphs/Graphs";
-import {stringify} from "qs";
-import {API_URL} from "../../.env";
-import {fetch_api} from "../../core/utils";
 import {
-    accessors, computeAllCluster,
+    accessors,
     computeColorsRange,
     computeTagsDomainGradient,
-    computeTagsDomainIndep, regroupPointsByColor
+    computeTagsDomainIndep,
 } from "../../core/utils_PolytopeChart";
-import {Zoom} from "@visx/zoom";
-import { RectClipPath } from '@visx/clip-path';
-import {localPoint} from "@visx/event";
-import { Tooltip } from 'react-svg-tooltip';
-import { ScaleSVG } from '@visx/responsive';
+import {scaleLinear} from "@visx/scale";
 import {View} from "react-native-web";
+import {Text} from "react-native";
 import {
     INNER_TEXT_SIZE,
     PADDING_BOTTOM,
@@ -32,14 +16,22 @@ import {
     PADDING_RIGHT,
     PADDING_TOP
 } from "../../designVars";
+import {Group} from "@visx/group";
+import {Axis, AxisLeft} from "@visx/axis";
+import {GridColumns, GridRows} from "@visx/grid";
+import {LinePath} from "@visx/shape";
+import Tooltip from '@mui/material/Tooltip';
 import SubSubTitleText from "../styles_and_settings/SubSubTitleText";
+import {Zoom} from "@visx/zoom";
+import {ScaleSVG} from "@visx/responsive";
+import {RectClipPath} from "@visx/clip-path";
+import {localPoint} from "@visx/event";
 import InnerText from "../styles_and_settings/InnerText";
 import Button from "@mui/material/Button";
+import Select from "react-select";
+import Graphs from "../graphs/Graphs";
 
 export default function PolytopeChart(props) {
-    const [, updateState] = useState();
-    const forceUpdate = useCallback(() => updateState({}), []);
-
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
     const background_mini_map = 'rgba(197,197,197,0.9)';
@@ -49,33 +41,34 @@ export default function PolytopeChart(props) {
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    // Les lignes de l'enveloppe du polytope
-    const [lines, setLines] = useState([{}]);
+    // Current number of clusters
+    const [currentNbClusters, setCurrentNbClusters] = useState(1);
 
-    // Dictionnaire de tous les clusters de points possibles
-    const [allClusters, setAllClusters] = useState({});
+    // Zoom
+    const [showMiniMap, setShowMiniMap] = useState(true);
 
-    // Liste des noms de clusters
-    const [clusterList, setClusterList] = useState([]);
-
-    // Indice correspondant à la liste de cluster courant
-    const [indexCluster, setIndexCluster] = useState(0);
-
-    // Valeurs nécessaires pour construit les axes et les échelles (xScale et yScale)
-    const [minX, setMinX] = useState(0);
-    const [maxX, setMaxX] = useState(0);
-    const [minY, setMinY] = useState(0);
-    const [maxY, setMaxY] = useState(0);
-    const [minColor, setMinColor] = useState(0);
-    const [maxColor, setMaxColor] = useState(0);
-
-    // COLORATIONS
+    // Options possibles de coloration
     const optionsTypeColoration = [
         { value: 'gradient', label: 'Coloration with automatic gradient' },
         { value: 'indep', label: 'Coloration with selected colors'}
     ];
+
+    // Type de coloration sélectionné
     const [typeSelected, setTypeSelected] = useState(optionsTypeColoration[0]);
     let typeCurrent = typeSelected.value;
+
+    // Handle change type of coloration
+    const handleChangeType = (newType) => {
+        setTypeSelected(newType);
+        typeCurrent = newType.value;
+    }
+
+    // Handle click on a circle
+    const handleClickOnCircle = (x, y) => {
+        setSelectedX(x);
+        setSelectedY(y);
+        setSelected(true);
+    }
 
     //    * Pour une coloration indépendante
     //          Liste des domaines correspondants à chaque couleur
@@ -105,113 +98,30 @@ export default function PolytopeChart(props) {
     const [selectedTag, setSelectedTag] = useState("");
     const [isLegendClicked, setIsLegendClicked] = useState(false);
 
-    // Fonction d'initialisation à la création du graphique
-    useEffect( async () => {
-            // Récupération des données du polytope
-            const graphPath = props.endpoint.value.path;
-            let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
-            envelope_request += "?" + stringify({
-                max_graph_size: props.order,
-                x_invariant: props.invariantX,
-                y_invariant: props.invariantY,
-                constraints: props.others
-            })
-
-            const envelope = await fetch_api(envelope_request.toString())
-                .then(response => response.json())
-                .then(json => {
-                    return readEnvelope(json);
-                });
-
-            let points_request = new URL(`${API_URL}${graphPath}/points`);
-            points_request += "?" + stringify({
-                max_graph_size: props.order,
-                x_invariant: props.invariantX,
-                y_invariant: props.invariantY,
-                constraints: props.others,
-            });
-
-            const tempPoints = await fetch_api(points_request.toString())
-                .then(response => response.json())
-                .then(json => readPoints(json))
-
-            computeScaleDomains(tempPoints, envelope);
-            setLines(envelope);
-            let groupedByColor = regroupPointsByColor(tempPoints); // COLORS et GROUPEDBYCOLOR
-            let clusters = computeAllCluster(groupedByColor.pointsGr, groupedByColor.cols, tempPoints);
-            setAllClusters(clusters.allClusters);
-            setClusterList(clusters.clusterPossible);
-            updateStates(clusters.clusterPossible, 0, clusters.allClusters);
-        },[]);
-
-    // Fait séparément pour ne pas recalculer systématiquement tous les clusters
     useEffect(() => {
-            updateStates(clusterList, indexCluster, allClusters);
-        },
-        [indexCluster, clusterList, allClusters]);
-
-    const updateStates = (currentClusterList, currentIndexCluster, currentAllClusters) => {
-        let currentClustersName = currentClusterList[currentIndexCluster];
-        let currentGroupedPoints = currentAllClusters[currentClustersName];
-        setMaxDomain(Math.max(1, currentClustersName - 1));
+        let currentGroupedPoints = props.allClusters[currentNbClusters];
+        setMaxDomain(Math.max(1, currentNbClusters - 1));
         // Màj pour coloration avec choix
         let currentDomainIndep = computeTagsDomainIndep(currentGroupedPoints);
         setDomainsIndep(currentDomainIndep);
         setRange(computeColorsRange(currentDomainIndep, range));
         // Màj pour coloration par gradient
         setTagsGradient(computeTagsDomainGradient(currentGroupedPoints));
-        forceUpdate();
-    }
-
-    // Calcule les domaines pour les échelles en X et en Y
-    const computeScaleDomains = (tempPoints, tempLines) => {
-        setMinX(Math.floor(Math.min(
-            Math.min(...tempPoints.map((d) => accessors(d, "x"))),
-            Math.min(...tempLines.map((d) => accessors(d, "x"))))
-        ));
-        setMaxX(Math.ceil(Math.max(
-            Math.max(...tempPoints.map((d) => accessors(d, "x"))),
-            Math.max(...tempLines.map((d) => accessors(d, "x"))))
-        ));
-        setMinY(Math.floor(Math.min(
-            Math.min(...tempPoints.map((d) => accessors(d, "y"))),
-            Math.min(...tempLines.map((d) => accessors(d, "y"))))
-        ));
-        setMaxY(Math.ceil(Math.max(
-            Math.max(...tempPoints.map((d) => accessors(d, "y"))),
-            Math.max(...tempLines.map((d) => accessors(d, "y"))))
-        ));
-        setMinColor(Math.min(...tempPoints.map((d) => accessors(d))));
-        setMaxColor(Math.max(...tempPoints.map((d) => accessors(d))));
-    }
+    }, [currentNbClusters]);
 
     // Echelle pour l'axe Ox
     const xScale = scaleLinear({
         range: [margin.left, innerWidth],
-        domain: [minX, maxX],
+        domain: [props.domainsData.x[0], props.domainsData.x[1]],
         round: true,
     });
 
     // Echelle pour l'axe Oy
     const yScale = scaleLinear({
         range: [innerHeight, margin.top],
-        domain: [minY, maxY],
+        domain: [props.domainsData.y[0], props.domainsData.y[1]],
         round: true,
     });
-
-    // ZOOM
-    const [showMiniMap, setShowMiniMap] = useState(true);
-    // COLORATIONS
-    const handleChangeType = (newType) => {
-        setTypeSelected(newType);
-        typeCurrent = newType.value;
-    }
-
-    const handleClickOnCircle = (x, y) => {
-        setSelectedX(x);
-        setSelectedY(y);
-        setSelected(true);
-    }
 
     // Créer les balises de choix des couleurs pour une coloration avec choix
     const RenderInputColorsForIndep = () => {
@@ -220,7 +130,7 @@ export default function PolytopeChart(props) {
             let tag = domainsIndep[i];
             result.push(
                 <View style={{
-                    aligneItems: "center",
+                    alignItems: "center",
                 }}>
                     <input type="color" name={range[i]} id={range[i]} value={range[i]} onChange={e => {
                         let tempRange = range.slice();
@@ -241,20 +151,18 @@ export default function PolytopeChart(props) {
     }
 
     const RenderInputColorsForGradient = () => {
-        if (clusterList[indexCluster] === 1) {
+        if (currentNbClusters === 1) {
             let tag = '';
-            if (minColor === maxColor) {
-                tag += minColor;
+            if (props.domainsData.color[0] === props.domainsData.color[1]) {
+                tag += props.domainsData.color[0];
             } else {
-                tag = "[" + minColor + " ; " + maxColor + "]";
+                tag = "[" + props.domainsData.color[0] + " ; " + props.domainsData.color[1] + "]";
             }
             return (
                 <View style={{
-                    flex: 1,
+                    flex: '1',
                     flexDirection: 'row',
-                    paddingLeft: PADDING_INNER,
-                    alignItems: 'center',
-                    width: '100%',
+                    alignItems: "center",
                 }}>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
                     <Text
@@ -273,6 +181,7 @@ export default function PolytopeChart(props) {
                     flexDirection: 'row',
                     paddingLeft: PADDING_INNER,
                     alignItems: 'center',
+                    flexWrap: 'wrap',
                     width: '100%',
                 }}>
                     <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
@@ -330,7 +239,7 @@ export default function PolytopeChart(props) {
     // Construire la liste qui servira à placer les points
     const constructPoints = () => {
         let result = [];
-        allClusters[clusterList[indexCluster]].map((group, i) => {
+        props.allClusters[currentNbClusters].map((group, i) => {
             colorsGradient.push(colorScale(i));
             group.map((currentData, j) => {
                 let x = accessors(currentData, "x");
@@ -356,21 +265,20 @@ export default function PolytopeChart(props) {
                 <Axis orientation="bottom" scale={xScale} top={innerHeight} />
                 <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
                 <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                { clusterList.length > 0 ? colorsGradient = [] : null }
                 <g>
                     <LinePath
                         stroke="black"
                         strokeWidth={ 1 }
-                        data={ lines }
+                        data={props.envelope}
                         x={ (d) => xScale(accessors(d, "x")) }
                         y={ (d) => yScale(accessors(d, "y")) }
                     />
-                    {(clusterList.length > 0 && allClusters[clusterList[indexCluster]]) ? constructPoints().map(circle => {
-                        const ref = React.createRef();
+                    {props.allClusters[currentNbClusters]? constructPoints().map(circle => {
                         return (
-                            <>
+                            <Tooltip title={
+                                props.invariantX.replace('_', ' ') + " = " + circle.x + " | " +
+                                props.invariantY.replace('_', ' ') + " = " + circle.y}>
                                 <circle
-                                    ref={ref}
                                     className="circle"
                                     key={circle.key}
                                     onClick={() => handleClickOnCircle(circle.x, circle.y)}
@@ -384,27 +292,12 @@ export default function PolytopeChart(props) {
                                         circle.r}
                                     fill={circle.fill}
                                 />
-                                <Tooltip triggerRef={ref}>
-                                    <text x={-125} y={-10} fontSize={15} fill='#000000' >
-                                        {props.invariantX} = {circle.x} | {props.invariantY} = {circle.y}
-                                    </text>
-                                </Tooltip>
-                            </>
+                            </Tooltip>
                         )
                     }) : null }
                 </g>
             </Group>
         )
-    }
-
-    const handlePrevious = () => {
-        resetStatesofLegend();
-        setIndexCluster(indexCluster > 0 ? indexCluster - 1 : clusterList.length - 1)
-    }
-
-    const handleNext = () => {
-        resetStatesofLegend();
-        setIndexCluster((indexCluster+1) % clusterList.length);
     }
 
     return (
@@ -422,7 +315,7 @@ export default function PolytopeChart(props) {
                             flex: 1,
                         }}>
                             <View style={{
-                                width: '85%',
+                                width: '90%',
                             }}>
                                 <ScaleSVG
                                     width={width}
@@ -480,7 +373,7 @@ export default function PolytopeChart(props) {
                                 </ScaleSVG>
                             </View>
                             <View style={{
-                                width: '15%',
+                                width: '10%',
                                 paddingLeft: PADDING_INNER,
                             }}>
                                 <InnerText>Zoom:</InnerText>
@@ -504,11 +397,16 @@ export default function PolytopeChart(props) {
                 </Zoom>
             </View>
             <View>
-                <View style={{paddingBottom: PADDING_BOTTOM}}>
+                <View style={{
+                    paddingBottom: PADDING_BOTTOM,
+                    maxWidth: '100%',
+                }}>
                     <View style={{
                         flex: 1,
                         flexDirection: 'row',
                         alignItems: 'center',
+                        marginTop: PADDING_INNER,
+                        maxWidth: '100%',
                     }}>
                         <InnerText>Choose type of coloration: </InnerText>
                         <Select style={{
@@ -521,24 +419,38 @@ export default function PolytopeChart(props) {
                         flex: 1,
                         flexDirection: 'row',
                         alignItems: 'center',
-                        width: '100%',
+                        flexWrap: 'wrap',
+                        maxWidth: '100%',
+                        marginTop: PADDING_INNER,
                     }}>
-                        <InnerText>Legend (coloration with {props.constraints[0]}) :</InnerText>
+                        <InnerText>Legend (coloration with {props.constraints[0]}): </InnerText>
                         { typeCurrent === 'indep' ? <RenderInputColorsForIndep/> : <RenderInputColorsForGradient/> }
                     </View>
                 </View>
-                <InnerText>Number of clusters to colour the graphs: {clusterList.map(d => d + " ; ")}</InnerText>
                 <View style={{
-                    width: '100%',
                     flex: 1,
-                    flexDirection: 'row',
-                    paddingTop: PADDING_INNER,
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    marginTop: PADDING_INNER,
+                    maxWidth: '100%',
                 }}>
-                    <Button  variant="contained" color="success" onClick={() => handlePrevious()}> Previous </Button>
-                    <InnerText> {clusterList[indexCluster]} cluste{clusterList[indexCluster]===1?"r":"rs"} used </InnerText>
-                    <Button  variant="contained" color="success"  onClick={() => handleNext()}> Next </Button>
+                    <InnerText>Number of clusters to colour the graphs: </InnerText>
+                    <br />
+                    <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
+                        {props.clustersList.map((d) => {
+                            if (d === currentNbClusters) {
+                                return (
+                                    <Button key={`btn-${d}`} variant="contained" color="success" onClick={() => setCurrentNbClusters(d)} sx={{width: 20}}>
+                                        {d}
+                                    </Button>
+                                )
+                            } else {
+                                return (
+                                    <Button key={`btn-${d}`} variant="outlined" color="success" onClick={() => setCurrentNbClusters(d)} sx={{width: 20}}>
+                                        {d}
+                                    </Button>
+                                )
+                            }
+                        })}
+                    </View>
                 </View>
                 {selected ?
                     <Graphs
@@ -549,7 +461,9 @@ export default function PolytopeChart(props) {
                     />
                     : null
                 }
-                </View>
+            </View>
         </View>
     )
+
+
 }

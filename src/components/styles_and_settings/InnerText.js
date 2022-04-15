@@ -6,7 +6,8 @@ export default function InnerText (props) {
     return (
         <Text
             style={{
-                fontSize: INNER_TEXT_SIZE
+                fontSize: INNER_TEXT_SIZE,
+                flexShrink: 1,
             }}>
             {props.children}
         </Text>
