@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     accessors,
     computeColorsRange,
@@ -23,13 +23,13 @@ import {LinePath} from "@visx/shape";
 import Tooltip from '@mui/material/Tooltip';
 import SubSubTitleText from "../styles_and_settings/SubSubTitleText";
 import {Zoom} from "@visx/zoom";
-import {ScaleSVG} from "@visx/responsive";
+import {ScaleSVG, withScreenSize} from '@visx/responsive';
 import {RectClipPath} from "@visx/clip-path";
 import {localPoint} from "@visx/event";
 import InnerText from "../styles_and_settings/InnerText";
 import Button from "@mui/material/Button";
 import Select from "react-select";
-import Graphs from "../graphs/Graphs";
+import GraphsFetch from "../graphs/GraphsFetch";
 
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
@@ -237,7 +237,7 @@ export default function PolytopeChart(props) {
     }
 
     // Construire la liste qui servira à placer les points
-    const constructPoints = () => {
+    const constructPoints = () => { //TODO Add other values of constraints to show later in tooltip
         let result = [];
         props.allClusters[currentNbClusters].map((group, i) => {
             colorsGradient.push(colorScale(i));
@@ -275,7 +275,9 @@ export default function PolytopeChart(props) {
                     />
                     {props.allClusters[currentNbClusters]? constructPoints().map(circle => {
                         return (
-                            <Tooltip title={
+                            <Tooltip
+                                key={`tooltip-${circle.key}`}
+                                title={
                                 props.invariantX.replace('_', ' ') + " = " + circle.x + " | " +
                                 props.invariantY.replace('_', ' ') + " = " + circle.y}>
                                 <circle
@@ -453,9 +455,11 @@ export default function PolytopeChart(props) {
                     </View>
                 </View>
                 {selected ?
-                    <Graphs
+                    <GraphsFetch
                         graphPath={props.graphPath}
-                        formData={props.formData}
+                        order={props.order}
+                        invariantX={props.invariantX}
+                        invariantY={props.invariantY}
                         invariantXValue={selectedX}
                         invariantYValue={selectedY}
                     />

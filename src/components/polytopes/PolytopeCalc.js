@@ -56,6 +56,7 @@ export default function PolytopeCalc(props) {
     return (
         <PolytopeChart
             graphPath={props.graphPath}
+            order={props.order}
             invariantX={props.invariantX}
             invariantY={props.invariantY}
             constraints={props.constraints}

@@ -62,18 +62,6 @@ const constructComplementEdges = (bits, n) => {
     return edgesCompl;
 }
 
-const computeDegrees = (nodes, edges) => {
-    let degrees = [];
-    for (let i = 0; i < nodes.length; i++) {
-        degrees[i] = 0;
-    }
-    for (let i = 0; i < edges.length; i++) {
-        degrees[edges[i].data.source]++;
-        degrees[edges[i].data.target]++;
-    }
-    return degrees;
-}
-
 export function computeNodesEdges(signature) {
     const bytesArr = unpack(signature);
     for (let i in bytesArr) {

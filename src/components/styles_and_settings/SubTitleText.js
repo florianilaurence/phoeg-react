@@ -5,7 +5,6 @@ import {
     DIVIDING_LINE_STYLE,
     PADDING_BOTTOM,
     PADDING_INNER,
-    PADDING_LEFT,
     SUBTITLE_SIZE
 } from "../../designVars";
 

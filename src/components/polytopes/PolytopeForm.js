@@ -9,7 +9,6 @@ import React, {useCallback, useEffect, useState} from "react";
 import Button from '@mui/material/Button';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SendIcon from '@mui/icons-material/Send';
-import PolytopeChart from "../polytopes/PolytopeChart";
 import PolytopeFetch from "./PolytopeFetch";
 
 export default function PolytopeForm(props) {
@@ -56,6 +55,7 @@ export default function PolytopeForm(props) {
 
     const handleChangeX = (event) => {
         setFormData({
+            order: formData.order,
             invariantX: event.target.innerText,
             invariantY: formData.invariantY,
             invariantColor: formData.invariantColor,
@@ -67,6 +67,7 @@ export default function PolytopeForm(props) {
 
     const handleChangeY = (event) => {
         setFormData({
+            order: formData.order,
             invariantX: formData.invariantX,
             invariantY: event.target.innerText,
             invariantColor: formData.invariantColor,
@@ -78,6 +79,7 @@ export default function PolytopeForm(props) {
 
     const handleChangeColor = (event) => {
         setFormData({
+            order: formData.order,
             invariantX: formData.invariantX,
             invariantY: formData.invariantY,
             invariantColor: event.target.innerText,
