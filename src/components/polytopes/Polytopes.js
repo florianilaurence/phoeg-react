@@ -8,10 +8,10 @@ import {
     DEFAULT_NUMBER_OF_POLYTOPES,
     MAX_NUMBER_OF_POLYTOPES,
     MIN_NUMBER_OF_POLYTOPES,
-    PADDING_BOTTOM,
-    PADDING_LEFT,
-    PADDING_RIGHT,
-    PADDING_TOP
+    BOTTOM,
+    LEFT,
+    RIGHT,
+    TOP
 } from "../../designVars";
 
 export default function Polytopes() {
@@ -40,16 +40,16 @@ export default function Polytopes() {
             <TitleText>Polytopes</TitleText>
             <View
                 style={{
-                    paddingLeft: PADDING_LEFT,
-                    paddingTop: PADDING_TOP,
-                    paddingRight: PADDING_RIGHT,
-                    paddingBottom: PADDING_BOTTOM
+                    paddingLeft: LEFT,
+                    paddingTop: TOP,
+                    paddingRight: RIGHT,
+                    paddingBottom: BOTTOM
                 }}>
                 <InnerText>Please select number of polytopes that you want analyse in parallel</InnerText>
                 <br/>
                 <View style={{
                     alignItems: 'center',
-                    paddingBottom: PADDING_BOTTOM,
+                    paddingBottom: BOTTOM,
                 }}>
                     <Slider
                         aria-label="PolytopesNumber"

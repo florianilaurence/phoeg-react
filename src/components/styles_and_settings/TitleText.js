@@ -3,7 +3,7 @@ import {Text} from "react-native-web";
 import {
     COLOR_TITLES,
     DIVIDING_LINE_STYLE,
-    PADDING_INNER,
+    INNER,
     TITLE_SIZE
 } from "../../designVars";
 
@@ -12,8 +12,8 @@ export default function TitleText(props) {
         <View style={{flexDirection: 'row', alignItems: 'right'}}>
             <View style={DIVIDING_LINE_STYLE} />
             <View style={{
-                paddingLeft: PADDING_INNER,
-                paddingRight: PADDING_INNER
+                paddingLeft: INNER,
+                paddingRight: INNER
             }}>
                 <Text style={{
                     fontSize: TITLE_SIZE,

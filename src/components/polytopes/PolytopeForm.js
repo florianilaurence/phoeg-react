@@ -1,7 +1,7 @@
 import {Text, View} from "react-native-web";
 import {
-    PADDING_BOTTOM, PADDING_LEFT, PADDING_RIGHT,
-    PADDING_TOP
+    BOTTOM, LEFT, RIGHT,
+    TOP
 } from "../../designVars";
 import {Autocomplete, Slider, Switch, TextField} from "@mui/material";
 import InnerText from "../styles_and_settings/InnerText";
@@ -130,15 +130,15 @@ export default function PolytopeForm(props) {
 
     const RenderPolytopeFetch = () => {
         if (submitted) {
-            const invariantX = formData.invariantX.replace(' ', '_');
-            const invariantY = formData.invariantY.replace(' ', '_');
+            const invariantX = formData.invariantX;
+            const invariantY = formData.invariantY;
             let invariantColor = formData.invariantColor;
             if (checked) {
-                invariantColor = formData.invariantColor.replace(' ', '_');
+                invariantColor = formData.invariantColor;
             }
             let others = formData.others;
             if (others !== null) {
-                others = Object.values(others).map((value) => value.replace(' ', '_'));
+                others = Object.values(others);
             } else {
                 others = [];
             }
@@ -158,7 +158,7 @@ export default function PolytopeForm(props) {
         let result = [];
         props.invariants.map(invariant => {
             result.push({
-                label: invariant.replace('_', ' '),
+                label: invariant,
                 value: invariant
             })
         });
@@ -180,14 +180,14 @@ export default function PolytopeForm(props) {
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginTop: '5%',
-                        paddingBottom: PADDING_BOTTOM,
-                        paddingTop: PADDING_TOP,
+                        paddingBottom: BOTTOM,
+                        paddingTop: TOP,
                         background: '#eaeaea',
                         width: '30%'
                     }}>
                         <Text style={{
                             fontSize: '25px'
-                        }}>{inv.replace('_', ' ')}</Text>
+                        }}>{inv}</Text>
                         <br/>
                         <Autocomplete
                             disablePortal
@@ -197,7 +197,7 @@ export default function PolytopeForm(props) {
                             onChange={(event) => handleChangeOther(event, inv)}
                             sx={{width: '90%'}}
                             renderInput={(params) =>
-                                <TextField {...params} label={inv.replace('_', ' ')}/>}
+                                <TextField {...params} label={inv}/>}
                         />
 
                     </View>)
@@ -217,25 +217,24 @@ export default function PolytopeForm(props) {
         <View>
             <View
                 style={{
-                    paddingLeft: PADDING_LEFT,
-                    paddingRight: PADDING_RIGHT,
+                    paddingLeft: LEFT,
+                    paddingRight: RIGHT,
                 }}>
                     <form>
                         <View
                             style={{
                             alignItems: 'center',
-                            paddingBottom: PADDING_BOTTOM
+                            paddingBottom: BOTTOM
                         }}>
                             <Text style={{
                                 fontSize: '25px'
                             }}>Please complete your request</Text>
                         </View>
                         <InnerText>Please select number of vertices by graph (order)</InnerText>
-                        <View
-                            style={{
+                        <View style={{
                             alignItems: 'center',
-                            paddingBottom: PADDING_BOTTOM,
-                            paddingTop: PADDING_TOP,
+                            paddingBottom: BOTTOM,
+                            paddingTop: TOP,
                         }}>
                             <Slider
                                 aria-label="GraphOrder"
@@ -268,8 +267,8 @@ export default function PolytopeForm(props) {
                                 marginRight: '5%',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                paddingBottom: PADDING_BOTTOM,
-                                paddingTop: PADDING_TOP,
+                                paddingBottom: BOTTOM,
+                                paddingTop: TOP,
                                 background: '#eaeaea',
                                 width: '30%'
                             }}>
@@ -294,8 +293,8 @@ export default function PolytopeForm(props) {
                                 marginRight: '5%',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                paddingBottom: PADDING_BOTTOM,
-                                paddingTop: PADDING_TOP,
+                                paddingBottom: BOTTOM,
+                                paddingTop: TOP,
                                 background: '#eaeaea',
                                 width: '30%'
                             }}>
@@ -320,8 +319,8 @@ export default function PolytopeForm(props) {
                                     marginRight: '5%',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    paddingBottom: PADDING_BOTTOM,
-                                    paddingTop: PADDING_TOP,
+                                    paddingBottom: BOTTOM,
+                                    paddingTop: TOP,
                                     background: '#eaeaea',
                                     width: '30%'
                                 }}>
@@ -351,8 +350,8 @@ export default function PolytopeForm(props) {
                                     marginRight: '5%',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    paddingBottom: PADDING_BOTTOM,
-                                    paddingTop: PADDING_TOP,
+                                    paddingBottom: BOTTOM,
+                                    paddingTop: TOP,
                                     background: '#ffffff',
                                     width: '30%'
                                 }}>
@@ -396,7 +395,7 @@ export default function PolytopeForm(props) {
                         <View
                             key="AddInvariant"
                             style={{
-                            paddingTop: PADDING_TOP,
+                            paddingTop: TOP,
                             flexDirection: 'row',
                             width: '100%',
                             justifyContent: 'space-between',

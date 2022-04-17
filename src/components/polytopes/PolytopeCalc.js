@@ -47,8 +47,12 @@ export default function PolytopeCalc(props) {
 
     if (domainsData === null || pointsGrouped === null || allClusters === null || clustersList === null) {
         return (
-            <View>
-                <InnerText>Loading... PolytopeCalc</InnerText>
+            <View style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '200px'
+            }}>
+                <InnerText>Please wait, your data are being processed</InnerText>
             </View>
         );
     }

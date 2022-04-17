@@ -1,22 +1,21 @@
 import React, {useCallback, useEffect, useState} from "react";
-import { readGraph } from "../../core/ParseFiles";
 import GraphSlider from "./GraphSlider";
 import {API_URL} from "../../.env";
 import "./Graphs.css";
 import {View} from "react-native-web";
 import InnerText from "../styles_and_settings/InnerText";
-import axios from "axios";
 import SubTitleText from "../styles_and_settings/SubTitleText";
-import Button from "@mui/material/Button";
-import {PADDING_LEFT, PADDING_RIGHT} from "../../designVars";
+import {LEFT, RIGHT, TOP} from "../../designVars";
+import {fetch_api} from "../../core/utils";
+import {readGraph} from "../../core/ParseFiles";
+import {Slider} from "@mui/material";
 
 export default function GraphsFetch(props) {
     const [, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
 
-    const [graphList, setGraphList] = useState(null); // La liste des graphs correspondant aux critères
+    const [data, setData] = useState(null); // La liste des graphs correspondant aux critères
     const [currentNbOfSlider, setCurrentNbOfSlider] = useState(1);
-    const [maxSlider, setMaxSlider] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -29,26 +28,26 @@ export default function GraphsFetch(props) {
         // Filter for specific invariant values
         graphs_request.searchParams.append("invariants[0][value]", props.invariantXValue);
         graphs_request.searchParams.append("invariants[1][value]", props.invariantYValue);
-        console.log(graphs_request);
-        const temp = fetchData(graphs_request);
-        console.log(temp);
-        setGraphList(temp);
-        setMaxSlider(temp.length * 2);
+
+        fetchData(graphs_request);
         forceUpdate();
-    }, [] );
+    }, [props.order, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue] );
 
     const fetchData = (request) => {
-        return axios.get(request)
-            .then(response => {
-                return readGraph(response.data);
-            }).catch(error => {
-                setError(error);
-            }).finally(() => {
+        return fetch_api(request.toString(), {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+            .then((response) => {
+                return response.json();
+            }).then((data) => {
+                let temp = readGraph(data, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue);
+                setData(temp);
+                setLoading(false);
+            }).catch((error) => {
+                setError(true);
                 setLoading(false);
             });
     }
 
-    if (loading || graphList === null) {
+    if (loading || data === null) {
         return (
             <View style={{
                 alignItems: 'center',
@@ -59,43 +58,66 @@ export default function GraphsFetch(props) {
             </View>
         );
     }
-    if (error) return <div>Error: {error}</div>;
+    if (error) return (
+        <View style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '200px'
+        }}>
+            <InnerText>An error occurred while loading your data</InnerText>
+        </View>
+    );
 
-    const RenderGraphSlider = () => {
-        let i = 1;
-        let result = [];
-        while (i <= currentNbOfSlider) {
-            result.push(renderOneGraphSlider(i));
-            i++;
-        }
-        return result;
-    }
-
-    const renderOneGraphSlider = (num) => {
-        return <GraphSlider key={"slider_" + num} graphList={graphList} firstGraphToChow={currentNbOfSlider-1}/>
+    const handleChangeNbOfSliders = (event) => {
+        setCurrentNbOfSlider(event.target.value);
+        forceUpdate();
     }
 
     return (
         <View style={{
-            paddingLeft: PADDING_LEFT,
-            paddingRight: PADDING_RIGHT,
+            paddingLeft: LEFT,
+            paddingRight: RIGHT,
+            paddingTop: TOP
         }}>
             <SubTitleText>Graphs</SubTitleText>
-            <InnerText>You can display up to {maxSlider} containers in same time: </InnerText>
-            <View style={{
-                flex: 1,
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
-                <Button variant="contained" color="success" onClick={() => setCurrentNbOfSlider(currentNbOfSlider > 1 ? currentNbOfSlider - 1 : 1)}> - </Button>
-                <InnerText>{currentNbOfSlider}</InnerText>
-                <Button variant="contained" color="success" onClick={() => setCurrentNbOfSlider((currentNbOfSlider+1)%(maxSlider+1) === 0 ?
-                    1 : (currentNbOfSlider + 1) % (maxSlider + 1))}> + </Button>
-            </View>
-            <InnerText>There are {graphList.length} graphe{graphList.length === 1? "":"s différents"} to show.</InnerText>
-            <RenderGraphSlider />
+            {data &&
+                <View style={{
+                    alignItems: 'center',
+                }}>
+                    <InnerText>You can display up to {data.length} graph{data.length===1 ? "":"s"} in same time: </InnerText>
+                    <Slider
+                        defaultValue={currentNbOfSlider}
+                        valueLabelDisplay="auto"
+                        step={1}
+                        marks
+                        min={1}
+                        max={data.length}
+                        sx={{
+                            color: 'success.main',
+                            '& .MuiSlider-thumb': {
+                                borderRadius: '1px',
+                            },
+                        }}
+                        style={{
+                            width: '75%',
+                        }}
+                        onChange={handleChangeNbOfSliders}
+                    />
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: TOP,
+                    }}>
+                        {
+                            Array.from(Array(currentNbOfSlider).keys()).map((num) =>{
+                                return <GraphSlider key={"slider_" + num} graphList={data} firstGraphToShow={num}/>
+                        })}
+                    </View>
+                </View>
+            }
         </View>
     );
 }

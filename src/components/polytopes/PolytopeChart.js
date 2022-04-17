@@ -10,20 +10,20 @@ import {View} from "react-native-web";
 import {Text} from "react-native";
 import {
     INNER_TEXT_SIZE,
-    PADDING_BOTTOM,
-    PADDING_INNER,
-    PADDING_LEFT,
-    PADDING_RIGHT,
-    PADDING_TOP
+    BOTTOM,
+    INNER,
+    LEFT,
+    RIGHT,
+    TOP
 } from "../../designVars";
 import {Group} from "@visx/group";
-import {Axis, AxisLeft} from "@visx/axis";
+import {Axis, AxisBottom, AxisLeft} from "@visx/axis";
 import {GridColumns, GridRows} from "@visx/grid";
 import {LinePath} from "@visx/shape";
 import Tooltip from '@mui/material/Tooltip';
 import SubSubTitleText from "../styles_and_settings/SubSubTitleText";
 import {Zoom} from "@visx/zoom";
-import {ScaleSVG, withScreenSize} from '@visx/responsive';
+import {ScaleSVG} from '@visx/responsive';
 import {RectClipPath} from "@visx/clip-path";
 import {localPoint} from "@visx/event";
 import InnerText from "../styles_and_settings/InnerText";
@@ -37,7 +37,7 @@ export default function PolytopeChart(props) {
     const background_mini_map = 'rgba(197,197,197,0.9)';
     const width = 800;
     const height = width*2/3;
-    const margin = { top: 35, right: 35, bottom: 35, left: 35 };
+    const margin = { top: 10, right: 15, bottom: 45, left: 30 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -179,7 +179,7 @@ export default function PolytopeChart(props) {
                 <View style={{
                     flex: 1,
                     flexDirection: 'row',
-                    paddingLeft: PADDING_INNER,
+                    paddingLeft: INNER,
                     alignItems: 'center',
                     flexWrap: 'wrap',
                     width: '100%',
@@ -207,6 +207,11 @@ export default function PolytopeChart(props) {
         } else {
             updateStatesOfLegend(parseFloat(tag), parseFloat(tag), tag);
         }
+    };
+
+    const handleOnChangeNbClusters = (d) => {
+        setCurrentNbClusters(d);
+        resetStatesofLegend();
     };
 
     const updateStatesOfLegend = (min, max, tag) => {
@@ -261,8 +266,8 @@ export default function PolytopeChart(props) {
     const RenderData = () => {
         return (
             <Group left={margin.left} top={margin.top}>
-                <AxisLeft scale={yScale} left={margin.left} />
-                <Axis orientation="bottom" scale={xScale} top={innerHeight} />
+                <AxisLeft scale={yScale} left={margin.left} label={props.invariantY} />
+                <AxisBottom scale={xScale} top={innerHeight} label={props.invariantX}/>
                 <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
                 <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
                 <g>
@@ -303,12 +308,12 @@ export default function PolytopeChart(props) {
     }
 
     return (
-        <View style={{
-            marginTop: PADDING_TOP,
-            marginLeft: PADDING_LEFT,
-            marginRight: PADDING_RIGHT,
-        }}>
-            <View>
+        <View>
+            <View style={{
+                marginTop: TOP,
+                marginLeft: LEFT,
+                marginRight: RIGHT,
+            }}>
                 <SubSubTitleText>Chart:</SubSubTitleText>
                 <Zoom width={width} height={height}>
                     {(zoom) => (
@@ -376,7 +381,7 @@ export default function PolytopeChart(props) {
                             </View>
                             <View style={{
                                 width: '10%',
-                                paddingLeft: PADDING_INNER,
+                                paddingLeft: INNER,
                             }}>
                                 <InnerText>Zoom:</InnerText>
                                 <br/>
@@ -400,21 +405,24 @@ export default function PolytopeChart(props) {
             </View>
             <View>
                 <View style={{
-                    paddingBottom: PADDING_BOTTOM,
+                    marginTop: TOP,
+                    marginLeft: LEFT,
+                    marginRight: RIGHT,
+                    paddingBottom: BOTTOM,
                     maxWidth: '100%',
                 }}>
                     <View style={{
                         flex: 1,
                         flexDirection: 'row',
                         alignItems: 'center',
-                        marginTop: PADDING_INNER,
+                        marginTop: INNER,
                         maxWidth: '100%',
                     }}>
                         <InnerText>Choose type of coloration: </InnerText>
                         <Select style={{
                             width: '250px',
-                            marginLeft: PADDING_INNER,
-                            marginRight: PADDING_INNER,
+                            marginLeft: INNER,
+                            marginRight: INNER,
                         }} defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
                     </View>
                     <View style={{
@@ -423,7 +431,7 @@ export default function PolytopeChart(props) {
                         alignItems: 'center',
                         flexWrap: 'wrap',
                         maxWidth: '100%',
-                        marginTop: PADDING_INNER,
+                        marginTop: INNER,
                     }}>
                         <InnerText>Legend (coloration with {props.constraints[0]}): </InnerText>
                         { typeCurrent === 'indep' ? <RenderInputColorsForIndep/> : <RenderInputColorsForGradient/> }
@@ -431,7 +439,9 @@ export default function PolytopeChart(props) {
                 </View>
                 <View style={{
                     flex: 1,
-                    marginTop: PADDING_INNER,
+                    marginLeft: LEFT,
+                    marginRight: RIGHT,
+                    marginTop: INNER,
                     maxWidth: '100%',
                 }}>
                     <InnerText>Number of clusters to colour the graphs: </InnerText>
@@ -440,13 +450,13 @@ export default function PolytopeChart(props) {
                         {props.clustersList.map((d) => {
                             if (d === currentNbClusters) {
                                 return (
-                                    <Button key={`btn-${d}`} variant="contained" color="success" onClick={() => setCurrentNbClusters(d)} sx={{width: 20}}>
+                                    <Button key={`btn-${d}`} variant="contained" color="success" onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
                                         {d}
                                     </Button>
                                 )
                             } else {
                                 return (
-                                    <Button key={`btn-${d}`} variant="outlined" color="success" onClick={() => setCurrentNbClusters(d)} sx={{width: 20}}>
+                                    <Button key={`btn-${d}`} variant="outlined" color="success" onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
                                         {d}
                                     </Button>
                                 )

@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from "react";
-import MyGraph from "./MyGraph";
-import Select from "react-select";
-import {Text} from "react-native";
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import "./Graphs.css";
+import NewGraph from "./NewGraph";
+import {View} from "react-native-web";
+import {IconButton} from "@mui/material";
+import SubSubTitleText from "../styles_and_settings/SubSubTitleText";
 
 export default function GraphSlider(props) {
-    const [currentIndex, setCurrentIndex] = useState(0); // Indice du graphe à afficher
-    const [currentSign, setCurrentSign] = useState(props.graphList[currentIndex]);
-
-    const OPTIONS = [
-        {value: 1, label: "non"},
-        {value: 2, label: "oui, seul"},
-        {value: 3, label: "oui, les deux"}
-    ];
-    const [option, setOption] = useState(OPTIONS[0]);
-    let currentOption = option.value;
+    const [currentIndex, setCurrentIndex] = useState(props.firstGraphToShow); // Indice du graphe à afficher
+    const [currentSignature, setCurrentSignature] = useState(props.graphList[currentIndex]);
 
     useEffect( () => {
-        setCurrentSign(props.graphList[currentIndex]);
-        }, [props.graphList, currentSign, currentIndex] );
+        setCurrentSignature(props.graphList[currentIndex]);
+        }, [props.firstGraphToShow, props.graphList, currentSignature, currentIndex] );
 
     const handleClickPrevious = () => {
         if (currentIndex > 0) {
@@ -34,49 +29,33 @@ export default function GraphSlider(props) {
         return null;
     }
 
-    const handleChangeOption = (newOption) => {
-        setOption(newOption);
-        currentOption = newOption.value;
-        return true;
-    }
-
-    const RenderGraphs = () => {
-        if (props.graphList.length === 1) {
-            return <MyGraph signature={currentSign} displayOprion={currentOption} />
-        } else {
-            return (
-                <div>
-                    <button onClick={handleClickPrevious}> Précédent </button>
-                    <MyGraph signature={currentSign} displayOption={currentOption} />
-                    <button onClick={handleClickNext}> Suivant </button>
-                </div>
-            );
-        }
-    }
-
     return (
-        <div className="graphslider-div">
-            <p style={{textAlign:"center"}}>
-                Le graphe courant affiché a la signature : <b> {currentSign} </b> <br/>
-                Souhaitez-vous afficher le complément du graphe ?
-            </p>
-            <Select
-                defaultValue={option}
-                onChange={handleChangeOption}
-                options={OPTIONS}
-                className="select"
-            />
-            {currentOption === 1 ?
-                <Text style={{fontWeight: 'bold'}} > Graphe d'origine  </Text> :
-                currentOption === 2 ?
-                    <Text style={{color: '#00ff00', fontWeight: 'bold'}} > Complément du graphe </Text> :
-                    <>
-                        <Text style={{fontWeight: 'bold'}} > Graphe d'origine  </Text>
-                        <Text style={{color: '#00ff00', fontWeight: 'bold'}} > Complément du graphe </Text>
-                    </>
+        <View style={{
+            alignItems: 'center',
+            justifyItems: 'center',
+            backgroundColor: '#eeeeee',
+            borderRadius: '10px',
+            marginLeft: '1%',
+            marginBottom: '1%',
+        }}>
+            <SubSubTitleText>{currentSignature}</SubSubTitleText>
+            {props.graphList.length === 1 ?
+                <NewGraph signature={currentSignature}/>
+                :
+                <View style={{
+                    flex: 1,
+                    flexDirection: "row",
+                }}>
+                    <IconButton color="success" onClick={handleClickPrevious} fontSize="large">
+                        <ArrowBackIosNewIcon/>
+                    </IconButton>
+                    <NewGraph signature={currentSignature}/>
+                    <IconButton color="success" onClick={handleClickNext} fontSize="large">
+                        <ArrowForwardIosIcon/>
+                    </IconButton>
+                </View>
             }
-            <RenderGraphs />
-        </div>
+        </View>
     );
 
 }

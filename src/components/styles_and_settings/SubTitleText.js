@@ -3,8 +3,8 @@ import {Text} from "react-native-web";
 import {
     COLOR_TITLES,
     DIVIDING_LINE_STYLE,
-    PADDING_BOTTOM,
-    PADDING_INNER,
+    BOTTOM,
+    INNER,
     SUBTITLE_SIZE
 } from "../../designVars";
 
@@ -17,8 +17,8 @@ export default function SubTitleText(props) {
                         fontSize: SUBTITLE_SIZE,
                         fontStyle: "italic",
                         fontWeight: 'bold',
-                        paddingRight: PADDING_INNER,
-                        paddingBottom: PADDING_BOTTOM,
+                        paddingRight: INNER,
+                        paddingBottom: BOTTOM,
                         color: COLOR_TITLES,
                         minWidth: '150px'
                 }}>

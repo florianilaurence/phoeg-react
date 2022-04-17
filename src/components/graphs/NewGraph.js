@@ -1,5 +1,5 @@
 import CytoscapeComponent from 'react-cytoscapejs';
-import {PADDING_BOTTOM, PADDING_LEFT, PADDING_RIGHT, PADDING_TOP} from "../../designVars";
+import {BOTTOM, LEFT, RIGHT, TOP} from "../../designVars";
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {computeNodesEdges} from "../../core/ParseSignature";
 import CoseBilkent from 'cytoscape-cose-bilkent';
@@ -9,6 +9,7 @@ import dagre from 'cytoscape-dagre';
 import Cytoscape from "cytoscape";
 import {Text, View} from "react-native-web";
 import {Autocomplete, Switch, TextField} from "@mui/material";
+import InnerText from "../styles_and_settings/InnerText";
 
 Cytoscape.use( CoseBilkent );
 Cytoscape.use( fcose);
@@ -53,7 +54,7 @@ const layouts = {
 
 const options = Object.keys(layouts).map(layout => ({label: layout, value: layout}));
 
-export default function NewGraph() {
+export default function NewGraph(props) {
     const [nodes, setNodes] = useState([]);
     const [edges, setEdges] = useState([]);
     const [edgesComplement, setEdgesComplement] = useState([]);
@@ -61,20 +62,19 @@ export default function NewGraph() {
     const forceUpdate = useCallback(() => updateState({}), []);
     const elements = [...nodes, ...edges];
     const elementsComplement = [...nodes, ...edgesComplement];
-    const [layout, setLayout] = useState(layouts.Random);
+    const [layout, setLayout] = useState(layouts.Circle);
     const [isComplement, setIsComplement] = useState(false);
     const cyRef = useRef();
-    const sign = "GPV@}{";
-    const side = 400;
-    const margin = 20;
+    const side = 380;
+    const margin = 5;
 
     useEffect(() => {
-        let nodesEdges = computeNodesEdges(sign);
+        let nodesEdges = computeNodesEdges(props.signature);
         setNodes(nodesEdges.nodes);
         setEdges(nodesEdges.edges);
         setEdgesComplement(nodesEdges.edgesComplement);
         forceUpdate();
-    }, []);
+    }, [props.signature]);
 
     const handleChangeChecked = (event) => {
         setIsComplement(event.target.checked);
@@ -85,19 +85,23 @@ export default function NewGraph() {
         setLayout(layouts[event.target.innerText]);
         forceUpdate();
     };
-    // TODO Remonter d'un niveau la checkbox qui permet d'afficher ou non le complément du graphe
+
     const renderCytoscape = (elmts, color) => {
         return (<CytoscapeComponent elements={elmts}
                             minZoom={0.5}
                             maxZoom={2}
-                            pan={{x: 200, y: 200}}
+                            pan={{x: side/2, y: side/2}}
                             stylesheet={[
-                                {selector: 'node', style: {width: 35, height: 35, 'background-color': color, 'border-color': '#000', 'border-width': 2}},
-                                {selector: 'edge', style: {width: 5, 'line-color' : '#000'}}]}
+                                {selector: 'node', style: {width: 35, height: 35, 'background-color': '#000', 'border-color': '#000', 'border-width': 2}},
+                                {selector: 'edge', style: {width: 5, 'line-color' : color}}]}
                             style={{
-                                marginTop: PADDING_TOP, marginBottom: PADDING_BOTTOM,
-                                marginLeft: PADDING_LEFT, marginRight: PADDING_RIGHT,
-                                width: side, height: side, border: "1px solid black"
+                                marginTop: TOP,
+                                marginBottom: BOTTOM,
+                                marginLeft: LEFT,
+                                marginRight: RIGHT,
+                                width: side,
+                                height: side,
+                                border: "1px solid black"
         }}
                             cy={(cy) => {
                                 cyRef.current = cy;
@@ -113,20 +117,29 @@ export default function NewGraph() {
             width: side+2*margin,
             alignItems: 'center',
         }}>
-            <Text style={{
-                fontSize: '25px'
-            }}><Switch checked={isComplement} onChange={handleChangeChecked}/> View complement of graph</Text>
+            <InnerText>
+                View complement of graph? <Switch checked={isComplement} onChange={handleChangeChecked}/> <br/>
+                Choose a layout for nodes placement:
+            </InnerText>
             <Autocomplete
                 clearIcon={null}
                 disablePortal
                 id="combo-box"
                 options={options}
                 onChange={handleChangeLayout}
-                sx={{ width: '90%' }}
+                sx={{ width: '75%' }}
                 renderInput={(params) =>
                     <TextField {...params} label="Layout" />}
             />
-            {isComplement ? renderCytoscape(elementsComplement, '#00ff00') : renderCytoscape(elements, '#444444')}
+            {isComplement ?
+                <>
+                    <Text style={{color: '#00ff00'}}>Graph complement </Text>
+                    {renderCytoscape(elementsComplement, '#00ff00')}
+                </> : <>
+                    <Text style={{color: '#444444'}}>Graph</Text>
+                    {renderCytoscape(elements, '#444444')}
+                </>
+            }
         </View>
     )
 

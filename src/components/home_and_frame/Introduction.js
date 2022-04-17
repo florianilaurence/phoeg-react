@@ -4,7 +4,7 @@ import InnerText from "../styles_and_settings/InnerText";
 import {useNavigate} from "react-router-dom";
 import { FaInfo } from 'react-icons/fa';
 import './Home_and_frame.css'
-import {PADDING_BOTTOM, PADDING_LEFT, PADDING_RIGHT, PADDING_TOP} from "../../designVars";
+import {BOTTOM, LEFT, RIGHT, TOP} from "../../designVars";
 
 export default function Introduction () {
     let navigate = useNavigate();
@@ -17,10 +17,10 @@ export default function Introduction () {
         }}>
             <TitleText>Introduction</TitleText>
             <View style={{
-                paddingTop: PADDING_TOP,
-                paddingBottom: PADDING_BOTTOM,
-                paddingLeft: PADDING_LEFT,
-                paddingRight: PADDING_RIGHT,
+                paddingTop: TOP,
+                paddingBottom: BOTTOM,
+                paddingLeft: LEFT,
+                paddingRight: RIGHT,
             }}>
                 <InnerText>
                     Click on the following button for more information about the developers behind this user interface.

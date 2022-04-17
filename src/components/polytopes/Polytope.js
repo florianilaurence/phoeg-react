@@ -5,7 +5,7 @@ import {View} from "react-native-web";
 import SubTitleText from "../styles_and_settings/SubTitleText";
 import "./Polytopes.css"
 import PolytopeForm from "./PolytopeForm";
-import {PADDING_LEFT, PADDING_RIGHT} from "../../designVars";
+import {LEFT, RIGHT} from "../../designVars";
 const API_URL_ENDPOINTS = `${API_URL}/endpoints`;
 
 async function get_endpoints() {
@@ -45,8 +45,8 @@ export default function Polytope(props) {
             flexGrow: 1
         }}>
             <View style={{
-                paddingLeft: PADDING_LEFT,
-                paddingRight: PADDING_RIGHT
+                paddingLeft: LEFT,
+                paddingRight: RIGHT
             }}>
                 <SubTitleText>{"Polytope " + props.num}</SubTitleText>
             </View>

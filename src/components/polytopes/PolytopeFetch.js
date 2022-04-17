@@ -32,9 +32,9 @@ export default function PolytopeFetch(props) {
             y_invariant: props.invariantY,
             constraints: props.others,
         });
-        let data = fetchData(envelope_request, points_request).then(
-            (data) => {
-                setData(data);
+        fetchData(envelope_request, points_request).then(
+            (d) => {
+                setData(d);
                 setLoading(false);
             }
         ).catch(
@@ -43,7 +43,6 @@ export default function PolytopeFetch(props) {
                 setLoading(false);
             }
         );
-        setData(data);
         forceUpdate();
     }, []);
 
@@ -58,8 +57,6 @@ export default function PolytopeFetch(props) {
             }
         })).catch(error => {
             setError(error);
-            setLoading(false);
-        }).finally(() => {
             setLoading(false);
         });
     };
