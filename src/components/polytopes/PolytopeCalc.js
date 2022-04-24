@@ -63,6 +63,7 @@ export default function PolytopeCalc(props) {
             order={props.order}
             invariantX={props.invariantX}
             invariantY={props.invariantY}
+            invariantColor={props.invariantColor}
             constraints={props.constraints}
             envelope={props.envelope}
             points={props.points}

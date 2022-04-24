@@ -36,8 +36,8 @@ export default function PolytopeChart(props) {
     const background = '#fafafa';
     const background_mini_map = 'rgba(197,197,197,0.9)';
     const width = 800;
-    const height = width*2/3;
-    const margin = { top: 10, right: 15, bottom: 45, left: 30 };
+    const height = width * 2 / 3;
+    const margin = {top: 10, right: 15, bottom: 45, left: 30};
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -49,8 +49,8 @@ export default function PolytopeChart(props) {
 
     // Options possibles de coloration
     const optionsTypeColoration = [
-        { value: 'gradient', label: 'Coloration with automatic gradient' },
-        { value: 'indep', label: 'Coloration with selected colors'}
+        {value: 'gradient', label: 'Coloration with automatic gradient'},
+        {value: 'indep', label: 'Coloration with selected colors'}
     ];
 
     // Type de coloration sélectionné
@@ -136,14 +136,19 @@ export default function PolytopeChart(props) {
                         let tempRange = range.slice();
                         tempRange[i] = e.target.value;
                         setRange(tempRange);
-                    }} />
+                    }}/>
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
                         style={tag === selectedTag ?
-                            {fontsize: INNER_TEXT_SIZE, fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {
+                                fontsize: INNER_TEXT_SIZE,
+                                fontWeight: 'bold',
+                                fontStyle: 'italic',
+                                textDecorationLine: 'underline'
+                            } :
                             {fontsize: INNER_TEXT_SIZE, fontWeight: 'bold'}}
                     >
-                        { tag } </Text>
+                        {tag} </Text>
                 </View>
             )
         }
@@ -164,13 +169,20 @@ export default function PolytopeChart(props) {
                     flexDirection: 'row',
                     alignItems: "center",
                 }}>
-                    <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
+                    <input type="color" name="color1" id="color1" value={color1}
+                           onChange={e => setColor1(e.target.value)}/>
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
                         style={tag === selectedTag ?
-                            {fontsize: INNER_TEXT_SIZE, color: color1, fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {
+                                fontsize: INNER_TEXT_SIZE,
+                                color: color1,
+                                fontWeight: 'bold',
+                                fontStyle: 'italic',
+                                textDecorationLine: 'underline'
+                            } :
                             {fontsize: INNER_TEXT_SIZE, color: color1, fontWeight: 'bold'}}>
-                        { tag }
+                        {tag}
                     </Text>
                 </View>
             )
@@ -184,15 +196,23 @@ export default function PolytopeChart(props) {
                     flexWrap: 'wrap',
                     width: '100%',
                 }}>
-                    <input type="color" name="color1" id="color1" value={color1} onChange={e => setColor1(e.target.value)}/>
+                    <input type="color" name="color1" id="color1" value={color1}
+                           onChange={e => setColor1(e.target.value)}/>
                     {tagsGradient.map((tag, i) => <Text
                         onPress={() => handleOnPressLegend(tag)}
                         style={tag === selectedTag ?
-                            {fontsize: INNER_TEXT_SIZE, color: colorsGradient[i], fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
+                            {
+                                fontsize: INNER_TEXT_SIZE,
+                                color: colorsGradient[i],
+                                fontWeight: 'bold',
+                                fontStyle: 'italic',
+                                textDecorationLine: 'underline'
+                            } :
                             {fontsize: INNER_TEXT_SIZE, color: colorsGradient[i], fontWeight: 'bold'}}
                         key={`gradient_tag${i}`}>
-                        { tag } </Text>)}
-                    <input type="color" name="color2" id="color2" value={color2} onChange={e => setColor2(e.target.value)}/>
+                        {tag} </Text>)}
+                    <input type="color" name="color2" id="color2" value={color2}
+                           onChange={e => setColor2(e.target.value)}/>
                 </View>
             )
         }
@@ -215,7 +235,7 @@ export default function PolytopeChart(props) {
     };
 
     const updateStatesOfLegend = (min, max, tag) => {
-        if(min === selectedMin && max === selectedMax) {
+        if (min === selectedMin && max === selectedMax) {
             resetStatesofLegend()
         } else {
             setIsLegendClicked(true);
@@ -266,25 +286,27 @@ export default function PolytopeChart(props) {
     const RenderData = () => {
         return (
             <Group left={margin.left} top={margin.top}>
-                <AxisLeft scale={yScale} left={margin.left} label={props.invariantY} />
+                <AxisLeft scale={yScale} left={margin.left} label={props.invariantY}/>
                 <AxisBottom scale={xScale} top={innerHeight} label={props.invariantX}/>
-                <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
-                <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1" stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none" />
+                <GridRows left={margin.left} scale={yScale} width={innerWidth} strokeDasharray="1" stroke={'#464646'}
+                          strokeOpacity={0.25} pointerEvents="none"/>
+                <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1"
+                             stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none"/>
                 <g>
                     <LinePath
                         stroke="black"
-                        strokeWidth={ 1 }
+                        strokeWidth={1}
                         data={props.envelope}
-                        x={ (d) => xScale(accessors(d, "x")) }
-                        y={ (d) => yScale(accessors(d, "y")) }
+                        x={(d) => xScale(accessors(d, "x"))}
+                        y={(d) => yScale(accessors(d, "y"))}
                     />
-                    {props.allClusters[currentNbClusters]? constructPoints().map(circle => {
+                    {props.allClusters[currentNbClusters] ? constructPoints().map(circle => {
                         return (
                             <Tooltip
                                 key={`tooltip-${circle.key}`}
                                 title={
-                                props.invariantX.replace('_', ' ') + " = " + circle.x + " | " +
-                                props.invariantY.replace('_', ' ') + " = " + circle.y}>
+                                    props.invariantX.replace('_', ' ') + " = " + circle.x + " | " +
+                                    props.invariantY.replace('_', ' ') + " = " + circle.y}>
                                 <circle
                                     className="circle"
                                     key={circle.key}
@@ -294,14 +316,14 @@ export default function PolytopeChart(props) {
                                     fillOpacity={0.75}
                                     r={isLegendClicked ?
                                         circle.col >= selectedMin && circle.col <= selectedMax ?
-                                            circle.r+5 :
+                                            circle.r + 5 :
                                             circle.r :
                                         circle.r}
                                     fill={circle.fill}
                                 />
                             </Tooltip>
                         )
-                    }) : null }
+                    }) : null}
                 </g>
             </Group>
         )
@@ -327,10 +349,10 @@ export default function PolytopeChart(props) {
                                 <ScaleSVG
                                     width={width}
                                     height={height}
-                                    style={{ cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none' }}
+                                    style={{cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none'}}
                                     ref={zoom.containerRef}
                                 >
-                                    <RectClipPath id="zoom-clip" width={width} height={height} />
+                                    <RectClipPath id="zoom-clip" width={width} height={height}/>
                                     <rect
                                         width={width}
                                         height={height}
@@ -349,12 +371,12 @@ export default function PolytopeChart(props) {
                                             if (zoom.isDragging) zoom.dragEnd();
                                         }}
                                         onDoubleClick={(event) => {
-                                            const point = localPoint(event) || { x: 0, y: 0 };
-                                            zoom.scale({ scaleX: 1.1, scaleY: 1.1, point });
+                                            const point = localPoint(event) || {x: 0, y: 0};
+                                            zoom.scale({scaleX: 1.1, scaleY: 1.1, point});
                                         }}
                                     />
                                     <g transform={zoom.toString()}>
-                                        <RenderData />
+                                        <RenderData/>
                                     </g>
                                     {showMiniMap && (
                                         <g
@@ -364,8 +386,8 @@ export default function PolytopeChart(props) {
                                                 translate(${width * 4 - width - 60}, ${height * 4 - height - 60})
                                             `}
                                         >
-                                            <rect width={width} height={height} fill={background_mini_map} />
-                                            <RenderData />
+                                            <rect width={width} height={height} fill={background_mini_map}/>
+                                            <RenderData/>
                                             <rect
                                                 width={width}
                                                 height={height}
@@ -385,17 +407,22 @@ export default function PolytopeChart(props) {
                             }}>
                                 <InnerText>Zoom:</InnerText>
                                 <br/>
-                                <Button variant="contained" color="success" onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}> + </Button>
+                                <Button variant="contained" color="success"
+                                        onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}> + </Button>
                                 <br/>
-                                <Button  variant="contained" color="success" onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}> - </Button>
+                                <Button variant="contained" color="success"
+                                        onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}> - </Button>
                                 <br/>
-                                <Button  variant="contained" color="success" onClick={zoom.center}> Center </Button>
+                                <Button variant="contained" color="success" onClick={zoom.center}> Center </Button>
                                 <br/>
-                                <Button  variant="contained" color="success" className="btn btn-lg" onClick={zoom.reset}> Reset </Button>
+                                <Button variant="contained" color="success" className="btn btn-lg"
+                                        onClick={zoom.reset}> Reset </Button>
                                 <br/>
-                                <Button  variant="contained" color="success" className="btn btn-lg" onClick={zoom.clear}> Clear </Button>
+                                <Button variant="contained" color="success" className="btn btn-lg"
+                                        onClick={zoom.clear}> Clear </Button>
                                 <br/>
-                                <Button  variant="contained" color="success" onClick={() => setShowMiniMap(!showMiniMap)}>
+                                <Button variant="contained" color="success"
+                                        onClick={() => setShowMiniMap(!showMiniMap)}>
                                     {showMiniMap ? 'Hide' : 'Show'} Mini Map
                                 </Button>
                             </View>
@@ -404,66 +431,67 @@ export default function PolytopeChart(props) {
                 </Zoom>
             </View>
             <View>
-                <View style={{
-                    marginTop: TOP,
-                    marginLeft: LEFT,
-                    marginRight: RIGHT,
-                    paddingBottom: BOTTOM,
-                    maxWidth: '100%',
-                }}>
-                    <View style={{
+                {props.invariantColor === "num_vertices" ?
+                    <>
+                        <View style={{
+                            marginTop: TOP,
+                            marginLeft: LEFT,
+                            marginRight: RIGHT,
+                            paddingBottom: BOTTOM,
+                            maxWidth: '100%',
+                        }}>
+                            <View style={{
+                                flex: 1, flexDirection: 'row', alignItems: 'center', marginTop: INNER, maxWidth: '100%',
+                            }}>
+                                <InnerText>Choose type of coloration: </InnerText>
+                                <Select style={{
+                                    width: '250px', marginLeft: INNER, marginRight: INNER,
+                                }} defaultValue={typeSelected} options={optionsTypeColoration}
+                                        onChange={handleChangeType}/>
+                            </View>
+                            <View style={{
+                                flex: 1,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                flexWrap: 'wrap',
+                                maxWidth: '100%',
+                                marginTop: INNER,
+                            }}>
+                                <InnerText>Legend (coloration with {props.constraints[0]}): </InnerText>
+                                {typeCurrent === 'indep' ? <RenderInputColorsForIndep/> :
+                                    <RenderInputColorsForGradient/>}
+                            </View>
+                        </View><View style={{
                         flex: 1,
-                        flexDirection: 'row',
-                        alignItems: 'center',
+                        marginLeft: LEFT,
+                        marginRight: RIGHT,
                         marginTop: INNER,
                         maxWidth: '100%',
                     }}>
-                        <InnerText>Choose type of coloration: </InnerText>
-                        <Select style={{
-                            width: '250px',
-                            marginLeft: INNER,
-                            marginRight: INNER,
-                        }} defaultValue={typeSelected} options={optionsTypeColoration} onChange={handleChangeType}/>
+                        <InnerText>Number of clusters to colour the graphs: </InnerText>
+                        <br/>
+                        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
+                            {props.clustersList.map((d) => {
+                                if (d === currentNbClusters) {
+                                    return (
+                                        <Button key={`btn-${d}`} variant="contained" color="success"
+                                                onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
+                                            {d}
+                                        </Button>
+                                    );
+                                } else {
+                                    return (
+                                        <Button key={`btn-${d}`} variant="outlined" color="success"
+                                                onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
+                                            {d}
+                                        </Button>
+                                    );
+                                }
+                            })}
+                        </View>
                     </View>
-                    <View style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        maxWidth: '100%',
-                        marginTop: INNER,
-                    }}>
-                        <InnerText>Legend (coloration with {props.constraints[0]}): </InnerText>
-                        { typeCurrent === 'indep' ? <RenderInputColorsForIndep/> : <RenderInputColorsForGradient/> }
-                    </View>
-                </View>
-                <View style={{
-                    flex: 1,
-                    marginLeft: LEFT,
-                    marginRight: RIGHT,
-                    marginTop: INNER,
-                    maxWidth: '100%',
-                }}>
-                    <InnerText>Number of clusters to colour the graphs: </InnerText>
-                    <br />
-                    <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
-                        {props.clustersList.map((d) => {
-                            if (d === currentNbClusters) {
-                                return (
-                                    <Button key={`btn-${d}`} variant="contained" color="success" onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
-                                        {d}
-                                    </Button>
-                                )
-                            } else {
-                                return (
-                                    <Button key={`btn-${d}`} variant="outlined" color="success" onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
-                                        {d}
-                                    </Button>
-                                )
-                            }
-                        })}
-                    </View>
-                </View>
+                    </> : null
+                }
                 {selected ?
                     <GraphsFetch
                         graphPath={props.graphPath}
@@ -472,8 +500,7 @@ export default function PolytopeChart(props) {
                         invariantY={props.invariantY}
                         invariantXValue={selectedX}
                         invariantYValue={selectedY}
-                    />
-                    : null
+                    /> : null
                 }
             </View>
         </View>

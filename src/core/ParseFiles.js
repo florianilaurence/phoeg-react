@@ -31,7 +31,6 @@ function readEnvelopePolygone(data) {
 }
 
 export function readPoints(data) {
-    console.log(data);
     const keys = Object.keys(data);
     const pointsGrouped = [];
 

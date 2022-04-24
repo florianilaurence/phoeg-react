@@ -351,7 +351,10 @@ export default function PolytopeForm(props) {
                             style={{
                                 width: '75%',
                             }}
-                            onChange={(event, newValue) => handleChange("order", newValue)}
+                            onChange={(event, newValue) => {
+                                handleChange("order", newValue);
+                                setSubmitted(false);
+                            }}
                         />
                     </View>
                     <View

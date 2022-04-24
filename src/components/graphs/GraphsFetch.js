@@ -68,8 +68,8 @@ export default function GraphsFetch(props) {
         </View>
     );
 
-    const handleChangeNbOfSliders = (event) => {
-        setCurrentNbOfSlider(event.target.value);
+    const handleChangeNbOfSliders = (newValue) => {
+        setCurrentNbOfSlider(newValue);
         forceUpdate();
     }
 
@@ -84,14 +84,15 @@ export default function GraphsFetch(props) {
                 <View style={{
                     alignItems: 'center',
                 }}>
-                    <InnerText>You can display up to {data.length} graph{data.length===1 ? "":"s"} in same time: </InnerText>
+                    <InnerText>There are {data.length} graph{data.length===1 ? "":"s"}. You can display up to {data.length*2} sliders in same time: </InnerText>
                     <Slider
-                        defaultValue={currentNbOfSlider}
+                        aria-label="nb_of_sliders"
+                        value={currentNbOfSlider}
                         valueLabelDisplay="auto"
                         step={1}
                         marks
                         min={1}
-                        max={data.length}
+                        max={data.length*2}
                         sx={{
                             color: 'success.main',
                             '& .MuiSlider-thumb': {
@@ -101,7 +102,7 @@ export default function GraphsFetch(props) {
                         style={{
                             width: '75%',
                         }}
-                        onChange={handleChangeNbOfSliders}
+                        onChange={(event, newValue) => handleChangeNbOfSliders( newValue)}
                     />
                     <View style={{
                         flex: 1,
@@ -113,7 +114,7 @@ export default function GraphsFetch(props) {
                     }}>
                         {
                             Array.from(Array(currentNbOfSlider).keys()).map((num) =>{
-                                return <GraphSlider key={"slider_" + num} graphList={data} firstGraphToShow={num}/>
+                                return <GraphSlider key={"slider_" + num} graphList={data} firstGraphToShow={num % data.length}/>
                         })}
                     </View>
                 </View>

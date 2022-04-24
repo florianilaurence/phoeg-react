@@ -75,6 +75,10 @@ export default function PolytopeFetch(props) {
     }
     if (error) return <div>Error: {error}</div>;
 
+    if (data === {}) {
+        return <div>No data found</div>
+    }
+
     return (
         <>
             {data.points && data.envelope &&

@@ -35,8 +35,8 @@ export default function GraphSlider(props) {
             justifyItems: 'center',
             backgroundColor: '#eeeeee',
             borderRadius: '10px',
-            marginLeft: '1%',
-            marginBottom: '1%',
+            marginLeft: '5px',
+            marginBottom: '5px',
         }}>
             <SubSubTitleText>{currentSignature}</SubSubTitleText>
             {props.graphList.length === 1 ?
