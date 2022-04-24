@@ -30,6 +30,7 @@ export default function PolytopeFetch(props) {
             order: props.order,
             x_invariant: props.invariantX,
             y_invariant: props.invariantY,
+            colour: props.color,
             constraints: props.others,
         });
         fetchData(envelope_request, points_request).then(

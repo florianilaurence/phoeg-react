@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {API_URL} from "../../.env";
 import {fetch_api} from "../../core/utils";
 import {View} from "react-native-web";
@@ -24,8 +24,8 @@ async function get_endpoints() {
 
 export default function Polytope(props) {
     let first_run = true;
-
-    const [endpoints, setEndpoints] = useState([]); // No endpoints by default, then query from API
+    const [, updateState] = useState();
+    const forceUpdate = useCallback(() => updateState({}), []);
     const [endpoint, setEndpoint] = useState(null);
 
     useEffect(() => {
@@ -33,9 +33,9 @@ export default function Polytope(props) {
         first_run = false;
         get_endpoints()
             .then((endpoints) => {
-                setEndpoints(endpoints);
                 setEndpoint(endpoints[0])
             })
+        forceUpdate();
     }, [])
 
     return (
@@ -52,7 +52,7 @@ export default function Polytope(props) {
             </View>
             <View>
                 <br/>
-                {!!endpoint ?
+                {!!endpoint?
                     <PolytopeForm
                         invariants={endpoint.value.params.properties.x_invariant.enum}
                         params={endpoint.value.params}

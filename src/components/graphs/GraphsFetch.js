@@ -22,7 +22,7 @@ export default function GraphsFetch(props) {
     useEffect( () => {
         let graphs_request = new URL(`${API_URL}${props.graphPath}`)
 
-        graphs_request.searchParams.append("max_graph_size", props.order);
+        graphs_request.searchParams.append("order", props.order);
         graphs_request.searchParams.append("invariants[0][name]", props.invariantX);
         graphs_request.searchParams.append("invariants[1][name]", props.invariantY);
         // Filter for specific invariant values
