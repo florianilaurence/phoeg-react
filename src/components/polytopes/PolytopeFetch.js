@@ -19,7 +19,7 @@ export default function PolytopeFetch(props) {
         const graphPath = props.endpoint.value.path;
         let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
         envelope_request += "?" + stringify({
-            max_graph_size: props.order,
+            order: props.order,
             x_invariant: props.invariantX,
             y_invariant: props.invariantY,
             constraints: props.others
@@ -27,7 +27,7 @@ export default function PolytopeFetch(props) {
 
         let points_request = new URL(`${API_URL}${graphPath}/points`);
         points_request += "?" + stringify({
-            max_graph_size: props.order,
+            order: props.order,
             x_invariant: props.invariantX,
             y_invariant: props.invariantY,
             constraints: props.others,
