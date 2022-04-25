@@ -2,6 +2,12 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+To deploy the application on the phoeg server:
+
+Build the application with npm run build
+
+Copy the contents of the generated folder on the server to the var/www/floriani folder
+
 ## Available Scripts
 
 In the project directory, you can run:
