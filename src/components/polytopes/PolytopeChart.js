@@ -418,9 +418,6 @@ export default function PolytopeChart(props) {
                                 <Button variant="contained" color="success" className="btn btn-lg"
                                         onClick={zoom.reset}> Reset </Button>
                                 <br/>
-                                <Button variant="contained" color="success" className="btn btn-lg"
-                                        onClick={zoom.clear}> Clear </Button>
-                                <br/>
                                 <Button variant="contained" color="success"
                                         onClick={() => setShowMiniMap(!showMiniMap)}>
                                     {showMiniMap ? 'Hide' : 'Show'} Mini Map
@@ -431,7 +428,7 @@ export default function PolytopeChart(props) {
                 </Zoom>
             </View>
             <View>
-                {props.invariantColor === "num_vertices" ?
+                {props.invariantColor !== "num_vertices" ?
                     <>
                         <View style={{
                             marginTop: TOP,

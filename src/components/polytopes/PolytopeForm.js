@@ -36,6 +36,7 @@ export default function PolytopeForm(props) {
 
     const handleInputChange = (name, newValue) => {
         setInputValues({...inputValues, [name]: newValue});
+        forceUpdate();
     };
 
     const handleChangeChecked = (event) => {

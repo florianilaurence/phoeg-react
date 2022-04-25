@@ -22,16 +22,15 @@ export default function PolytopeFetch(props) {
             order: props.order,
             x_invariant: props.invariantX,
             y_invariant: props.invariantY,
-            constraints: props.others
+            constraints: props.constraints
         })
-
         let points_request = new URL(`${API_URL}${graphPath}/points`);
         points_request += "?" + stringify({
             order: props.order,
             x_invariant: props.invariantX,
             y_invariant: props.invariantY,
-            colour: props.color,
-            constraints: props.others,
+            colour: props.invariantColor,
+            constraints: props.constraints
         });
         fetchData(envelope_request, points_request).then(
             (d) => {
@@ -87,6 +86,7 @@ export default function PolytopeFetch(props) {
                     order={props.order}
                     invariantX={props.invariantX}
                     invariantY={props.invariantY}
+                    invariantColor={props.invariantColor}
                     constraints={props.constraints}
                     envelope={data.envelope}
                     points={data.points}
