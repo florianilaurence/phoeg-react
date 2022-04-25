@@ -339,35 +339,21 @@ export default function PolytopeChart(props) {
                 <SubSubTitleText>Chart:</SubSubTitleText>
                 <Zoom width={width} height={height}>
                     {(zoom) => (
-                        <View style={{
-                            flexDirection: 'row',
-                            flex: 1,
-                        }}>
+                        <View style={{flexDirection: 'row', flex: 1}}>
                             <View style={{
                                 width: '90%',
                             }}>
                                 <ScaleSVG
-                                    width={width}
-                                    height={height}
+                                    width={width} height={height}
                                     style={{cursor: zoom.isDragging ? 'grabbing' : 'grab', touchAction: 'none'}}
                                     ref={zoom.containerRef}
                                 >
                                     <RectClipPath id="zoom-clip" width={width} height={height}/>
-                                    <rect
-                                        width={width}
-                                        height={height}
-                                        rx="10"
-                                        ry="10"
-                                        stroke="#000000"
-                                        strokeWidth="5"
-                                        fill={background}
-                                        onTouchStart={zoom.dragStart}
-                                        onTouchMove={zoom.dragMove}
-                                        onTouchEnd={zoom.dragEnd}
-                                        onMouseDown={zoom.dragStart}
-                                        onMouseMove={zoom.dragMove}
-                                        onMouseUp={zoom.dragEnd}
-                                        onMouseLeave={() => {
+                                    <rect width={width} height={height} rx="10" ry="10" stroke="#000000"
+                                        strokeWidth="5" fill={background} onTouchStart={zoom.dragStart}
+                                         onTouchMove={zoom.dragMove} onTouchEnd={zoom.dragEnd}
+                                          onMouseDown={zoom.dragStart} onMouseMove={zoom.dragMove}
+                                          onMouseUp={zoom.dragEnd} onMouseLeave={() => {
                                             if (zoom.isDragging) zoom.dragEnd();
                                         }}
                                         onDoubleClick={(event) => {
@@ -407,18 +393,18 @@ export default function PolytopeChart(props) {
                             }}>
                                 <InnerText>Zoom:</InnerText>
                                 <br/>
-                                <Button variant="contained" color="success"
+                                <Button variant="contained" color="success" mt={1}
                                         onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}> + </Button>
                                 <br/>
-                                <Button variant="contained" color="success"
+                                <Button variant="contained" color="success" mt={1}
                                         onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}> - </Button>
                                 <br/>
-                                <Button variant="contained" color="success" onClick={zoom.center}> Center </Button>
+                                <Button variant="contained" color="success" mt={1} onClick={zoom.center}> Center </Button>
                                 <br/>
-                                <Button variant="contained" color="success" className="btn btn-lg"
+                                <Button variant="contained" color="success" className="btn btn-lg" mt={1}
                                         onClick={zoom.reset}> Reset </Button>
                                 <br/>
-                                <Button variant="contained" color="success"
+                                <Button variant="contained" color="success" mt={1}
                                         onClick={() => setShowMiniMap(!showMiniMap)}>
                                     {showMiniMap ? 'Hide' : 'Show'} Mini Map
                                 </Button>
@@ -454,7 +440,7 @@ export default function PolytopeChart(props) {
                                 maxWidth: '100%',
                                 marginTop: INNER,
                             }}>
-                                <InnerText>Legend (coloration with {props.constraints[0]}): </InnerText>
+                                <InnerText>Legend (coloration with {props.invariantColor}): </InnerText>
                                 {typeCurrent === 'indep' ? <RenderInputColorsForIndep/> :
                                     <RenderInputColorsForGradient/>}
                             </View>

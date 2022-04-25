@@ -111,7 +111,6 @@ export default function NewGraph(props) {
         />);
     }
 
-
     return (
         <View style={{
             width: side+2*margin,
@@ -133,10 +132,10 @@ export default function NewGraph(props) {
             />
             {isComplement ?
                 <>
-                    <Text style={{color: '#00ff00'}}>Graph complement </Text>
+                    <Text style={{color: '#00ff00', fontWeight: 'bold'}}>Graph complement </Text>
                     {renderCytoscape(elementsComplement, '#00ff00')}
                 </> : <>
-                    <Text style={{color: '#444444'}}>Graph</Text>
+                    <Text style={{color: '#444444', fontWeight: 'bold'}}>Graph</Text>
                     {renderCytoscape(elements, '#444444')}
                 </>
             }

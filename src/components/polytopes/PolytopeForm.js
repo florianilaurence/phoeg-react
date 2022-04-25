@@ -1,5 +1,5 @@
 import {Text, View} from "react-native-web";
-import {BOTTOM, LEFT, RIGHT, TOP} from "../../designVars";
+import {BOTTOM, INNER_TEXT_SIZE, LEFT, RIGHT, TOP} from "../../designVars";
 import {Autocomplete, IconButton, Slider, Switch, TextField} from "@mui/material";
 import InnerText from "../styles_and_settings/InnerText";
 import React, {useCallback, useState} from "react";
@@ -31,11 +31,13 @@ export default function PolytopeForm(props) {
 
     const handleChange = (name, newValue) => {
         setFormData({...formData, [name]: newValue});
+        setSubmitted(false);
         forceUpdate();
     };
 
     const handleInputChange = (name, newValue) => {
         setInputValues({...inputValues, [name]: newValue});
+        setSubmitted(false);
         forceUpdate();
     };
 
@@ -76,6 +78,7 @@ export default function PolytopeForm(props) {
         let newConstraints = formData.constraints;
         newConstraints[index][name] = newValue;
         setFormData({...formData, constraints: newConstraints});
+        setSubmitted(false);
         forceUpdate();
     };
 
@@ -83,6 +86,7 @@ export default function PolytopeForm(props) {
         let newConstraints = inputValues.constraints;
         newConstraints[index][name] = newValue;
         setInputValues({...inputValues, constraints: newConstraints});
+        setSubmitted(false);
         forceUpdate();
     };
 
@@ -129,72 +133,40 @@ export default function PolytopeForm(props) {
             for (let j = index; j < index + 3 && j < numberConstraints; j++) {
                 temp.push(
                     <View
-                        key={`inv${index}-${j}`}
-                        style={{
-                            marginRight: '5%',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginTop: '5%',
-                            paddingBottom: BOTTOM,
-                            paddingTop: TOP,
-                            background: '#eaeaea',
-                            width: '30%'
-                        }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '5%',
-                        }}>
-                            <Text style={{
-                                fontSize: '25px'
-                            }}>{"Constraint " + (j + 1)}</Text>
-                            <IconButton onClick={() => handleRemoveConstraint(index)}>
+                        key={`constraint-${j}`}
+                        style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', marginTop: '5%',
+                            paddingBottom: BOTTOM, paddingTop: TOP, background: '#eaeaea', width: '30%'}}>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+                            marginBottom: '5%',}}>
+                            <Text style={{fontSize: '25px'}}>{"Constraint " + (j + 1)}</Text>
+                            <IconButton onClick={() => handleRemoveConstraint(j)}>
                                 <DeleteOutlineIcon/>
                             </IconButton>
                         </View>
                         <Autocomplete
-                            value={formData.constraints[index].name}
-                            onChange={(event, newValue) => handleChangeConstraint("name", index, newValue)}
-                            inputValue={inputValues.constraints[index].name}
-                            onInputChange={(event, newValue) => handleInputChangeConstraint("name", index, newValue)}
-                            id={`auto-complete-constraint-${index}`}
+                            value={formData.constraints[j].name}
+                            onChange={(event, newValue) => handleChangeConstraint("name", j, newValue)}
+                            inputValue={inputValues.constraints[j].name}
+                            onInputChange={(event, newValue) => handleInputChangeConstraint("name", j, newValue)}
+                            id={`auto-complete-constraint-${j}`}
                             options={props.invariants}
                             sx={{width: '90%'}}
                             clearIcon={null}
                             renderInput={(params) =>
                                 <TextField {...params} label="Invariant name"/>}
                         />
-                        <View style={{
-                            flexDirection: 'row',
-                            flex: 1,
-                            justifyContent: 'center',
-                        }}>
+                        <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
                             <TextField
-                                value={formData.constraints[index].minimum_bound}
-                                onChange={(event) => handleChangeConstraint('minimum_bound', index, event.target.value)}
-                                id="minimum-bound"
-                                label="Minimum"
-                                type="number"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                margin='normal'
-                                sx={{width: '45%'}}
-                                variant="outlined"
+                                value={formData.constraints[j].minimum_bound}
+                                onChange={(event) => handleChangeConstraint('minimum_bound', j, event.target.value)}
+                                id="minimum-bound" label="Minimum" type="number" InputLabelProps={{shrink: true,}}
+                                margin='normal' sx={{width: '45%'}} variant="outlined"
                             />
                             <TextField
-                                id="maximum-bound"
-                                label="Maximum"
-                                onChange={(event) => handleChangeConstraint('maximum_bound', index, event.target.value)}
-                                type="number"
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
                                 value={formData.constraints[j].maximum_bound}
-                                margin='normal'
-                                sx={{width: '45%'}}
-                                variant="outlined"
+                                onChange={(event) => handleChangeConstraint('maximum_bound', j, event.target.value)}
+                                id="maximum-bound" label="Maximum" type="number" InputLabelProps={{shrink: true,}}
+                                margin='normal' sx={{width: '45%'}} variant="outlined"
                             />
                         </View>
                     </View>)
@@ -329,66 +301,34 @@ export default function PolytopeForm(props) {
                             fontSize: '25px'
                         }}>Please complete your request</Text>
                     </View>
-                    <InnerText>Please select number of vertices by graph (order)</InnerText>
-                    <View style={{
-                        alignItems: 'center',
-                        paddingBottom: BOTTOM,
-                        paddingTop: TOP,
-                    }}>
-                        <Slider
-                            aria-label="GraphOrder"
-                            defaultValue={props.params.properties.order.default}
-                            valueLabelDisplay="auto"
-                            step={1}
-                            marks
-                            min={props.params.properties.order.minimum}
-                            max={props.params.properties.order.maximum}
-                            sx={{
-                                color: 'success.main',
-                                '& .MuiSlider-thumb': {
-                                    borderRadius: '1px',
-                                },
-                            }}
-                            style={{
-                                width: '75%',
-                            }}
+                    <InnerText>Please select number of vertices by graph (order) </InnerText>
+                    <Text style={{fontSize: INNER_TEXT_SIZE, fontWeight: 'bold'}}>n = {formData.order}</Text>
+                    <View style={{alignItems: 'center', paddingBottom: BOTTOM, paddingTop: TOP,}}>
+                        <Slider aria-label="GraphOrder" defaultValue={props.params.properties.order.default}
+                            valueLabelDisplay="auto" step={1} marks min={props.params.properties.order.minimum}
+                            max={props.params.properties.order.maximum} sx={{color: 'success.main',
+                                '& .MuiSlider-thumb': {borderRadius: '1px',},}} style={{width: '75%',}}
                             onChange={(event, newValue) => {
                                 handleChange("order", newValue);
                                 setSubmitted(false);
                             }}
                         />
                     </View>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            flex: 1,
-                            width: '100%'
-                        }}>
+                    <View style={{flexDirection: 'row', flex: 1, width: '100%'}}>
                         <RenderXView />
                         <RenderYView />
                         <RenderColorView/>
                     </View>
                     {constructConstraintsView().map((group, i) => {
                         return (
-                            <View
-                                key={`view${i}`}
-                                style={{
-                                    flexDirection: 'row',
-                                    flex: 1,
-                                    width: '100%'
-                                }}>
+                            <View key={`view${i}`} style={{flexDirection: 'row', flex: 1, width: '100%'}}>
                                 {group}
                             </View>)
                     })}
                     <View
                         key="AddConstraint"
-                        style={{
-                            paddingTop: TOP,
-                            flexDirection: 'row',
-                            width: '100%',
-                            justifyContent: 'space-between',
-                            alignItems: 'flex-end',
-                        }}>
+                        style={{paddingTop: TOP, flexDirection: 'row', width: '100%', justifyContent: 'space-between',
+                            alignItems: 'flex-end',}}>
                         <Button variant="outlined" onClick={handleAddConstraint} color="success"
                                 startIcon={<AddCircleOutlineIcon/>}>
                             Do you want add a constraint?
