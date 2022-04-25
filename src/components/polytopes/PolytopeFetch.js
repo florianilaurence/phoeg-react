@@ -51,6 +51,13 @@ export default function PolytopeFetch(props) {
             axios.get(requestEnvelope),
             axios.get(requestPoints)
         ]).then(axios.spread((envelope, points) => {
+            if (points.data[props.invariantX] === null || points.data[props.invariantY] === null || points.data[props.invariantColor] === null
+                || envelope.data[props.invariantX] === null || envelope.data[props.invariantY] === null || points.data === {} || envelope.data === {}) {
+                return {
+                    envelope: null,
+                    points: null,
+                };
+            }
             return {
                 envelope: readEnvelope(envelope.data),
                 points: readPoints(points.data)
@@ -74,9 +81,16 @@ export default function PolytopeFetch(props) {
     }
     if (error) return <div>Error: {error}</div>;
 
-    if (data === {}) {
-        return <div>No data found</div>
-    }
+    if (data.points === null || data.envelope === null) {
+        return (
+            <View style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '200px'
+            }}>
+                <InnerText>No data found, please check if selected constraints are too tight</InnerText>
+            </View>
+        );    }
 
     return (
         <>

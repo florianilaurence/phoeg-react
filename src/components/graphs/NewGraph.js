@@ -52,7 +52,7 @@ const layouts = {
     }
 }
 
-const options = Object.keys(layouts).map(layout => ({label: layout, value: layout}));
+const options = Object.keys(layouts);
 
 export default function NewGraph(props) {
     const [nodes, setNodes] = useState([]);
@@ -63,6 +63,7 @@ export default function NewGraph(props) {
     const elements = [...nodes, ...edges];
     const elementsComplement = [...nodes, ...edgesComplement];
     const [layout, setLayout] = useState(layouts.Circle);
+    const [inputLayout, setInputLayout] = useState("");
     const [isComplement, setIsComplement] = useState(false);
     const cyRef = useRef();
     const side = 380;
@@ -78,11 +79,6 @@ export default function NewGraph(props) {
 
     const handleChangeChecked = (event) => {
         setIsComplement(event.target.checked);
-        forceUpdate();
-    };
-
-    const handleChangeLayout = (event) => {
-        setLayout(layouts[event.target.innerText]);
         forceUpdate();
     };
 
@@ -121,12 +117,14 @@ export default function NewGraph(props) {
                 Choose a layout for nodes placement:
             </InnerText>
             <Autocomplete
-                clearIcon={null}
-                disablePortal
-                id="combo-box"
+                value={layout.name}
+                onChange={(event, value) => setLayout(layouts[value])}
+                inputValue={inputLayout}
+                onInputChange={(event, value) => setInputLayout(value)}
+                id="graph-layout-select"
                 options={options}
-                onChange={handleChangeLayout}
                 sx={{ width: '75%' }}
+                clearIcon={null}
                 renderInput={(params) =>
                     <TextField {...params} label="Layout" />}
             />
