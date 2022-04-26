@@ -14,7 +14,7 @@ export default function GraphsFetch(props) {
     const [, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
 
-    const [data, setData] = useState(null); // La liste des graphs correspondant aux critères
+    const [data, setData] = useState(null); // La liste des graphes correspondant aux critères
     const [currentNbOfSlider, setCurrentNbOfSlider] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -32,6 +32,7 @@ export default function GraphsFetch(props) {
         fetchData(graphs_request).then(data => {
             setData(data);
             setLoading(false);
+            setError(null);
         }).catch(error => {
             setError(error);
             setLoading(false);
@@ -42,7 +43,7 @@ export default function GraphsFetch(props) {
     const fetchData = (request) => {
         return axios.get(request.toString(), {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then((d) => {
-                return readGraph(data, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue);
+                return readGraph(d.data, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue);
             });
     }
 
@@ -74,11 +75,7 @@ export default function GraphsFetch(props) {
     }
 
     return (
-        <View style={{
-            paddingLeft: LEFT,
-            paddingRight: RIGHT,
-            paddingTop: TOP
-        }}>
+        <View style={{paddingLeft: LEFT, paddingRight: RIGHT, paddingTop: TOP}}>
             <SubTitleText>Graphs</SubTitleText>
             {data &&
                 <View style={{
@@ -91,16 +88,9 @@ export default function GraphsFetch(props) {
                         style={{width: '75%',}}
                             onChange={(event, newValue) => handleChangeNbOfSliders( newValue)}
                     />
-                    <View style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        flexWrap: 'wrap',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: TOP,
-                    }}>
-                        {
-                            Array.from(Array(currentNbOfSlider).keys()).map((num) =>{
+                    <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center',
+                        alignItems: 'center', marginTop: TOP}}>
+                        {Array.from(Array(currentNbOfSlider).keys()).map((num) =>{
                                 return <GraphSlider key={"slider_" + num} graphList={data} firstGraphToShow={num % data.length}/>
                         })}
                     </View>
