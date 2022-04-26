@@ -252,7 +252,7 @@ export default function PolytopeChart(props) {
     }
 
     // Construire la liste qui servira à placer les points
-    const constructPoints = () => { //TODO Add other values of constraints to show later in tooltip
+    const constructPoints = () => {
         let result = [];
         props.allClusters[currentNbClusters].map((group, i) => {
             colorsGradient.push(colorScale(i));
@@ -473,7 +473,6 @@ export default function PolytopeChart(props) {
                 }
                 {selected ?
                     <GraphsFetch
-                        graphPath={props.graphPath}
                         order={props.order}
                         invariantX={props.invariantX}
                         invariantY={props.invariantY}

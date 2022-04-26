@@ -203,25 +203,11 @@ export default function PolytopeForm(props) {
     }
 
     const RenderColorView = () => {
-        return (<View
-            style={{
-                marginRight: '5%',
-                justifyContent: 'center',
-                alignItems: 'center',
-                paddingBottom: BOTTOM,
-                paddingTop: TOP,
-                background: checked ? '#eaeaea' : '#f5f5f5',
-                width: '30%'
-            }}>
-            <View
-                style={{
-                    flewDirection: 'row',
-                    marginBottom: BOTTOM,
-                }}>
-                <Text style={{
-                    fontSize: '25px',
-                    color: checked ? '#000000' : '#bdbdbd',
-                }}><Switch checked={checked} onChange={handleChangeChecked}/>Color points</Text>
+        return (<View style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', paddingBottom: BOTTOM,
+            paddingTop: TOP, background: checked ? '#eaeaea' : '#f5f5f5', width: '30%'}}>
+            <View style={{flewDirection: 'row', marginBottom: BOTTOM,}}>
+                <Text style={{fontSize: '25px', color: checked ? '#000000' : '#bdbdbd'
+                }}><Switch color= 'success' checked={checked} onChange={handleChangeChecked}/>Color points</Text>
             </View>
             <Autocomplete
                 value={formData.invariantColor}
@@ -243,19 +229,9 @@ export default function PolytopeForm(props) {
 
     const RenderXView = () => {
         return (
-            <View
-                style={{
-                    marginRight: '5%',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    paddingBottom: BOTTOM,
-                    paddingTop: TOP,
-                    background: '#eaeaea',
-                    width: '30%'
-                }}>
-                <Text style={{
-                    fontSize: '25px',
-                }}>X axis</Text>
+            <View style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', paddingBottom: BOTTOM,
+                paddingTop: TOP, background: '#eaeaea', width: '30%'}}>
+                <Text style={{fontSize: '25px',}}>X axis</Text>
                 <br/>
                 <Autocomplete
                     disablePortal
@@ -278,19 +254,9 @@ export default function PolytopeForm(props) {
 
     const RenderYView = () => {
         return (
-            <View
-                style={{
-                    marginRight: '5%',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    paddingBottom: BOTTOM,
-                    paddingTop: TOP,
-                    background: '#eaeaea',
-                    width: '30%'
-                }}>
-                <Text style={{
-                    fontSize: '25px'
-                }}>Y axis</Text>
+            <View style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', paddingBottom: BOTTOM,
+                paddingTop: TOP, background: '#eaeaea', width: '30%'}}>
+                <Text style={{fontSize: '25px'}}>Y axis</Text>
                 <br/>
                 <Autocomplete
                     id="auto-complete-y"
@@ -337,10 +303,8 @@ export default function PolytopeForm(props) {
                                 {group}
                             </View>)
                     })}
-                    <View
-                        key="AddConstraint"
-                        style={{paddingTop: TOP, flexDirection: 'row', width: '100%', justifyContent: 'space-between',
-                            alignItems: 'flex-end',}}>
+                    <View key="AddConstraint" style={{paddingTop: TOP, flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'flex-end',}}>
                         <Button variant="outlined" onClick={handleAddConstraint} color="success"
                                 startIcon={<AddCircleOutlineIcon/>}>
                             Do you want add a constraint?

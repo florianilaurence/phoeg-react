@@ -59,14 +59,11 @@ export default function PolytopeCalc(props) {
 
     return (
         <PolytopeChart
-            graphPath={props.graphPath}
             order={props.order}
             invariantX={props.invariantX}
             invariantY={props.invariantY}
             invariantColor={props.invariantColor}
-            constraints={props.constraints}
             envelope={props.envelope}
-            points={props.points}
             domainsData={domainsData}
             pointsGrouped={pointsGrouped}
             allClusters={allClusters}

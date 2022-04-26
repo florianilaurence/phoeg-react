@@ -118,6 +118,7 @@ export default function NewGraph(props) {
             </InnerText>
             <Box m={2}
                  sx={{ width: 0.75 }}>
+                {layout !== undefined ?
                 <Autocomplete
                     value={layout.name}
                     onChange={(event, value) => setLayout(layouts[value])}
@@ -128,7 +129,7 @@ export default function NewGraph(props) {
                     clearIcon={null}
                     renderInput={(params) =>
                         <TextField {...params} label="Layout" />}
-                />
+                />: null}
             </Box>
             {isComplement ?
                 <>
