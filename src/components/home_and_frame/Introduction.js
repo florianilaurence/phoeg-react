@@ -5,6 +5,7 @@ import {useNavigate} from "react-router-dom";
 import { FaInfo } from 'react-icons/fa';
 import './Home_and_frame.css'
 import {BOTTOM, LEFT, RIGHT, TOP} from "../../designVars";
+import {GrInfo} from "react-icons/gr";
 
 export default function Introduction () {
     let navigate = useNavigate();
@@ -18,7 +19,7 @@ export default function Introduction () {
                     <a onClick={() => navigate("/about", {replace: true})}> <FaInfo className="link"/> </a>
                     <br />
                     Click on the next button if you want to learn how to use this interface.
-                    <a onClick={() => navigate("/tutorial", {replace: true})}> <FaInfo className="link"/> </a>
+                    <a onClick={() => navigate("/tutorial", {replace: true})}> <GrInfo className="link"/> </a>
                     <br />
                     Could you give me your opinion by completing the following google forms? Please click on: <a href={"https://forms.gle/bn1YqfqsGGrt4t1z6"} target="_blank" >Feedback</a>
                 </InnerText>

@@ -1,7 +1,7 @@
 import Banner from "../home_and_frame/Banner";
 import {View} from "react-native-web";
 import TitleText from "../styles_and_settings/TitleText";
-import {LEFT, RIGHT, TOP} from "../../designVars";
+import {TOP} from "../../designVars";
 import VideoPlayer from 'react-video-markers';
 import {useState} from "react";
 import InnerText from "../styles_and_settings/InnerText";
@@ -34,10 +34,11 @@ export default function Tutorial() {
             <Banner isHome={false} />
             <View>
                 <TitleText>Tutorial</TitleText>
-                <InnerText>
-                    This is a demo video for interface.
-                </InnerText>
                 <View style={{ paddingTop: TOP, alignItems: 'center'}}>
+                    <InnerText>
+                        This is a demo video for interface.
+                    </InnerText>
+                    <br />
                     <VideoPlayer
                         url={"demo.mkv"}
                         controls={controls}
