@@ -16,15 +16,14 @@ export default function PolytopeFetch(props) {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const graphPath = props.endpoint.value.path;
-        let envelope_request = new URL(`${API_URL}${graphPath}/polytope`);
+        let envelope_request = new URL(`${API_URL}/graphs/polytope`);
         envelope_request += "?" + stringify({
             order: props.order,
             x_invariant: props.invariantX,
             y_invariant: props.invariantY,
             constraints: props.constraints,
         })
-        let points_request = new URL(`${API_URL}${graphPath}/points`);
+        let points_request = new URL(`${API_URL}/graphs/points`);
         points_request += "?" + stringify({
             order: props.order,
             x_invariant: props.invariantX,
@@ -96,7 +95,6 @@ export default function PolytopeFetch(props) {
         <>
             {data.points && data.envelope &&
                 <PolytopeCalc
-                    graphPath={props.endpoint.value.path}
                     order={props.order}
                     invariantX={props.invariantX}
                     invariantY={props.invariantY}

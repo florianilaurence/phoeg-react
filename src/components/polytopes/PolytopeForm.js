@@ -1,5 +1,5 @@
 import {Text, View} from "react-native-web";
-import {BOTTOM, INNER_TEXT_SIZE, LEFT, RIGHT, TOP} from "../../designVars";
+import {BOTTOM, DEFAULT_ORDER, INNER_TEXT_SIZE, LEFT, MAX_ORDER, MIN_ORDER, RIGHT, TOP} from "../../designVars";
 import {Autocomplete, IconButton, Slider, Switch, TextField} from "@mui/material";
 import InnerText from "../styles_and_settings/InnerText";
 import React, {useCallback, useState} from "react";
@@ -14,9 +14,9 @@ export default function PolytopeForm(props) {
     const forceUpdate = useCallback(() => updateState({}), []);
     const [checked, setChecked] = useState(false);
     const [formData, setFormData] = useState({
-        order: props.params.properties.order.default,
-        invariantX: props.invariants[0],
-        invariantY: props.invariants[1],
+        order: DEFAULT_ORDER,
+        invariantX: props.invariantsNum[0],
+        invariantY: props.invariantsNum[1],
         invariantColor: "num_vertices", // Default coloration, all points are the same color because order is fixed
         constraints: [],
     });
@@ -52,7 +52,7 @@ export default function PolytopeForm(props) {
 
     const handleAddConstraint = () => {
         formData.constraints.push({
-            name: props.invariants[2],
+            name: props.invariantsName[2],
             minimum_bound: 0,
             maximum_bound: 0,
         })
@@ -114,7 +114,6 @@ export default function PolytopeForm(props) {
     const RenderPolytopeFetch = () => {
         if (submitted) {
             return <PolytopeFetch
-                endpoint={props.endpoint}
                 order={formData.order}
                 invariantX={formData.invariantX}
                 invariantY={formData.invariantY}
@@ -125,6 +124,16 @@ export default function PolytopeForm(props) {
             return null;
         }
     };
+
+    const getTypeFromName = (name) => {
+        let type = "";
+        for (let i = 0; i < props.invariantsName.length; i++) {
+            if (props.invariantsName[i] === name) {
+                type = props.invariantsTypes[i];
+            }
+        }
+        return type;
+    }
 
     const constructConstraintsView = () => {
         let result = [];
@@ -145,30 +154,41 @@ export default function PolytopeForm(props) {
                         </View>
                         <Autocomplete
                             value={formData.constraints[j].name}
-                            onChange={(event, newValue) => handleChangeConstraint("name", j, newValue)}
+                            onChange={(event, newValue) =>
+                                handleChangeConstraint("name", j, newValue)}
                             inputValue={inputValues.constraints[j].name}
-                            onInputChange={(event, newValue) => handleInputChangeConstraint("name", j, newValue)}
+                            onInputChange={(event, newValue) =>
+                                handleInputChangeConstraint("name", j, newValue)}
                             id={`auto-complete-constraint-${j}`}
-                            options={props.invariants}
+                            options={props.invariantsName}
                             sx={{width: '90%'}}
                             clearIcon={null}
                             renderInput={(params) =>
                                 <TextField {...params} label="Invariant name"/>}
                         />
-                        <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
-                            <TextField
-                                value={formData.constraints[j].minimum_bound}
-                                onChange={(event) => handleChangeConstraint('minimum_bound', j, event.target.value)}
-                                id="minimum-bound" label="Minimum" type="number" InputLabelProps={{shrink: true,}}
-                                margin='normal' sx={{width: '45%'}} variant="outlined"
-                            />
-                            <TextField
-                                value={formData.constraints[j].maximum_bound}
-                                onChange={(event) => handleChangeConstraint('maximum_bound', j, event.target.value)}
-                                id="maximum-bound" label="Maximum" type="number" InputLabelProps={{shrink: true,}}
-                                margin='normal' sx={{width: '45%'}} variant="outlined"
-                            />
-                        </View>
+                        {getTypeFromName(formData.constraints[j].name) === "bool" ?
+                            <Switch checked={formData.constraints[j].minimum_bound === 1} onChange={
+                                (event) => {
+                                    handleChangeConstraint("minimum_bound", j, event.target.checked ? 1 : 0)
+                                    handleChangeConstraint("maximum_bound", j, event.target.checked ? 1 : 0)
+                                }} size="big"/> :
+                            <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
+                                <TextField
+                                    value={formData.constraints[j].minimum_bound}
+                                    onChange={(event) =>
+                                        handleChangeConstraint('minimum_bound', j, event.target.value)}
+                                    id="minimum-bound" label="Minimum" type="number" InputLabelProps={{shrink: true,}}
+                                    margin='normal' sx={{width: '45%'}} variant="outlined"
+                                />
+                                <TextField
+                                    value={formData.constraints[j].maximum_bound}
+                                    onChange={(event) =>
+                                        handleChangeConstraint('maximum_bound', j, event.target.value)}
+                                    id="maximum-bound" label="Maximum" type="number" InputLabelProps={{shrink: true,}}
+                                    margin='normal' sx={{width: '45%'}} variant="outlined"
+                                />
+                            </View>
+                        }
                     </View>)
                 if (j === index + 2) {
                     result.push(temp);
@@ -205,11 +225,13 @@ export default function PolytopeForm(props) {
             </View>
             <Autocomplete
                 value={formData.invariantColor}
-                onChange={(event, newValue) => handleChange("invariantColor", newValue)}
+                onChange={(event, newValue) =>
+                    handleChange("invariantColor", newValue)}
                 inputValue={inputValues.invariantColor}
-                onInputChange={(event, newValue) => handleInputChange("invariantColor", newValue)}
+                onInputChange={(event, newValue) =>
+                    handleInputChange("invariantColor", newValue)}
                 id="auto-complete-color"
-                options={props.invariants}
+                options={props.invariantsNum}
                 sx={{width: '90%'}}
                 clearIcon={null}
                 disabled={!checked}
@@ -238,11 +260,13 @@ export default function PolytopeForm(props) {
                 <Autocomplete
                     disablePortal
                     value={formData.invariantX}
-                    onChange={(event, newValue) => handleChange("invariantX", newValue)}
+                    onChange={(event, newValue) =>
+                        handleChange("invariantX", newValue)}
                     inputValue={inputValues.invariantX}
-                    onInputChange={(event, newValue) => handleInputChange("invariantX", newValue)}
+                    onInputChange={(event, newValue) =>
+                        handleInputChange("invariantX", newValue)}
                     id="auto-complete-x"
-                    options={props.invariants}
+                    options={props.invariantsNum}
                     sx={{width: '90%'}}
                     clearIcon={null}
                     renderInput={(params) =>
@@ -271,10 +295,12 @@ export default function PolytopeForm(props) {
                 <Autocomplete
                     id="auto-complete-y"
                     value={formData.invariantY}
-                    onChange={(event, newValue) => handleChange("invariantY", newValue)}
+                    onChange={(event, newValue) =>
+                        handleChange("invariantY", newValue)}
                     inputValue={inputValues.invariantY}
-                    onInputChange={(event, newValue) => handleInputChange("invariantY", newValue)}
-                    options={props.invariants}
+                    onInputChange={(event, newValue) =>
+                        handleInputChange("invariantY", newValue)}
+                    options={props.invariantsNum}
                     clearIcon={null}
                     sx={{width: '90%'}}
                     renderInput={(params) =>
@@ -285,7 +311,7 @@ export default function PolytopeForm(props) {
     }
 
     return (
-        <View>
+        <View style={{width: '100%'}}>
             <View
                 style={{
                     paddingLeft: LEFT,
@@ -304,14 +330,13 @@ export default function PolytopeForm(props) {
                     <InnerText>Please select number of vertices by graph (order) </InnerText>
                     <Text style={{fontSize: INNER_TEXT_SIZE, fontWeight: 'bold'}}>n = {formData.order}</Text>
                     <View style={{alignItems: 'center', paddingBottom: BOTTOM, paddingTop: TOP,}}>
-                        <Slider aria-label="GraphOrder" defaultValue={props.params.properties.order.default}
-                            valueLabelDisplay="auto" step={1} marks min={props.params.properties.order.minimum}
-                            max={props.params.properties.order.maximum} sx={{color: 'success.main',
+                        <Slider aria-label="GraphOrder" defaultValue={formData.order} valueLabelDisplay="auto" step={1}
+                                marks min={MIN_ORDER} max={MAX_ORDER} sx={{color: 'success.main',
                                 '& .MuiSlider-thumb': {borderRadius: '1px',},}} style={{width: '75%',}}
-                            onChange={(event, newValue) => {
-                                handleChange("order", newValue);
-                                setSubmitted(false);
-                            }}
+                                onChange={(event, newValue) => {
+                                    handleChange("order", newValue);
+                                    setSubmitted(false);
+                                }}
                         />
                     </View>
                     <View style={{flexDirection: 'row', flex: 1, width: '100%'}}>

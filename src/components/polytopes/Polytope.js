@@ -1,65 +1,86 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {API_URL} from "../../.env";
-import {fetch_api} from "../../core/utils";
 import {View} from "react-native-web";
 import SubTitleText from "../styles_and_settings/SubTitleText";
 import "./Polytopes.css"
 import PolytopeForm from "./PolytopeForm";
 import {LEFT, RIGHT} from "../../designVars";
-const API_URL_ENDPOINTS = `${API_URL}/endpoints`;
-
-async function get_endpoints() {
-    return await fetch_api(API_URL_ENDPOINTS, {method: "GET"})
-        .then(response => response.json())
-        .then(data => {
-            const endpoints = [];
-            for (const endpt in data.endpoints) {
-                if (data.endpoints.hasOwnProperty(endpt)) {
-                    endpoints.push(data.endpoints[endpt]);
-                }
-            }
-            return endpoints.map(endpt => ({value: endpt, label: endpt.name}));
-        })
-}
+import axios from "axios";
+import InnerText from "../styles_and_settings/InnerText";
 
 export default function Polytope(props) {
-    let first_run = true;
     const [, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
-    const [endpoint, setEndpoint] = useState(null);
+
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!first_run) return;
-        first_run = false;
-        get_endpoints()
-            .then((endpoints) => {
-                setEndpoint(endpoints[0])
-            })
+        let requestNum = new URL(`${API_URL}/invariants?type=numbers`);
+        let requestBool = new URL(`${API_URL}/invariants?type=booleans`);
+
+        fetchData(requestNum, requestBool).then(d => {
+            setData(d);
+            setLoading(false);
+        });
         forceUpdate();
     }, [])
+
+    const fetchData = (requestNum, requestBool) => {
+        return axios.all([
+            axios.get(requestNum),
+            axios.get(requestBool)
+        ]).then(axios.spread((num, bool) => {
+            setLoading(false);
+            let types = [];
+            bool.data.forEach(() => {
+                types.push("bool")
+            });
+
+            num.data.forEach(() => {
+                types.push("num")
+            });
+
+            return {
+                invariantsNum: num.data,
+                invariantsName: bool.data.concat(num.data),
+                invariantsTypes: types
+            }
+        })).catch(error => {
+            setError(error);
+            setLoading(false);
+        });
+    }
+
+    if (loading || data === null) {
+        return (
+            <View style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '200px'
+            }}>
+                <InnerText>Please wait, we are contacting the server</InnerText>
+            </View>
+        );
+    }
+
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <View style={{
             flexDirection: 'column',
-            alignItems: 'left',
-            flexGrow: 1
+            alignItems: 'center',
+            justifyItems: 'center',
+            flexGrow: 1,
+            width: '100%'
         }}>
-            <View style={{
-                paddingLeft: LEFT,
-                paddingRight: RIGHT
-            }}>
-                <SubTitleText>{"Polytope " + props.num}</SubTitleText>
-            </View>
-            <View>
-                <br/>
-                {!!endpoint?
-                    <PolytopeForm
-                        invariants={endpoint.value.params.properties.x_invariant.enum}
-                        params={endpoint.value.params}
-                        endpoint={endpoint}
-                        graphPath={endpoint}
-                    />: null}
-            </View>
+            <SubTitleText>{"Polytope " + props.num}</SubTitleText>
+            <PolytopeForm
+                invariantsNum={data.invariantsNum}
+                invariantsName={data.invariantsName}
+                invariantsTypes={data.invariantsTypes}
+            />
         </View>
     )
 }

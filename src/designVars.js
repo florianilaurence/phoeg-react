@@ -20,3 +20,8 @@ export const DIVIDING_LINE_STYLE={flex: 1, height: 5, backgroundColor: COLOR_TIT
 export const MIN_NUMBER_OF_POLYTOPES=1;
 export const MAX_NUMBER_OF_POLYTOPES=15;
 export const DEFAULT_NUMBER_OF_POLYTOPES=1;
+
+// Order params
+export const MIN_ORDER=1;
+export const MAX_ORDER=10;
+export const DEFAULT_ORDER=7;

@@ -74,6 +74,5 @@ export default function Polytopes() {
             </View>
             <RenderMultiPolytopes />
         </View>
-
     );
 }

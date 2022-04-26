@@ -20,7 +20,7 @@ export default function GraphsFetch(props) {
     const [error, setError] = useState(false);
 
     useEffect( () => {
-        let graphs_request = new URL(`${API_URL}${props.graphPath}`)
+        let graphs_request = new URL(`${API_URL}/graphs`)
 
         graphs_request.searchParams.append("order", props.order);
         graphs_request.searchParams.append("invariants[0][name]", props.invariantX);
