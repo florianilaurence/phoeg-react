@@ -48,22 +48,14 @@ export default function GraphsFetch(props) {
     }
 
     if (error) return (
-        <View style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '200px'
-        }}>
+        <View style={{alignItems: 'center', justifyContent: 'center', height: '200px'}}>
             <InnerText>An error occurred while loading your data for graphs</InnerText>
         </View>
     );
 
     if (loading || data === null) {
         return (
-            <View style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '200px'
-            }}>
+            <View style={{alignItems: 'center', justifyContent: 'center', height: '200px'}}>
                 <InnerText>Please wait, your data are loading for graphs</InnerText>
             </View>
         );
