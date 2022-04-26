@@ -52,6 +52,16 @@ export default function Polytope(props) {
         });
     }
 
+    if (error) return (
+        <View style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '200px'
+        }}>
+            <InnerText>An error occurred while loading invariants list</InnerText>
+        </View>
+    );
+
     if (loading || data === null) {
         return (
             <View style={{
@@ -63,8 +73,6 @@ export default function Polytope(props) {
             </View>
         );
     }
-
-    if (error) return <div>Error: {error}</div>;
 
     return (
         <View style={{

@@ -17,7 +17,7 @@ export default function GraphsFetch(props) {
     const [data, setData] = useState(null); // La liste des graphs correspondant aux critères
     const [currentNbOfSlider, setCurrentNbOfSlider] = useState(1);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect( () => {
         let graphs_request = new URL(`${API_URL}/graphs`)
@@ -46,6 +46,16 @@ export default function GraphsFetch(props) {
             });
     }
 
+    if (error) return (
+        <View style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '200px'
+        }}>
+            <InnerText>An error occurred while loading your data for graphs</InnerText>
+        </View>
+    );
+
     if (loading || data === null) {
         return (
             <View style={{
@@ -57,15 +67,6 @@ export default function GraphsFetch(props) {
             </View>
         );
     }
-    if (error) return (
-        <View style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '200px'
-        }}>
-            <InnerText>An error occurred while loading your data</InnerText>
-        </View>
-    );
 
     const handleChangeNbOfSliders = (newValue) => {
         setCurrentNbOfSlider(newValue);

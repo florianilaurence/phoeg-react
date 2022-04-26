@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {API_URL} from "../../.env";
 import {stringify} from "qs";
 import {readEnvelope, readPoints} from "../../core/ParseFiles";
@@ -64,6 +64,15 @@ export default function PolytopeFetch(props) {
         }));
     };
 
+    if (error) return (
+        <View style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '200px'
+        }}>
+            <InnerText>An error occurred while loading your data for polytope</InnerText>
+        </View>
+    );
     if (loading || data === null) {
         return (
             <View style={{
@@ -75,7 +84,6 @@ export default function PolytopeFetch(props) {
             </View>
         );
     }
-    if (error) return <div>Error: {error}</div>;
 
     if (data.points === null || data.envelope === null) {
         return (
