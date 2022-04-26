@@ -6,6 +6,7 @@ import "./Polytopes.css"
 import PolytopeForm from "./PolytopeForm";
 import axios from "axios";
 import InnerText from "../styles_and_settings/InnerText";
+import {LEFT, RIGHT} from "../../designVars";
 
 export default function Polytope(props) {
     const [, updateState] = useState();
@@ -76,13 +77,12 @@ export default function Polytope(props) {
 
     return (
         <View style={{
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyItems: 'center',
             flexGrow: 1,
             width: '100%'
         }}>
-            <SubTitleText>{"Polytope " + props.num}</SubTitleText>
+            <View style={{paddingLeft: LEFT, paddingRight: RIGHT}}>
+                <SubTitleText>{"Polytope " + props.num}</SubTitleText>
+            </View>
             <PolytopeForm
                 invariantsNum={data.invariantsNum}
                 invariantsName={data.invariantsName}

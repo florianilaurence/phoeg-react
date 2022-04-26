@@ -30,14 +30,8 @@ export default function GraphSlider(props) {
     }
 
     return (
-        <View style={{
-            alignItems: 'center',
-            justifyItems: 'center',
-            backgroundColor: '#eeeeee',
-            borderRadius: '10px',
-            marginLeft: '5px',
-            marginBottom: '5px',
-        }}>
+        <View style={{alignItems: 'center', justifyItems: 'center', backgroundColor: '#eeeeee', borderRadius: '10px',
+            marginLeft: '5px', marginBottom: '5px'}}>
             <SubSubTitleText>{currentSignature}</SubSubTitleText>
             {props.graphList.length === 1 ?
                 <NewGraph signature={currentSignature}/>

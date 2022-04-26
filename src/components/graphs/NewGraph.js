@@ -8,7 +8,7 @@ import cola from 'cytoscape-cola';
 import dagre from 'cytoscape-dagre';
 import Cytoscape from "cytoscape";
 import {Text, View} from "react-native-web";
-import {Autocomplete, Switch, TextField} from "@mui/material";
+import {Autocomplete, Box, Switch, TextField} from "@mui/material";
 import InnerText from "../styles_and_settings/InnerText";
 
 Cytoscape.use( CoseBilkent );
@@ -116,18 +116,20 @@ export default function NewGraph(props) {
                 View complement of graph? <Switch checked={isComplement} onChange={handleChangeChecked} color="success"/> <br/>
                 Choose a layout for nodes placement:
             </InnerText>
-            <Autocomplete
-                value={layout.name}
-                onChange={(event, value) => setLayout(layouts[value])}
-                inputValue={inputLayout}
-                onInputChange={(event, value) => setInputLayout(value)}
-                id="graph-layout-select"
-                options={options}
-                sx={{ width: '75%' }}
-                clearIcon={null}
-                renderInput={(params) =>
-                    <TextField {...params} label="Layout" />}
-            />
+            <Box m={2}
+                 sx={{ width: 0.75 }}>
+                <Autocomplete
+                    value={layout.name}
+                    onChange={(event, value) => setLayout(layouts[value])}
+                    inputValue={inputLayout}
+                    onInputChange={(event, value) => setInputLayout(value)}
+                    id="graph-layout-select"
+                    options={options}
+                    clearIcon={null}
+                    renderInput={(params) =>
+                        <TextField {...params} label="Layout" />}
+                />
+            </Box>
             {isComplement ?
                 <>
                     <Text style={{color: '#00ff00', fontWeight: 'bold'}}>Graph complement </Text>

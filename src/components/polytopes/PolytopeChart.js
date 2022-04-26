@@ -1,23 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {
-    accessors,
-    computeColorsRange,
-    computeTagsDomainGradient,
-    computeTagsDomainIndep,
-} from "../../core/utils_PolytopeChart";
+import {accessors, computeColorsRange, computeTagsDomainGradient, computeTagsDomainIndep}
+    from "../../core/utils_PolytopeChart";
 import {scaleLinear} from "@visx/scale";
 import {View} from "react-native-web";
 import {Text} from "react-native";
-import {
-    INNER_TEXT_SIZE,
-    BOTTOM,
-    INNER,
-    LEFT,
-    RIGHT,
-    TOP
-} from "../../designVars";
+import {INNER_TEXT_SIZE, BOTTOM, INNER, LEFT, RIGHT, TOP} from "../../designVars";
 import {Group} from "@visx/group";
-import {Axis, AxisBottom, AxisLeft} from "@visx/axis";
+import {AxisBottom, AxisLeft} from "@visx/axis";
 import {GridColumns, GridRows} from "@visx/grid";
 import {LinePath} from "@visx/shape";
 import Tooltip from '@mui/material/Tooltip';
@@ -30,6 +19,7 @@ import InnerText from "../styles_and_settings/InnerText";
 import Button from "@mui/material/Button";
 import Select from "react-select";
 import GraphsFetch from "../graphs/GraphsFetch";
+import {Box} from "@mui/material";
 
 export default function PolytopeChart(props) {
     // Données de configuration de l'encadré contenant le graphique
@@ -392,22 +382,28 @@ export default function PolytopeChart(props) {
                                 paddingLeft: INNER,
                             }}>
                                 <InnerText>Zoom:</InnerText>
-                                <br/>
-                                <Button variant="contained" color="success" mt={1}
-                                        onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}> + </Button>
-                                <br/>
-                                <Button variant="contained" color="success" mt={1}
-                                        onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}> - </Button>
-                                <br/>
-                                <Button variant="contained" color="success" mt={1} onClick={zoom.center}> Center </Button>
-                                <br/>
-                                <Button variant="contained" color="success" className="btn btn-lg" mt={1}
-                                        onClick={zoom.reset}> Reset </Button>
-                                <br/>
-                                <Button variant="contained" color="success" mt={1}
-                                        onClick={() => setShowMiniMap(!showMiniMap)}>
-                                    {showMiniMap ? 'Hide' : 'Show'} Mini Map
-                                </Button>
+                                <Box m={1}>
+                                    <Button variant="contained" color="success" sx={{width: 1}}
+                                            onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}> + </Button>
+                                </Box>
+                                <Box m={1}>
+                                    <Button variant="contained" color="success" sx={{width: 1}}
+                                            onClick={() => zoom.scale({scaleX: 0.8, scaleY: 0.8})}> - </Button>
+                                </Box>
+                                <Box m={1}>
+                                    <Button variant="contained" color="success"  sx={{width: 1}}
+                                            onClick={zoom.center}> Center </Button>
+                                </Box>
+                                <Box m={1}>
+                                    <Button variant="contained" color="success" className="btn btn-lg" sx={{width: 1}}
+                                            onClick={zoom.reset}> Reset </Button>
+                                </Box>
+                                <Box m={1}>
+                                    <Button variant="contained" color="success" sx={{width: 1}}
+                                            onClick={() => setShowMiniMap(!showMiniMap)}>
+                                        {showMiniMap ? 'Hide' : 'Show'} Mini Map
+                                    </Button>
+                                </Box>
                             </View>
                         </View>
                     )}

@@ -312,21 +312,8 @@ export default function PolytopeForm(props) {
 
     return (
         <View style={{width: '100%'}}>
-            <View
-                style={{
-                    paddingLeft: LEFT,
-                    paddingRight: RIGHT,
-                }}>
+            <View style={{paddingLeft: LEFT, paddingRight: RIGHT,}}>
                 <form>
-                    <View
-                        style={{
-                            alignItems: 'center',
-                            paddingBottom: BOTTOM
-                        }}>
-                        <Text style={{
-                            fontSize: '25px'
-                        }}>Please complete your request</Text>
-                    </View>
                     <InnerText>Please select number of vertices by graph (order) </InnerText>
                     <Text style={{fontSize: INNER_TEXT_SIZE, fontWeight: 'bold'}}>n = {formData.order}</Text>
                     <View style={{alignItems: 'center', paddingBottom: BOTTOM, paddingTop: TOP,}}>
