@@ -11,9 +11,6 @@ export default function Welcome() {
 
     return (
         <View style={{flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1}}>
-            {
-                //TODO Problème le logo ne semble pas correctement se charger
-            }
             <View>
                 <img src={"big.png"} className="logo" alt="logo"/>
             </View>

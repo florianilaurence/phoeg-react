@@ -61,10 +61,7 @@ export default function PolytopeFetch(props) {
                 envelope: readEnvelope(envelope.data),
                 points: readPoints(points.data)
             }
-        })).catch(error => {
-            setError(error);
-            setLoading(false);
-        });
+        }));
     };
 
     if (loading || data === null) {

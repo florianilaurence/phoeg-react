@@ -171,7 +171,7 @@ export default function PolytopeForm(props) {
                                 (event) => {
                                     handleChangeConstraint("minimum_bound", j, event.target.checked ? 1 : 0)
                                     handleChangeConstraint("maximum_bound", j, event.target.checked ? 1 : 0)
-                                }} size="big"/> :
+                                }} color="success"/> :
                             <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
                                 <TextField
                                     value={formData.constraints[j].minimum_bound}

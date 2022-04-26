@@ -113,7 +113,7 @@ export default function NewGraph(props) {
             alignItems: 'center',
         }}>
             <InnerText>
-                View complement of graph? <Switch checked={isComplement} onChange={handleChangeChecked}/> <br/>
+                View complement of graph? <Switch checked={isComplement} onChange={handleChangeChecked} color="success"/> <br/>
                 Choose a layout for nodes placement:
             </InnerText>
             <Autocomplete

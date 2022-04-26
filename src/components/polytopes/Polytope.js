@@ -4,7 +4,6 @@ import {View} from "react-native-web";
 import SubTitleText from "../styles_and_settings/SubTitleText";
 import "./Polytopes.css"
 import PolytopeForm from "./PolytopeForm";
-import {LEFT, RIGHT} from "../../designVars";
 import axios from "axios";
 import InnerText from "../styles_and_settings/InnerText";
 

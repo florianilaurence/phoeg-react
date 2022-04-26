@@ -6,9 +6,9 @@ import {View} from "react-native-web";
 import InnerText from "../styles_and_settings/InnerText";
 import SubTitleText from "../styles_and_settings/SubTitleText";
 import {LEFT, RIGHT, TOP} from "../../designVars";
-import {fetch_api} from "../../core/utils";
 import {readGraph} from "../../core/ParseFiles";
 import {Slider} from "@mui/material";
+import axios from "axios";
 
 export default function GraphsFetch(props) {
     const [, updateState] = useState();
@@ -29,21 +29,20 @@ export default function GraphsFetch(props) {
         graphs_request.searchParams.append("invariants[0][value]", props.invariantXValue);
         graphs_request.searchParams.append("invariants[1][value]", props.invariantYValue);
 
-        fetchData(graphs_request);
+        fetchData(graphs_request).then(data => {
+            setData(data);
+            setLoading(false);
+        }).catch(error => {
+            setError(error);
+            setLoading(false);
+        });
         forceUpdate();
     }, [props.order, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue] );
 
     const fetchData = (request) => {
-        return fetch_api(request.toString(), {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
-            .then((response) => {
-                return response.json();
-            }).then((data) => {
-                let temp = readGraph(data, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue);
-                setData(temp);
-                setLoading(false);
-            }).catch((error) => {
-                setError(true);
-                setLoading(false);
+        return axios.get(request.toString(), {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+            .then((d) => {
+                return readGraph(data, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue);
             });
     }
 
