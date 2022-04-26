@@ -103,7 +103,7 @@ export default function PolytopeForm(props) {
                 alert("Please fill in all fields");
                 return;
             }
-            if (formData.constraints[i].minimum_bound > formData.constraints[i].maximum_bound) {
+            if (parseFloat(formData.constraints[i].minimum_bound) > parseFloat(formData.constraints[i].maximum_bound)) {
                 alert("Minimum bound must be less than maximum bound for constraint " + (i + 1));
                 return;
             }
