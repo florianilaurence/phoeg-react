@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {accessors, computeColorsRange, computeTagsDomainGradient, computeTagsDomainIndep}
     from "../../core/utils_PolytopeChart";
 import {scaleLinear} from "@visx/scale";
@@ -17,11 +17,13 @@ import {RectClipPath} from "@visx/clip-path";
 import {localPoint} from "@visx/event";
 import InnerText from "../styles_and_settings/InnerText";
 import Button from "@mui/material/Button";
-import Select from "react-select";
 import GraphsFetch from "../graphs/GraphsFetch";
-import {Box} from "@mui/material";
+import {Box, Grid, MenuItem, Select} from "@mui/material";
 
 export default function PolytopeChart(props) {
+    const [, updateState] = useState();
+    const forceUpdate = useCallback(() => updateState({}), []);
+
     // Données de configuration de l'encadré contenant le graphique
     const background = '#fafafa';
     const background_mini_map = 'rgba(197,197,197,0.9)';
@@ -44,13 +46,12 @@ export default function PolytopeChart(props) {
     ];
 
     // Type de coloration sélectionné
-    const [typeSelected, setTypeSelected] = useState(optionsTypeColoration[0]);
-    let typeCurrent = typeSelected.value;
+    const [typeSelected, setTypeSelected] = useState(optionsTypeColoration[0].value);
 
     // Handle change type of coloration
-    const handleChangeType = (newType) => {
-        setTypeSelected(newType);
-        typeCurrent = newType.value;
+    const handleChangeType = (event) => {
+        setTypeSelected(event.target.value);
+        forceUpdate();
     }
 
     // Handle click on a circle
@@ -58,6 +59,7 @@ export default function PolytopeChart(props) {
         setSelectedX(x);
         setSelectedY(y);
         setSelected(true);
+        forceUpdate();
     }
 
     //    * Pour une coloration indépendante
@@ -74,7 +76,7 @@ export default function PolytopeChart(props) {
         domain: [0, maxDomain], // Le domaine doit être lié au nombre de clusters pas à la valeur de l'invariant couleur => Répartition fair des couleurs
         range: [color1, color2]
     });
-    let [tagsGradient, setTagsGradient] = useState([]);
+    const [tagsGradient, setTagsGradient] = useState([]);
     let colorsGradient = [];
 
     // Pour sélectionner un point du graphe et passer à la suite
@@ -97,6 +99,7 @@ export default function PolytopeChart(props) {
         setRange(computeColorsRange(currentDomainIndep, range));
         // Màj pour coloration par gradient
         setTagsGradient(computeTagsDomainGradient(currentGroupedPoints));
+        forceUpdate();
     }, [currentNbClusters]);
 
     // Echelle pour l'axe Ox
@@ -130,14 +133,8 @@ export default function PolytopeChart(props) {
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
                         style={tag === selectedTag ?
-                            {
-                                fontsize: INNER_TEXT_SIZE,
-                                fontWeight: 'bold',
-                                fontStyle: 'italic',
-                                textDecorationLine: 'underline'
-                            } :
-                            {fontsize: INNER_TEXT_SIZE, fontWeight: 'bold'}}
-                    >
+                            {fontsize: INNER_TEXT_SIZE, fontWeight: 'bold', fontStyle: 'italic',
+                                textDecorationLine: 'underline'} : {fontsize: INNER_TEXT_SIZE, fontWeight: 'bold'}}>
                         {tag} </Text>
                 </View>
             )
@@ -154,24 +151,14 @@ export default function PolytopeChart(props) {
                 tag = "[" + props.domainsData.color[0] + " ; " + props.domainsData.color[1] + "]";
             }
             return (
-                <View style={{
-                    flex: '1',
-                    flexDirection: 'row',
-                    alignItems: "center",
-                }}>
+                <View style={{flex: '1', flexDirection: 'row', alignItems: "center"}}>
                     <input type="color" name="color1" id="color1" value={color1}
                            onChange={e => setColor1(e.target.value)}/>
                     <Text
                         onPress={() => handleOnPressLegend(tag)}
-                        style={tag === selectedTag ?
-                            {
-                                fontsize: INNER_TEXT_SIZE,
-                                color: color1,
-                                fontWeight: 'bold',
-                                fontStyle: 'italic',
-                                textDecorationLine: 'underline'
-                            } :
-                            {fontsize: INNER_TEXT_SIZE, color: color1, fontWeight: 'bold'}}>
+                        style={tag === selectedTag ? {fontsize: INNER_TEXT_SIZE, color: color1, fontWeight: 'bold',
+                            fontStyle: 'italic', textDecorationLine: 'underline'} : {fontsize: INNER_TEXT_SIZE,
+                            color: color1, fontWeight: 'bold'}}>
                         {tag}
                     </Text>
                 </View>
@@ -190,14 +177,8 @@ export default function PolytopeChart(props) {
                            onChange={e => setColor1(e.target.value)}/>
                     {tagsGradient.map((tag, i) => <Text
                         onPress={() => handleOnPressLegend(tag)}
-                        style={tag === selectedTag ?
-                            {
-                                fontsize: INNER_TEXT_SIZE,
-                                color: colorsGradient[i],
-                                fontWeight: 'bold',
-                                fontStyle: 'italic',
-                                textDecorationLine: 'underline'
-                            } :
+                        style={tag === selectedTag ? {fontsize: INNER_TEXT_SIZE, color: colorsGradient[i],
+                                fontWeight: 'bold', fontStyle: 'italic', textDecorationLine: 'underline'} :
                             {fontsize: INNER_TEXT_SIZE, color: colorsGradient[i], fontWeight: 'bold'}}
                         key={`gradient_tag${i}`}>
                         {tag} </Text>)}
@@ -213,15 +194,16 @@ export default function PolytopeChart(props) {
             let result = tag.slice(1, tag.length - 1);
             result = result.split(";");
             updateStatesOfLegend(parseFloat(result[0]), parseFloat(result[1]), tag);
-
         } else {
             updateStatesOfLegend(parseFloat(tag), parseFloat(tag), tag);
         }
+        forceUpdate();
     };
 
     const handleOnChangeNbClusters = (d) => {
         setCurrentNbClusters(d);
         resetStatesofLegend();
+        forceUpdate();
     };
 
     const updateStatesOfLegend = (min, max, tag) => {
@@ -245,7 +227,7 @@ export default function PolytopeChart(props) {
     // Sélectionner la couleur pour un point selon le type de coloration actuelle
     const selectColorForOnePoint = (i) => {
         let col = colorScale(i);
-        if (typeCurrent === 'indep') {
+        if (typeSelected === 'indep') {
             col = range[i];
         }
         return col;
@@ -260,14 +242,8 @@ export default function PolytopeChart(props) {
                 let x = accessors(currentData, "x");
                 let y = accessors(currentData, "y");
                 let col = accessors(currentData);
-                result.push({
-                    key: `(x:${x};y:${y};col:${col};index:${j})`,
-                    x: x,
-                    y: y,
-                    r: 3,
-                    col: col,
-                    fill: selectColorForOnePoint(i)
-                })
+                result.push({key: `(x:${x};y:${y};col:${col};index:${j})`, x: x, y: y, r: 3, col: col,
+                    fill: selectColorForOnePoint(i)})
             })
         });
         return result;
@@ -283,10 +259,7 @@ export default function PolytopeChart(props) {
                 <GridColumns bottom={margin.bottom} scale={xScale} height={innerHeight} strokeDasharray="1"
                              stroke={'#464646'} strokeOpacity={0.25} pointerEvents="none"/>
                 <g>
-                    <LinePath
-                        stroke="black"
-                        strokeWidth={1}
-                        data={props.envelope}
+                    <LinePath stroke="black" strokeWidth={1} data={props.envelope}
                         x={(d) => xScale(accessors(d, "x"))}
                         y={(d) => yScale(accessors(d, "y"))}
                     />
@@ -340,16 +313,16 @@ export default function PolytopeChart(props) {
                                 >
                                     <RectClipPath id="zoom-clip" width={width} height={height}/>
                                     <rect width={width} height={height} rx="10" ry="10" stroke="#000000"
-                                        strokeWidth="5" fill={background} onTouchStart={zoom.dragStart}
-                                         onTouchMove={zoom.dragMove} onTouchEnd={zoom.dragEnd}
+                                          strokeWidth="5" fill={background} onTouchStart={zoom.dragStart}
+                                          onTouchMove={zoom.dragMove} onTouchEnd={zoom.dragEnd}
                                           onMouseDown={zoom.dragStart} onMouseMove={zoom.dragMove}
                                           onMouseUp={zoom.dragEnd} onMouseLeave={() => {
-                                            if (zoom.isDragging) zoom.dragEnd();
-                                        }}
-                                        onDoubleClick={(event) => {
-                                            const point = localPoint(event) || {x: 0, y: 0};
-                                            zoom.scale({scaleX: 1.1, scaleY: 1.1, point});
-                                        }}
+                                        if (zoom.isDragging) zoom.dragEnd();
+                                    }}
+                                          onDoubleClick={(event) => {
+                                              const point = localPoint(event) || {x: 0, y: 0};
+                                              zoom.scale({scaleX: 1.1, scaleY: 1.1, point});
+                                          }}
                                     />
                                     <g transform={zoom.toString()}>
                                         <RenderData/>
@@ -364,15 +337,8 @@ export default function PolytopeChart(props) {
                                         >
                                             <rect width={width} height={height} fill={background_mini_map}/>
                                             <RenderData/>
-                                            <rect
-                                                width={width}
-                                                height={height}
-                                                fill="white"
-                                                fillOpacity={0.75}
-                                                stroke="white"
-                                                strokeWidth={4}
-                                                transform={zoom.toStringInvert()}
-                                            />
+                                            <rect width={width} height={height} fill="white" fillOpacity={0.75}
+                                                stroke="white" strokeWidth={4} transform={zoom.toStringInvert()}/>
                                         </g>
                                     )}
                                 </ScaleSVG>
@@ -412,22 +378,21 @@ export default function PolytopeChart(props) {
             <View>
                 {props.invariantColor !== "num_vertices" ?
                     <>
-                        <View style={{
-                            marginTop: TOP,
-                            marginLeft: LEFT,
-                            marginRight: RIGHT,
-                            paddingBottom: BOTTOM,
-                            maxWidth: '100%',
-                        }}>
-                            <View style={{
-                                flex: 1, flexDirection: 'row', alignItems: 'center', marginTop: INNER, maxWidth: '100%',
-                            }}>
-                                <InnerText>Choose type of coloration: </InnerText>
-                                <Select style={{
-                                    width: '250px', marginLeft: INNER, marginRight: INNER,
-                                }} defaultValue={typeSelected} options={optionsTypeColoration}
-                                        onChange={handleChangeType}/>
-                            </View>
+                        <View style={{marginTop: TOP, marginLeft: LEFT, marginRight: RIGHT, paddingBottom: BOTTOM,
+                            maxWidth: '100%',}}>
+                            <Grid container>
+                                <Grid item xs={3}>
+                                    <InnerText>Choose type of coloration: </InnerText>
+                                </Grid>
+                                <Grid item xs={9}>
+                                    <Select value={typeSelected} onChange={handleChangeType} sx={{maxHeight: '35px'}}>
+                                        <MenuItem value={optionsTypeColoration[0].value}>
+                                            {optionsTypeColoration[0].label} </MenuItem>
+                                        <MenuItem value={optionsTypeColoration[1].value}>
+                                            {optionsTypeColoration[1].label} </MenuItem>
+                                    </Select>
+                                </Grid>
+                            </Grid>
                             <View style={{
                                 flex: 1,
                                 flexDirection: 'row',
@@ -437,38 +402,33 @@ export default function PolytopeChart(props) {
                                 marginTop: INNER,
                             }}>
                                 <InnerText>Legend (coloration with {props.invariantColor}): </InnerText>
-                                {typeCurrent === 'indep' ? <RenderInputColorsForIndep/> :
+                                {typeSelected === 'indep' ? <RenderInputColorsForIndep/> :
                                     <RenderInputColorsForGradient/>}
                             </View>
-                        </View><View style={{
-                        flex: 1,
-                        marginLeft: LEFT,
-                        marginRight: RIGHT,
-                        marginTop: INNER,
-                        maxWidth: '100%',
-                    }}>
-                        <InnerText>Number of clusters to colour the graphs: </InnerText>
-                        <br/>
-                        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
-                            {props.clustersList.map((d) => {
-                                if (d === currentNbClusters) {
-                                    return (
-                                        <Button key={`btn-${d}`} variant="contained" color="success"
-                                                onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
-                                            {d}
-                                        </Button>
-                                    );
-                                } else {
-                                    return (
-                                        <Button key={`btn-${d}`} variant="outlined" color="success"
-                                                onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
-                                            {d}
-                                        </Button>
-                                    );
-                                }
-                            })}
                         </View>
-                    </View>
+                        <View style={{flex: 1, marginLeft: LEFT, marginRight: RIGHT, marginTop: INNER, maxWidth: '100%'}}>
+                            <InnerText>Number of clusters to colour the graphs: </InnerText>
+                            <br/>
+                            <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
+                                {props.clustersList.map((d) => {
+                                    if (d === currentNbClusters) {
+                                        return (
+                                            <Button key={`btn-${d}`} variant="contained" color="success"
+                                                    onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
+                                                {d}
+                                            </Button>
+                                        );
+                                    } else {
+                                        return (
+                                            <Button key={`btn-${d}`} variant="outlined" color="success"
+                                                    onClick={() => handleOnChangeNbClusters(d)} sx={{width: 20}}>
+                                                {d}
+                                            </Button>
+                                        );
+                                    }
+                                })}
+                            </View>
+                        </View>
                     </> : null
                 }
                 {selected ?

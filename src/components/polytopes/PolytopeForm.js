@@ -1,6 +1,6 @@
 import {Text, View} from "react-native-web";
 import {BOTTOM, DEFAULT_ORDER, INNER_TEXT_SIZE, LEFT, MAX_ORDER, MIN_ORDER, RIGHT, TOP} from "../../designVars";
-import {Autocomplete, IconButton, Slider, Switch, TextField} from "@mui/material";
+import {Autocomplete, Box, IconButton, Slider, Switch, TextField} from "@mui/material";
 import InnerText from "../styles_and_settings/InnerText";
 import React, {useCallback, useState} from "react";
 import Button from '@mui/material/Button';
@@ -141,55 +141,67 @@ export default function PolytopeForm(props) {
             let temp = [];
             for (let j = index; j < index + 3 && j < numberConstraints; j++) {
                 temp.push(
-                    <View
-                        key={`constraint-${j}`}
-                        style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', marginTop: '5%',
-                            paddingBottom: BOTTOM, paddingTop: TOP, background: '#eaeaea', width: '30%'}}>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-                            marginBottom: '5%',}}>
+                    <Box
+                        key={`constraint-${j}`} m={1} pt={1} sx={{
+                        justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
+                    }}>
+                        <Box m={1} pt={1} sx={{
+                            flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '100%',
+                            textAlign: 'center'
+                        }}>
                             <Text style={{fontSize: '25px'}}>{"Constraint " + (j + 1)}</Text>
                             <IconButton onClick={() => handleRemoveConstraint(j)}>
                                 <DeleteOutlineIcon/>
                             </IconButton>
-                        </View>
-                        <Autocomplete
-                            value={formData.constraints[j].name}
-                            onChange={(event, newValue) =>
-                                handleChangeConstraint("name", j, newValue)}
-                            inputValue={inputValues.constraints[j].name}
-                            onInputChange={(event, newValue) =>
-                                handleInputChangeConstraint("name", j, newValue)}
-                            id={`auto-complete-constraint-${j}`}
-                            options={props.invariantsName}
-                            sx={{width: '90%'}}
-                            clearIcon={null}
-                            renderInput={(params) =>
-                                <TextField {...params} label="Invariant name"/>}
-                        />
+                        </Box>
+                        <Box m={2}>
+                            <Autocomplete
+                                value={formData.constraints[j].name}
+                                onChange={(event, newValue) =>
+                                    handleChangeConstraint("name", j, newValue)}
+                                inputValue={inputValues.constraints[j].name}
+                                onInputChange={(event, newValue) =>
+                                    handleInputChangeConstraint("name", j, newValue)}
+                                id={`auto-complete-constraint-${j}`}
+                                options={props.invariantsName}
+                                clearIcon={null}
+                                renderInput={(params) =>
+                                    <TextField {...params} label="Invariant name"/>}
+                            />
+                        </Box>
                         {getTypeFromName(formData.constraints[j].name) === "bool" ?
-                            <Switch checked={formData.constraints[j].minimum_bound === 1} onChange={
-                                (event) => {
-                                    handleChangeConstraint("minimum_bound", j, event.target.checked ? 1 : 0)
-                                    handleChangeConstraint("maximum_bound", j, event.target.checked ? 1 : 0)
-                                }} color="success"/> :
-                            <View style={{flexDirection: 'row', flex: 1, justifyContent: 'center'}}>
-                                <TextField
-                                    value={formData.constraints[j].minimum_bound}
-                                    onChange={(event) =>
-                                        handleChangeConstraint('minimum_bound', j, event.target.value)}
-                                    id="minimum-bound" label="Minimum" type="number" InputLabelProps={{shrink: true,}}
-                                    margin='normal' sx={{width: '45%'}} variant="outlined"
-                                />
-                                <TextField
-                                    value={formData.constraints[j].maximum_bound}
-                                    onChange={(event) =>
-                                        handleChangeConstraint('maximum_bound', j, event.target.value)}
-                                    id="maximum-bound" label="Maximum" type="number" InputLabelProps={{shrink: true,}}
-                                    margin='normal' sx={{width: '45%'}} variant="outlined"
-                                />
-                            </View>
+                            <Box sx={{textAlign: 'center'}}>
+                                <Switch checked={formData.constraints[j].minimum_bound === 1} onChange={
+                                    (event) => {
+                                        handleChangeConstraint("minimum_bound", j, event.target.checked ? 1 : 0)
+                                        handleChangeConstraint("maximum_bound", j, event.target.checked ? 1 : 0)
+                                    }} color="success"/>
+                            </Box>
+                            :
+                            <Box m={2} sx={{flexDirection: 'row', justifyContent: 'space-between', display: 'flex'}}>
+                                <Box width='45%'>
+                                    <TextField
+                                        value={formData.constraints[j].minimum_bound}
+                                        onChange={(event) =>
+                                            handleChangeConstraint('minimum_bound', j, event.target.value)}
+                                        id="minimum-bound" label="Minimum" type="number"
+                                        InputLabelProps={{shrink: true,}}
+                                        variant="outlined"
+                                    />
+                                </Box>
+                                <Box width='45%'>
+                                    <TextField
+                                        value={formData.constraints[j].maximum_bound}
+                                        onChange={(event) =>
+                                            handleChangeConstraint('maximum_bound', j, event.target.value)}
+                                        id="maximum-bound" label="Maximum" type="number"
+                                        InputLabelProps={{shrink: true,}}
+                                        variant="outlined"
+                                    />
+                                </Box>
+                            </Box>
                         }
-                    </View>)
+                    </Box>)
                 if (j === index + 2) {
                     result.push(temp);
                     temp = [];
@@ -203,76 +215,91 @@ export default function PolytopeForm(props) {
     }
 
     const RenderColorView = () => {
-        return (<View style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', paddingBottom: BOTTOM,
-            paddingTop: TOP, background: checked ? '#eaeaea' : '#f5f5f5', width: '30%'}}>
-            <View style={{flewDirection: 'row', marginBottom: BOTTOM,}}>
-                <Text style={{fontSize: '25px', color: checked ? '#000000' : '#bdbdbd'
-                }}><Switch color= 'success' checked={checked} onChange={handleChangeChecked}/>Color points</Text>
-            </View>
-            <Autocomplete
-                value={formData.invariantColor}
-                onChange={(event, newValue) =>
-                    handleChange("invariantColor", newValue)}
-                inputValue={inputValues.invariantColor}
-                onInputChange={(event, newValue) =>
-                    handleInputChange("invariantColor", newValue)}
-                id="auto-complete-color"
-                options={props.invariantsNum}
-                sx={{width: '90%'}}
-                clearIcon={null}
-                disabled={!checked}
-                renderInput={(params) =>
-                    <TextField {...params} label="Invariant for color of points"/>}
-            />
-        </View>)
+        return (
+            <Box height='125px' m={1} pt={1} sx={{
+                justifyContent: 'center', alignItems: 'center', backgroundColor: checked ? '#eaeaea' : '#f5f5f5',
+                width: '30%'
+            }}>
+                <Box sx={{
+                    flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '100%',
+                    textAlign: 'center'
+                }}>
+                    <Switch size='small' color='success' checked={checked} onChange={handleChangeChecked}/>
+                    <Text style={{fontSize: '25px', color: checked ? '#000000' : '#bdbdbd'}}>Color points</Text>
+                </Box>
+                <Box m={2}>
+                    <Autocomplete
+                        value={formData.invariantColor}
+                        onChange={(event, newValue) =>
+                            handleChange("invariantColor", newValue)}
+                        inputValue={inputValues.invariantColor}
+                        onInputChange={(event, newValue) =>
+                            handleInputChange("invariantColor", newValue)}
+                        id="auto-complete-color"
+                        options={props.invariantsNum}
+                        sx={{width: '90%'}}
+                        clearIcon={null}
+                        disabled={!checked}
+                        renderInput={(params) =>
+                            <TextField {...params} label="Invariant for color of points"/>}
+                    />
+                </Box>
+            </Box>)
     }
 
     const RenderXView = () => {
         return (
-            <View style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', paddingBottom: BOTTOM,
-                paddingTop: TOP, background: '#eaeaea', width: '30%'}}>
-                <Text style={{fontSize: '25px',}}>X axis</Text>
-                <br/>
-                <Autocomplete
-                    disablePortal
-                    value={formData.invariantX}
-                    onChange={(event, newValue) =>
-                        handleChange("invariantX", newValue)}
-                    inputValue={inputValues.invariantX}
-                    onInputChange={(event, newValue) =>
-                        handleInputChange("invariantX", newValue)}
-                    id="auto-complete-x"
-                    options={props.invariantsNum}
-                    sx={{width: '90%'}}
-                    clearIcon={null}
-                    renderInput={(params) =>
-                        <TextField {...params} label="Invariant for X axis"/>}
-                />
-            </View>
+            <Box height='125px' m={1} pt={1} sx={{
+                justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
+            }}>
+                <Box sx={{width: '100%', textAlign: 'center'}}>
+                    <Text style={{fontSize: '25px',}}>X axis</Text>
+                </Box>
+                <Box m={2}>
+                    <Autocomplete
+                        value={formData.invariantX}
+                        onChange={(event, newValue) =>
+                            handleChange("invariantX", newValue)}
+                        inputValue={inputValues.invariantX}
+                        onInputChange={(event, newValue) =>
+                            handleInputChange("invariantX", newValue)}
+                        id="auto-complete-x"
+                        options={props.invariantsNum}
+                        sx={{width: '90%'}}
+                        clearIcon={null}
+                        renderInput={(params) =>
+                            <TextField {...params} label="Invariant for X axis"/>}
+                    />
+                </Box>
+            </Box>
         )
     }
 
     const RenderYView = () => {
         return (
-            <View style={{marginRight: '5%', justifyContent: 'center', alignItems: 'center', paddingBottom: BOTTOM,
-                paddingTop: TOP, background: '#eaeaea', width: '30%'}}>
-                <Text style={{fontSize: '25px'}}>Y axis</Text>
-                <br/>
-                <Autocomplete
-                    id="auto-complete-y"
-                    value={formData.invariantY}
-                    onChange={(event, newValue) =>
-                        handleChange("invariantY", newValue)}
-                    inputValue={inputValues.invariantY}
-                    onInputChange={(event, newValue) =>
-                        handleInputChange("invariantY", newValue)}
-                    options={props.invariantsNum}
-                    clearIcon={null}
-                    sx={{width: '90%'}}
-                    renderInput={(params) =>
-                        <TextField {...params} label="Invariant for Y axis"/>}
-                />
-            </View>
+            <Box height='125px' m={1} pt={1} sx={{
+                justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
+            }}>
+                <Box sx={{width: '100%', textAlign: 'center'}}>
+                    <Text style={{fontSize: '25px',}}>Y axis</Text>
+                </Box>
+                <Box m={2}>
+                    <Autocomplete
+                        id="auto-complete-y"
+                        value={formData.invariantY}
+                        onChange={(event, newValue) =>
+                            handleChange("invariantY", newValue)}
+                        inputValue={inputValues.invariantY}
+                        onInputChange={(event, newValue) =>
+                            handleInputChange("invariantY", newValue)}
+                        options={props.invariantsNum}
+                        clearIcon={null}
+                        sx={{width: '90%'}}
+                        renderInput={(params) =>
+                            <TextField {...params} label="Invariant for Y axis"/>}
+                    />
+                </Box>
+            </Box>
         )
     }
 
@@ -284,8 +311,10 @@ export default function PolytopeForm(props) {
                     <Text style={{fontSize: INNER_TEXT_SIZE, fontWeight: 'bold'}}>n = {formData.order}</Text>
                     <View style={{alignItems: 'center', paddingBottom: BOTTOM, paddingTop: TOP,}}>
                         <Slider aria-label="GraphOrder" defaultValue={formData.order} valueLabelDisplay="auto" step={1}
-                                marks min={MIN_ORDER} max={MAX_ORDER} sx={{color: 'success.main',
-                                '& .MuiSlider-thumb': {borderRadius: '1px',},}} style={{width: '75%',}}
+                                marks min={MIN_ORDER} max={MAX_ORDER} sx={{
+                            color: 'success.main',
+                            '& .MuiSlider-thumb': {borderRadius: '1px',},
+                        }} style={{width: '75%',}}
                                 onChange={(event, newValue) => {
                                     handleChange("order", newValue);
                                     setSubmitted(false);
@@ -293,8 +322,8 @@ export default function PolytopeForm(props) {
                         />
                     </View>
                     <View style={{flexDirection: 'row', flex: 1, width: '100%'}}>
-                        <RenderXView />
-                        <RenderYView />
+                        <RenderXView/>
+                        <RenderYView/>
                         <RenderColorView/>
                     </View>
                     {constructConstraintsView().map((group, i) => {
@@ -303,8 +332,10 @@ export default function PolytopeForm(props) {
                                 {group}
                             </View>)
                     })}
-                    <View key="AddConstraint" style={{paddingTop: TOP, flexDirection: 'row', width: '100%',
-                        justifyContent: 'space-between', alignItems: 'flex-end',}}>
+                    <View key="AddConstraint" style={{
+                        paddingTop: TOP, flexDirection: 'row', width: '100%',
+                        justifyContent: 'space-between', alignItems: 'flex-end',
+                    }}>
                         <Button variant="outlined" onClick={handleAddConstraint} color="success"
                                 startIcon={<AddCircleOutlineIcon/>}>
                             Do you want add a constraint?

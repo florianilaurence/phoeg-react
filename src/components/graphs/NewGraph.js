@@ -119,17 +119,17 @@ export default function NewGraph(props) {
             <Box m={2}
                  sx={{ width: 0.75 }}>
                 {layout !== undefined ?
-                <Autocomplete
-                    value={layout.name}
-                    onChange={(event, value) => setLayout(layouts[value])}
-                    inputValue={inputLayout}
-                    onInputChange={(event, value) => setInputLayout(value)}
-                    id="graph-layout-select"
-                    options={options}
-                    clearIcon={null}
-                    renderInput={(params) =>
-                        <TextField {...params} label="Layout" />}
-                />: null}
+                    <Autocomplete
+                        value={layout.name}
+                        onChange={(event, value) => setLayout(layouts[value])}
+                        inputValue={inputLayout}
+                        onInputChange={(event, value) => setInputLayout(value)}
+                        id="graph-layout-select"
+                        options={options}
+                        clearIcon={null}
+                        renderInput={(params) =>
+                            <TextField {...params} label="Layout" />}/>
+                    : null}
             </Box>
             {isComplement ?
                 <>
