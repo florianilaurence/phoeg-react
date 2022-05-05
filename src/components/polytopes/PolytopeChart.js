@@ -432,13 +432,19 @@ export default function PolytopeChart(props) {
                     </> : null
                 }
                 {selected ?
-                    <GraphsFetch
-                        order={props.order}
-                        invariantX={props.invariantX}
-                        invariantY={props.invariantY}
-                        invariantXValue={selectedX}
-                        invariantYValue={selectedY}
-                    /> : null
+                    <>
+                        <View style={{textAlign: 'center', marginTop: INNER, marginBottom: INNER}}>
+                            <InnerText>You have selected the next point:
+                            </InnerText><InnerText bold={true}>{props.invariantX}={selectedX} || {props.invariantY}={selectedY}</InnerText>
+                        </View>
+                        <GraphsFetch
+                            order={props.order}
+                            invariantX={props.invariantX}
+                            invariantY={props.invariantY}
+                            invariantXValue={selectedX}
+                            invariantYValue={selectedY}
+                        />
+                    </> : null
                 }
             </View>
         </View>

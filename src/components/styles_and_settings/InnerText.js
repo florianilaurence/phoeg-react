@@ -3,6 +3,17 @@ import {INNER_TEXT_SIZE} from "../../designVars";
 
 export default function InnerText (props) {
 
+    if (props.bold) {
+        return <Text
+            style={{
+                fontSize: INNER_TEXT_SIZE,
+                fontWeight: 'bold',
+                flexShrink: 1,
+            }}>
+            {props.children}
+        </Text>
+    }
+
     return (
         <Text
             style={{
