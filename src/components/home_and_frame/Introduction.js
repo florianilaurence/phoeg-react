@@ -15,7 +15,7 @@ export default function Introduction () {
             <TitleText>Introduction</TitleText>
             <View style={{paddingTop: TOP, paddingBottom: BOTTOM, paddingLeft: LEFT, paddingRight: RIGHT}}>
                 <InnerText>
-                    Click on the following button for more information about the developers behind this user interface.
+                    Click on the following button for more information about the developers.
                     <a onClick={() => navigate("/about", {replace: true})}> <FaInfo className="link"/> </a>
                     <br />
                     Click on the next button if you want to learn how to use this interface.
