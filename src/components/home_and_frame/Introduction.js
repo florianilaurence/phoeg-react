@@ -1,27 +1,32 @@
 import {View} from "react-native-web";
 import TitleText from "../styles_and_settings/TitleText";
-import InnerText from "../styles_and_settings/InnerText";
 import {useNavigate} from "react-router-dom";
-import { FaInfo } from 'react-icons/fa';
+import LightbulbCircleIcon from '@mui/icons-material/LightbulbCircle';
 import './Home_and_frame.css'
-import {BOTTOM, LEFT, RIGHT, TOP} from "../../designVars";
-import {GrInfo} from "react-icons/gr";
+import {BOTTOM, INNER, LEFT, RIGHT, TOP} from "../../designVars";
+import HelpIcon from '@mui/icons-material/Help';
+import {Box, Tooltip} from "@mui/material";
+import Button from "@mui/material/Button";
+import InnerText from "../styles_and_settings/InnerText";
 
 export default function Introduction () {
     let navigate = useNavigate();
 
     return (
-        <View style={{flexDirection: 'column', alignItems: 'left', flexGrow: 1}}>
+        <View>
             <TitleText>Introduction</TitleText>
             <View style={{paddingTop: TOP, paddingBottom: BOTTOM, paddingLeft: LEFT, paddingRight: RIGHT}}>
-                <InnerText>
-                    Click on the following button for more information about the developers.
-                    <a onClick={() => navigate("/about", {replace: true})}> <FaInfo className="link"/> </a>
-                    <br />
-                    Click on the next button if you want to learn how to use this interface.
-                    <a onClick={() => navigate("/tutorial", {replace: true})}> <GrInfo className="link"/> </a>
-                    <br />
-                    Could you give me your opinion by completing the following google forms? Please click on: <a href={"https://forms.gle/bn1YqfqsGGrt4t1z6"} target="_blank" >Feedback</a>
+                <Box display="flex" justifyContent="space-between">
+                    <Tooltip title="More informations about PHOEG and developers" placement='top'>
+                        <Button onClick={() => navigate("/about", {replace: true})} color='success' size='large' variant='contained' startIcon={<LightbulbCircleIcon/>}>About</Button>
+                    </Tooltip>
+                    <Tooltip title="View tutorial video" placement='top'>
+                        <Button onClick={() => navigate("/tutorial", {replace: true})} color='success' size='large' variant='contained' endIcon={<HelpIcon/>}>Tutorial</Button>
+                    </Tooltip>
+                </Box>
+            </View>
+            <View style={{textAlign: 'center', paddingBottom: INNER}}>
+                <InnerText bold>Could you give me your opinion by completing the following google forms? Please click on: <a href={"https://forms.gle/bn1YqfqsGGrt4t1z6"} target="_blank" rel="noreferrer">Feedback</a>, thanks
                 </InnerText>
             </View>
         </View>

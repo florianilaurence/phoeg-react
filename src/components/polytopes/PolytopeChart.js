@@ -236,9 +236,9 @@ export default function PolytopeChart(props) {
     // Construire la liste qui servira à placer les points
     const constructPoints = () => {
         let result = [];
-        props.allClusters[currentNbClusters].map((group, i) => {
+        props.allClusters[currentNbClusters].forEach((group, i) => {
             colorsGradient.push(colorScale(i));
-            group.map((currentData, j) => {
+            group.forEach((currentData, j) => {
                 let x = accessors(currentData, "x");
                 let y = accessors(currentData, "y");
                 let col = accessors(currentData);
@@ -293,7 +293,7 @@ export default function PolytopeChart(props) {
     }
 
     return (
-        <View>
+        <View style={{marginBottom: INNER}}>
             <View style={{
                 marginTop: TOP,
                 marginLeft: LEFT,
@@ -433,9 +433,16 @@ export default function PolytopeChart(props) {
                 }
                 {selected ?
                     <>
-                        <View style={{textAlign: 'center', marginTop: INNER, marginBottom: INNER}}>
-                            <InnerText>You have selected the next point:
-                            </InnerText><InnerText bold={true}>{props.invariantX}={selectedX} || {props.invariantY}={selectedY}</InnerText>
+                        <View style={{marginTop: INNER, marginBottom: INNER, paddingLeft: LEFT, paddingRight: RIGHT}}>
+                            <InnerText italic>You have selected the next point:</InnerText>
+                            <View style={{flexDirection: 'row', textAlign: 'center'}}>
+                                <InnerText>x: </InnerText>
+                                <InnerText bold>{props.invariantX}= </InnerText>
+                                <InnerText bold italic>{selectedX}</InnerText>
+                                <InnerText>, y: </InnerText>
+                                <InnerText bold>{props.invariantY}= </InnerText>
+                                <InnerText bold italic>{selectedY}</InnerText>
+                            </View>
                         </View>
                         <GraphsFetch
                             order={props.order}

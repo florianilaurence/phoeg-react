@@ -1,5 +1,5 @@
 import {Text, View} from "react-native-web";
-import {BOTTOM, DEFAULT_ORDER, INNER_TEXT_SIZE, LEFT, MAX_ORDER, MIN_ORDER, RIGHT, TOP} from "../../designVars";
+import {BOTTOM, DEFAULT_ORDER, INNER, INNER_TEXT_SIZE, LEFT, MAX_ORDER, MIN_ORDER, RIGHT, TOP} from "../../designVars";
 import {Autocomplete, Box, IconButton, Slider, Switch, TextField} from "@mui/material";
 import InnerText from "../styles_and_settings/InnerText";
 import React, {useCallback, useState} from "react";
@@ -304,7 +304,7 @@ export default function PolytopeForm(props) {
     }
 
     return (
-        <View style={{width: '100%'}}>
+        <View style={{width: '100%', marginBottom: INNER}}>
             <View style={{paddingLeft: LEFT, paddingRight: RIGHT,}}>
                 <form>
                     <InnerText>Please select number of vertices by graph (order) </InnerText>
