@@ -236,7 +236,7 @@ export default function PolytopeForm(props) {
                         onInputChange={(event, newValue) =>
                             handleInputChange("invariantColor", newValue)}
                         id="auto-complete-color"
-                        options={props.invariantsNum}
+                        options={props.colorations}
                         sx={{width: '90%'}}
                         clearIcon={null}
                         disabled={!checked}

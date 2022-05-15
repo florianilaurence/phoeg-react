@@ -21,7 +21,15 @@ export default function Polytope(props) {
         let requestBool = new URL(`${API_URL}/invariants?type=booleans`);
 
         fetchData(requestNum, requestBool).then(d => {
-            setData(d);
+            let colorations = [];
+            colorations.push(...d.invariantsNum, "mult");
+            colorations.sort();
+            setData({
+                invariantsNum: d.invariantsNum,
+                invariantsName: d.invariantsName,
+                invariantsTypes: d.invariantsTypes,
+                colorations: colorations,
+            });
             setLoading(false);
         });
         forceUpdate();
@@ -87,6 +95,7 @@ export default function Polytope(props) {
                 invariantsNum={data.invariantsNum}
                 invariantsName={data.invariantsName}
                 invariantsTypes={data.invariantsTypes}
+                colorations={data.colorations}
             />
         </View>
     )

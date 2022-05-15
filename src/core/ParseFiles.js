@@ -30,13 +30,11 @@ function readEnvelopePolygone(data) {
     return result;
 }
 
-export function readPoints(data) {
+export function readPoints(data, colorName) {
     const keys = Object.keys(data);
     const pointsGrouped = [];
-
     const xName = keys[0];
     const yName = keys[1];
-    const colorName = keys[2];
 
     const invariants_length = data[keys[0]].length;
     console.assert(keys.every(key => data[key].length === invariants_length), "Assert all invariants must have the same length");

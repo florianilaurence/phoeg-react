@@ -24,11 +24,12 @@ export default function PolytopeFetch(props) {
             constraints: props.constraints,
         })
         let points_request = new URL(`${API_URL}/graphs/points`);
+        let tempCol = props.invariantColor === "mult" ? "num_vertices" : props.invariantColor;
         points_request += "?" + stringify({
             order: props.order,
             x_invariant: props.invariantX,
             y_invariant: props.invariantY,
-            colour: props.invariantColor,
+            colour: tempCol,
             constraints: props.constraints,
         });
         fetchData(envelope_request, points_request).then(
@@ -59,7 +60,7 @@ export default function PolytopeFetch(props) {
             }
             return {
                 envelope: readEnvelope(envelope.data),
-                points: readPoints(points.data)
+                points: readPoints(points.data, props.invariantColor),
             }
         }));
     };
