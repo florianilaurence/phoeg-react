@@ -8,6 +8,25 @@ import axios from "axios";
 import InnerText from "../styles_and_settings/InnerText";
 import {LEFT, RIGHT} from "../../designVars";
 
+const compare = (a, b) => {
+    if (a.name < b.name) {
+        return -1;
+    }
+    if (a.name > b.name) {
+        return 1;
+    }
+    return 0;
+};
+
+const parseToLabelValueObject = (list) => {
+    return list.map(item => {
+        return {
+            label: item.name,
+            value: item.tablename
+        }
+    });
+};
+
 export default function Polytope(props) {
     const [, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
@@ -17,48 +36,33 @@ export default function Polytope(props) {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        let requestNum = new URL(`${API_URL}/invariants?type=numbers`);
-        let requestBool = new URL(`${API_URL}/invariants?type=booleans`);
+        let request = new URL(`${API_URL}/invariants?type=any`);
 
-        fetchData(requestNum, requestBool).then(d => {
-            let colorations = [];
-            colorations.push(...d.invariantsNum, "mult");
-            colorations.sort();
+        fetchData(request).then(d => {
+            d.push({tablename: "mult", datatype: -1, name: "Multiplicity", description: ""}); // Add multiplicity because not really a table of invariants in database
+            d.sort(compare)
+
             setData({
-                invariantsNum: d.invariantsNum,
-                invariantsName: d.invariantsName,
-                invariantsTypes: d.invariantsTypes,
-                colorations: colorations,
+                invariantsAxis: parseToLabelValueObject(d.filter(e => 2 <= e.datatype && e.datatype <= 4)),
+                invariantsColoration: parseToLabelValueObject(d.filter(e => (2 <= e.datatype && e.datatype <= 4) || e.datatype === -1)),
+                invariantsConstraint: parseToLabelValueObject(d.filter(e => 2 <= e.datatype && e.datatype <= 5)),
+                types: d.filter(e => 2 <= e.datatype && e.datatype <= 5).map(e => e.datatype)
             });
             setLoading(false);
         });
         forceUpdate();
     }, [])
 
-    const fetchData = (requestNum, requestBool) => {
-        return axios.all([
-            axios.get(requestNum),
-            axios.get(requestBool)
-        ]).then(axios.spread((num, bool) => {
-            setLoading(false);
-            let types = [];
-            bool.data.forEach(() => {
-                types.push("bool")
+    const fetchData = (request) => {
+        return axios.get(request)
+            .then(res => {
+                return res.data;
+            })
+            .catch(err => {
+                setError(err);
+                setLoading(false);
+                return null;
             });
-
-            num.data.forEach(() => {
-                types.push("num")
-            });
-
-            return {
-                invariantsNum: num.data,
-                invariantsName: bool.data.concat(num.data),
-                invariantsTypes: types
-            }
-        })).catch(error => {
-            setError(error);
-            setLoading(false);
-        });
     }
 
     if (error) return (
@@ -92,10 +96,10 @@ export default function Polytope(props) {
                 <SubTitleText>{"Polytope " + props.num}</SubTitleText>
             </View>
             <PolytopeForm
-                invariantsNum={data.invariantsNum}
-                invariantsName={data.invariantsName}
-                invariantsTypes={data.invariantsTypes}
-                colorations={data.colorations}
+                invariantsAxis={data.invariantsAxis}
+                invariantsColoration={data.invariantsColoration}
+                invariantsConstraint={data.invariantsConstraint}
+                types={data.types}
             />
         </View>
     )

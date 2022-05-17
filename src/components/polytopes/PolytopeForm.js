@@ -15,9 +15,9 @@ export default function PolytopeForm(props) {
     const [checked, setChecked] = useState(false);
     const [formData, setFormData] = useState({
         order: DEFAULT_ORDER,
-        invariantX: props.invariantsNum[0],
-        invariantY: props.invariantsNum[1],
-        invariantColor: "num_vertices", // Default coloration, all points are the same color because order is fixed
+        invariantX: props.invariantsAxis[0],
+        invariantY: props.invariantsAxis[1],
+        invariantColor: {label: "Number of Vertices", value: "num_vertices"}, // Default coloration, all points are the same color because order is fixed
         constraints: [],
     });
     const [inputValues, setInputValues] = useState({
@@ -28,6 +28,17 @@ export default function PolytopeForm(props) {
     })
     const [submitted, setSubmitted] = useState(false);
     const [numberConstraints, setNumberConstraints] = useState(0);
+
+    const getTypeFromName = (name) => {
+        let type = "";
+        for (let i = 0; i < props.invariantsConstraint.length; i++) {
+            if (props.invariantsConstraint[i].label === name) {
+                type = props.types[i];
+                break;
+            }
+        }
+        return type;
+    }
 
     const handleChange = (name, newValue) => {
         setFormData({...formData, [name]: newValue});
@@ -43,7 +54,7 @@ export default function PolytopeForm(props) {
 
     const handleChangeChecked = (event) => {
         if (!event.target.checked) {
-            setFormData({...formData, invariantColor: "num_vertices"});
+            setFormData({...formData, invariantColor: {label: "Number of Vertices", value: "num_vertices"}});
         }
         setChecked(event.target.checked);
         setSubmitted(false);
@@ -52,7 +63,7 @@ export default function PolytopeForm(props) {
 
     const handleAddConstraint = () => {
         formData.constraints.push({
-            name: props.invariantsName[2],
+            name: props.invariantsConstraint[2],
             minimum_bound: 0,
             maximum_bound: 0,
         })
@@ -113,26 +124,126 @@ export default function PolytopeForm(props) {
 
     const RenderPolytopeFetch = () => {
         if (submitted) {
-            return <PolytopeFetch
-                order={formData.order}
-                invariantX={formData.invariantX}
-                invariantY={formData.invariantY}
-                invariantColor={formData.invariantColor}
-                constraints={formData.constraints}
-            />;
+            if (formData.invariantX.value === formData.invariantY.value
+                || formData.invariantX.value === formData.invariantColor.value
+                || formData.invariantY.value === formData.invariantColor.value) {
+                return (
+                    <View style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '200px'
+                    }}>
+                        <InnerText>Sorry, all main invariant must be different</InnerText>
+                        <InnerText>Please try again with another request</InnerText>
+                    </View>
+                );
+            } else {
+                return <PolytopeFetch
+                    order={formData.order}
+                    invariantX={formData.invariantX.value}
+                    invariantY={formData.invariantY.value}
+                    invariantColor={formData.invariantColor.value}
+                    constraints={formData.constraints.map(constraint => {
+                        return {
+                            name: constraint.name.value,
+                            minimum_bound: constraint.minimum_bound,
+                            maximum_bound: constraint.maximum_bound
+                        }
+                    })}
+                />;
+            }
         } else {
             return null;
         }
     };
 
-    const getTypeFromName = (name) => {
-        let type = "";
-        for (let i = 0; i < props.invariantsName.length; i++) {
-            if (props.invariantsName[i] === name) {
-                type = props.invariantsTypes[i];
-            }
-        }
-        return type;
+    const RenderXView = () => {
+        return (
+            <Box height='125px' m={1} pt={1} sx={{
+                justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
+            }}>
+                <Box sx={{width: '100%', textAlign: 'center'}}>
+                    <Text style={{fontSize: '25px',}}>X axis</Text>
+                </Box>
+                <Box m={2}>
+                    <Autocomplete
+                        value={formData.invariantX}
+                        onChange={(event, newValue) =>
+                            handleChange("invariantX", newValue)}
+                        inputValue={inputValues.invariantX}
+                        onInputChange={(event, newValue) =>
+                            handleInputChange("invariantX", newValue)}
+                        id="auto-complete-x"
+                        options={props.invariantsAxis}
+                        sx={{width: '90%'}}
+                        clearIcon={null}
+                        renderInput={(params) =>
+                            <TextField {...params} label="Invariant for X axis"/>}
+                    />
+                </Box>
+            </Box>
+        )
+    }
+
+    const RenderYView = () => {
+        return (
+            <Box height='125px' m={1} pt={1} sx={{
+                justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
+            }}>
+                <Box sx={{width: '100%', textAlign: 'center'}}>
+                    <Text style={{fontSize: '25px',}}>Y axis</Text>
+                </Box>
+                <Box m={2}>
+                    <Autocomplete
+                        id="auto-complete-y"
+                        value={formData.invariantY}
+                        onChange={(event, newValue) =>
+                            handleChange("invariantY", newValue)}
+                        inputValue={inputValues.invariantY}
+                        onInputChange={(event, newValue) =>
+                            handleInputChange("invariantY", newValue)}
+                        options={props.invariantsAxis}
+                        clearIcon={null}
+                        sx={{width: '90%'}}
+                        renderInput={(params) =>
+                            <TextField {...params} label="Invariant for Y axis"/>}
+                    />
+                </Box>
+            </Box>
+        )
+    }
+
+    const RenderColorView = () => {
+        return (
+            <Box height='125px' m={1} pt={1} sx={{
+                justifyContent: 'center', alignItems: 'center', backgroundColor: checked ? '#eaeaea' : '#f5f5f5',
+                width: '30%'
+            }}>
+                <Box sx={{
+                    flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '100%',
+                    textAlign: 'center'
+                }}>
+                    <Switch size='small' color='success' checked={checked} onChange={handleChangeChecked}/>
+                    <Text style={{fontSize: '25px', color: checked ? '#000000' : '#bdbdbd'}}>Color points</Text>
+                </Box>
+                <Box m={2}>
+                    <Autocomplete
+                        value={formData.invariantColor}
+                        onChange={(event, newValue) =>
+                            handleChange("invariantColor", newValue)}
+                        inputValue={inputValues.invariantColor}
+                        onInputChange={(event, newValue) =>
+                            handleInputChange("invariantColor", newValue)}
+                        id="auto-complete-color"
+                        options={props.invariantsColoration}
+                        sx={{width: '90%'}}
+                        clearIcon={null}
+                        disabled={!checked}
+                        renderInput={(params) =>
+                            <TextField {...params} label="Invariant for color of points"/>}
+                    />
+                </Box>
+            </Box>)
     }
 
     const constructConstraintsView = () => {
@@ -163,13 +274,13 @@ export default function PolytopeForm(props) {
                                 onInputChange={(event, newValue) =>
                                     handleInputChangeConstraint("name", j, newValue)}
                                 id={`auto-complete-constraint-${j}`}
-                                options={props.invariantsName}
+                                options={props.invariantsConstraint}
                                 clearIcon={null}
                                 renderInput={(params) =>
                                     <TextField {...params} label="Invariant name"/>}
                             />
                         </Box>
-                        {getTypeFromName(formData.constraints[j].name) === "bool" ?
+                        {getTypeFromName(formData.constraints[j].name.label) === 5 ? // if it is a boolean invariant so change the view
                             <Box sx={{textAlign: 'center'}}>
                                 <Switch checked={formData.constraints[j].minimum_bound === 1} onChange={
                                     (event) => {
@@ -212,95 +323,6 @@ export default function PolytopeForm(props) {
             }
         }
         return result;
-    }
-
-    const RenderColorView = () => {
-        return (
-            <Box height='125px' m={1} pt={1} sx={{
-                justifyContent: 'center', alignItems: 'center', backgroundColor: checked ? '#eaeaea' : '#f5f5f5',
-                width: '30%'
-            }}>
-                <Box sx={{
-                    flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '100%',
-                    textAlign: 'center'
-                }}>
-                    <Switch size='small' color='success' checked={checked} onChange={handleChangeChecked}/>
-                    <Text style={{fontSize: '25px', color: checked ? '#000000' : '#bdbdbd'}}>Color points</Text>
-                </Box>
-                <Box m={2}>
-                    <Autocomplete
-                        value={formData.invariantColor}
-                        onChange={(event, newValue) =>
-                            handleChange("invariantColor", newValue)}
-                        inputValue={inputValues.invariantColor}
-                        onInputChange={(event, newValue) =>
-                            handleInputChange("invariantColor", newValue)}
-                        id="auto-complete-color"
-                        options={props.colorations}
-                        sx={{width: '90%'}}
-                        clearIcon={null}
-                        disabled={!checked}
-                        renderInput={(params) =>
-                            <TextField {...params} label="Invariant for color of points"/>}
-                    />
-                </Box>
-            </Box>)
-    }
-
-    const RenderXView = () => {
-        return (
-            <Box height='125px' m={1} pt={1} sx={{
-                justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
-            }}>
-                <Box sx={{width: '100%', textAlign: 'center'}}>
-                    <Text style={{fontSize: '25px',}}>X axis</Text>
-                </Box>
-                <Box m={2}>
-                    <Autocomplete
-                        value={formData.invariantX}
-                        onChange={(event, newValue) =>
-                            handleChange("invariantX", newValue)}
-                        inputValue={inputValues.invariantX}
-                        onInputChange={(event, newValue) =>
-                            handleInputChange("invariantX", newValue)}
-                        id="auto-complete-x"
-                        options={props.invariantsNum}
-                        sx={{width: '90%'}}
-                        clearIcon={null}
-                        renderInput={(params) =>
-                            <TextField {...params} label="Invariant for X axis"/>}
-                    />
-                </Box>
-            </Box>
-        )
-    }
-
-    const RenderYView = () => {
-        return (
-            <Box height='125px' m={1} pt={1} sx={{
-                justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
-            }}>
-                <Box sx={{width: '100%', textAlign: 'center'}}>
-                    <Text style={{fontSize: '25px',}}>Y axis</Text>
-                </Box>
-                <Box m={2}>
-                    <Autocomplete
-                        id="auto-complete-y"
-                        value={formData.invariantY}
-                        onChange={(event, newValue) =>
-                            handleChange("invariantY", newValue)}
-                        inputValue={inputValues.invariantY}
-                        onInputChange={(event, newValue) =>
-                            handleInputChange("invariantY", newValue)}
-                        options={props.invariantsNum}
-                        clearIcon={null}
-                        sx={{width: '90%'}}
-                        renderInput={(params) =>
-                            <TextField {...params} label="Invariant for Y axis"/>}
-                    />
-                </Box>
-            </Box>
-        )
     }
 
     return (
