@@ -105,6 +105,7 @@ export default function PolytopeFetch(props) {
                     invariantX={props.invariantX}
                     invariantY={props.invariantY}
                     invariantColor={props.invariantColor}
+                    constraints={props.constraints}
                     envelope={data.envelope}
                     points={data.points}
                 />

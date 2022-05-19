@@ -450,6 +450,7 @@ export default function PolytopeChart(props) {
                             invariantY={props.invariantY}
                             invariantXValue={selectedX}
                             invariantYValue={selectedY}
+                            constraints={props.constraints}
                         />
                     </> : null
                 }

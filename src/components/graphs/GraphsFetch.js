@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import GraphSlider from "./GraphSlider";
 import {API_URL} from "../../.env";
 import "./Graphs.css";
+import {stringify} from "qs";
 import {View} from "react-native-web";
 import InnerText from "../styles_and_settings/InnerText";
 import SubTitleText from "../styles_and_settings/SubTitleText";
@@ -28,6 +29,11 @@ export default function GraphsFetch(props) {
         // Filter for specific invariant values
         graphs_request.searchParams.append("invariants[0][value]", props.invariantXValue);
         graphs_request.searchParams.append("invariants[1][value]", props.invariantYValue);
+
+        // graphs_request.searchParams.append("constraints", stringify(props.constraints));
+        graphs_request = graphs_request.toString() + "&"  + stringify({
+            constraints: props.constraints
+        })
 
         fetchData(graphs_request).then(data => {
             setData(data);
