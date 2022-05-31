@@ -52,7 +52,7 @@ export default function PolytopeCalc(props) {
                 justifyContent: 'center',
                 height: '200px'
             }}>
-                <InnerText>Please wait, your data are being processed</InnerText>
+                <InnerText>Please wait, your data is being processed</InnerText>
             </View>
         );
     }

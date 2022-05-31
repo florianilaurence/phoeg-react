@@ -8,6 +8,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import SendIcon from '@mui/icons-material/Send';
 import PolytopeFetch from "./PolytopeFetch";
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 export default function PolytopeForm(props) {
     const [, updateState] = useState();
@@ -101,6 +102,12 @@ export default function PolytopeForm(props) {
         forceUpdate();
     };
 
+    const handlePermute = () => {
+        let x = formData.invariantX;
+        let y = formData.invariantY;
+        setFormData({...formData, invariantX: y, invariantY: x});
+    }
+
     const handleSubmit = () => {
         if (formData.invariantX === null || formData.invariantX === undefined
             || formData.invariantY === null || formData.invariantY === undefined
@@ -125,8 +132,8 @@ export default function PolytopeForm(props) {
     const RenderPolytopeFetch = () => {
         if (submitted) {
             if (formData.invariantX.value === formData.invariantY.value
-                || formData.invariantX.value === formData.invariantColor.value
-                || formData.invariantY.value === formData.invariantColor.value) {
+                || (checked && (formData.invariantX.value === formData.invariantColor.value))
+                || (checked && (formData.invariantY.value === formData.invariantColor.value))) {
                 return (
                     <View style={{
                         alignItems: 'center',
@@ -345,6 +352,9 @@ export default function PolytopeForm(props) {
                     </View>
                     <View style={{flexDirection: 'row', flex: 1, width: '100%'}}>
                         <RenderXView/>
+                        <IconButton variant="contained" color="success" onClick={handlePermute}>
+                            <CompareArrowsIcon />
+                        </IconButton>
                         <RenderYView/>
                         <RenderColorView/>
                     </View>

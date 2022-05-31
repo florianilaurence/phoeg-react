@@ -37,7 +37,8 @@ export default function PolytopeChart(props) {
     const [currentNbClusters, setCurrentNbClusters] = useState(1);
 
     // Zoom
-    const [showMiniMap, setShowMiniMap] = useState(true);
+    const [showMiniMap, setShowMiniMap] = useState(false)
+    ;
 
     // Options possibles de coloration
     const optionsTypeColoration = [
@@ -115,6 +116,9 @@ export default function PolytopeChart(props) {
         domain: [props.domainsData.y[0], props.domainsData.y[1]],
         round: true,
     });
+
+    // Detecter le premier zoom pour montrer la minimap à ce moment là
+    let isFirstZoom = true;
 
     // Créer les balises de choix des couleurs pour une coloration avec choix
     const RenderInputColorsForIndep = () => {
@@ -350,7 +354,13 @@ export default function PolytopeChart(props) {
                                 <InnerText>Zoom:</InnerText>
                                 <Box m={1}>
                                     <Button variant="contained" color="success" sx={{width: 1}}
-                                            onClick={() => zoom.scale({scaleX: 1.2, scaleY: 1.2})}> + </Button>
+                                            onClick={() => {
+                                                if (isFirstZoom) {
+                                                    setShowMiniMap(true);
+                                                    isFirstZoom = false;
+                                                }
+                                                zoom.scale({scaleX: 1.2, scaleY: 1.2})
+                                            }}> + </Button>
                                 </Box>
                                 <Box m={1}>
                                     <Button variant="contained" color="success" sx={{width: 1}}

@@ -62,7 +62,7 @@ export default function GraphsFetch(props) {
     if (loading || data === null) {
         return (
             <View style={{alignItems: 'center', justifyContent: 'center', height: '200px'}}>
-                <InnerText>Please wait, your data are loading for graphs</InnerText>
+                <InnerText>Please wait, your data is being loaded for graphs</InnerText>
             </View>
         );
     }
@@ -79,7 +79,7 @@ export default function GraphsFetch(props) {
                 <View style={{
                     alignItems: 'center',
                 }}>
-                    <InnerText>There are {data.length} graph{data.length===1 ? "":"s"}. You can display up to {data.length*2} sliders in same time: </InnerText>
+                    <InnerText>There are {data.length} graph{data.length===1 ? "":"s"}. You can display up to {data.length*2} sliders in same the time: </InnerText>
                     <Slider aria-label="nb_of_sliders" value={currentNbOfSlider} valueLabelDisplay="auto" step={1} marks
                         min={1} max={data.length*2} sx={{color: 'success.main', '& .MuiSlider-thumb':
                             {borderRadius: '1px',},}}
