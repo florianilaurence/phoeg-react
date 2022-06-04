@@ -7,9 +7,9 @@ import InnerText from "../styles_and_settings/InnerText";
 
 export default function Tutorial() {
     const opts = {
-        height: '390',
-        width: '640',
-        playerVars: {autoplay: 1},
+        height: '585',
+        width: '960',
+        playerVars: {autoplay: 0},
     };
 
     return (

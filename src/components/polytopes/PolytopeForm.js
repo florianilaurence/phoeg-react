@@ -129,8 +129,18 @@ export default function PolytopeForm(props) {
         setSubmitted(true);
     };
 
+    const hasNullConstraint = () => {
+        for (let i = 0; i < formData.constraints.length; i++) {
+            if (formData.constraints[i].name === null) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     const RenderPolytopeFetch = () => {
         if (submitted) {
+            let nullConstraint = hasNullConstraint();
             if (formData.invariantX.value === formData.invariantY.value
                 || (checked && (formData.invariantX.value === formData.invariantColor.value))
                 || (checked && (formData.invariantY.value === formData.invariantColor.value))) {
@@ -142,6 +152,17 @@ export default function PolytopeForm(props) {
                     }}>
                         <InnerText>Sorry, all main invariant must be different</InnerText>
                         <InnerText>Please try again with another request</InnerText>
+                    </View>
+                );
+            } else if (nullConstraint !== -1) {
+                return (
+                    <View style={{
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '200px'
+                    }}>
+                        <InnerText>All constraints must be filled</InnerText>
+                        <InnerText>Please fill or delete constraint {nullConstraint+1} </InnerText>
                     </View>
                 );
             } else {
@@ -287,7 +308,7 @@ export default function PolytopeForm(props) {
                                     <TextField {...params} label="Invariant name"/>}
                             />
                         </Box>
-                        {getTypeFromName(formData.constraints[j].name.label) === 5 ? // if it is a boolean invariant so change the view
+                        {formData.constraints[j].name !== null ? getTypeFromName(formData.constraints[j].name.label) === 5 ? // if it is a boolean invariant so change the view
                             <Box sx={{textAlign: 'center'}}>
                                 <Switch checked={formData.constraints[j].minimum_bound === 1} onChange={
                                     (event) => {
@@ -317,7 +338,7 @@ export default function PolytopeForm(props) {
                                         variant="outlined"
                                     />
                                 </Box>
-                            </Box>
+                            </Box> : null
                         }
                     </Box>)
                 if (j === index + 2) {
