@@ -42,11 +42,12 @@ export function readPoints(data, colorName) {
     for (let i = 0; i<invariants_length; i++) {
         const xValue = data[xName][i];
         const yValue = data[yName][i];
+        const mult = data["mult"][i];
         if (colorName === "num_vertices") {
-            pointsGrouped.push({x: xValue, y: yValue, r: 5, col: 0});
+            pointsGrouped.push({x: xValue, y: yValue, r: 5, col: 0, mult: mult});
         } else {
             const colorValue = data[colorName][i];
-            pointsGrouped.push({x: xValue, y: yValue, r: 5, col: colorValue});
+            pointsGrouped.push({x: xValue, y: yValue, r: 5, col: colorValue, mult: mult});
         }
     }
     return pointsGrouped;

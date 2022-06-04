@@ -245,8 +245,9 @@ export default function PolytopeChart(props) {
             group.forEach((currentData, j) => {
                 let x = accessors(currentData, "x");
                 let y = accessors(currentData, "y");
+                let mult = accessors(currentData, "mult");
                 let col = accessors(currentData);
-                result.push({key: `(x:${x};y:${y};col:${col};index:${j})`, x: x, y: y, r: 3, col: col,
+                result.push({key: `(x:${x};y:${y};col:${col};index:${j})`, x: x, y: y, r: 3, mult: mult, col: col,
                     fill: selectColorForOnePoint(i)})
             })
         });
@@ -273,7 +274,9 @@ export default function PolytopeChart(props) {
                                 key={`tooltip-${circle.key}`}
                                 title={
                                     props.invariantX.replace('_', ' ') + " = " + circle.x + " | " +
-                                    props.invariantY.replace('_', ' ') + " = " + circle.y}>
+                                    props.invariantY.replace('_', ' ') + " = " + circle.y + " | " +
+                                    "mult = " + circle.mult
+                            }>
                                 <circle
                                     className="circle"
                                     key={circle.key}

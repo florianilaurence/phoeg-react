@@ -8,6 +8,8 @@ export const accessors = (data, param) => {
                 return data.y;
             case 'r':
                 return data.r;
+            case 'mult':
+                return data.mult;
             default:
                 return data.col;
         }

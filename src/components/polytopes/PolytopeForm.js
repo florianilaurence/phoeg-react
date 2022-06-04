@@ -65,8 +65,8 @@ export default function PolytopeForm(props) {
     const handleAddConstraint = () => {
         formData.constraints.push({
             name: props.invariantsConstraint[2],
-            minimum_bound: 0,
-            maximum_bound: 0,
+            minimum_bound: 1,
+            maximum_bound: 1,
         })
         inputValues.constraints.push({
             name: "",
