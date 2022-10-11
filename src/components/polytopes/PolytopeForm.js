@@ -381,10 +381,16 @@ export default function PolytopeForm(props) {
             <Box  height='125px' m={1} pt={1} sx={{
                 justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
             }}>
-                <Box sx={{width: '100%', textAlign: 'center'}}>
+                <Box m={1} pt={1} sx={{
+                            flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '100%',
+                            textAlign: 'center'
+                        }}>
                     <Text style={{fontSize: '25px',}}>Advanced Constraints</Text>
                 </Box>
-                <Box sx={{width: '90%', textAlign: 'center'}}>
+                <Box m={1} pt={1} sx={{
+                            flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', width: '95%',
+                            textAlign: 'center'
+                        }}>
                     <AdvancedConstraintsInput ref={advancedConstraintsRef} text={formData.advancedConstraints} onChange={handleChangeAdvancedConstraint}/>
                 </Box>
             </Box>
