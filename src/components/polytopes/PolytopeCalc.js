@@ -64,6 +64,7 @@ export default function PolytopeCalc(props) {
             invariantY={props.invariantY}
             invariantColor={props.invariantColor}
             constraints={props.constraints}
+            advancedConstraints={props.advancedConstraints}
             envelope={props.envelope}
             domainsData={domainsData}
             pointsGrouped={pointsGrouped}

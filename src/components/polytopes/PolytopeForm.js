@@ -2,7 +2,7 @@ import {Text, View} from "react-native-web";
 import {BOTTOM, DEFAULT_ORDER, INNER, INNER_TEXT_SIZE, LEFT, MAX_ORDER, MIN_ORDER, RIGHT, TOP} from "../../designVars";
 import {Autocomplete, Box, IconButton, Slider, Switch, TextField} from "@mui/material";
 import InnerText from "../styles_and_settings/InnerText";
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useState, useRef} from "react";
 import Button from '@mui/material/Button';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -20,15 +20,18 @@ export default function PolytopeForm(props) {
         invariantY: props.invariantsAxis[1],
         invariantColor: {label: "Number of Vertices", value: "num_vertices"}, // Default coloration, all points are the same color because order is fixed
         constraints: [],
+        advancedConstraints: "",
     });
     const [inputValues, setInputValues] = useState({
         invariantX: "",
         invariantY: "",
         invariantColor: "",
         constraints: [],
+        advancedConstraints: "",
     })
     const [submitted, setSubmitted] = useState(false);
     const [numberConstraints, setNumberConstraints] = useState(0);
+    const advancedConstraintsRef = useRef(null);
 
     const getTypeFromName = (name) => {
         let type = "";
@@ -126,6 +129,11 @@ export default function PolytopeForm(props) {
                 return;
             }
         }
+        //TODO check if advanced constraints are valid
+        // if (nearley.parse(advancedConstraints).results.length === 0) {
+        //     alert("Advanced constraints are not valid");
+        //     return;
+        // }
         setSubmitted(true);
     };
 
@@ -178,6 +186,7 @@ export default function PolytopeForm(props) {
                             maximum_bound: constraint.maximum_bound
                         }
                     })}
+                    advancedConstraints={formData.advancedConstraints}
                 />;
             }
         } else {
@@ -353,6 +362,35 @@ export default function PolytopeForm(props) {
         return result;
     }
 
+    const AdvancedConstraintsInput = useCallback(({ ref, text, onChange }) => {
+        return <TextField ref={ref} value={text} onChange={onChange} type='text' fullWidth variant="outlined" />;
+      }, [formData]);
+
+    const handleChangeAdvancedConstraint = (event) => {
+        const newConstraints = event.target.value;
+        console.debug("handleChangeAdvancedConstraint", newConstraints);
+        setFormData({...formData, advancedConstraints: newConstraints});
+        setInputValues({...inputValues, advancedConstraints: newConstraints});
+        setSubmitted(false);
+        forceUpdate();
+        // TODO dont lose focus
+    }
+    
+    const RenderAdvancedConstaints = () => {
+        return (
+            <Box  height='125px' m={1} pt={1} sx={{
+                justifyContent: 'center', alignItems: 'center', backgroundColor: '#eaeaea', width: '30%'
+            }}>
+                <Box sx={{width: '100%', textAlign: 'center'}}>
+                    <Text style={{fontSize: '25px',}}>Advanced Constraints</Text>
+                </Box>
+                <Box sx={{width: '90%', textAlign: 'center'}}>
+                    <AdvancedConstraintsInput ref={advancedConstraintsRef} text={formData.advancedConstraints} onChange={handleChangeAdvancedConstraint}/>
+                </Box>
+            </Box>
+        )
+    };
+    
     return (
         <View style={{width: '100%', marginBottom: INNER}}>
             <View style={{paddingLeft: LEFT, paddingRight: RIGHT,}}>
@@ -385,6 +423,9 @@ export default function PolytopeForm(props) {
                                 {group}
                             </View>)
                     })}
+                    <View style={{flexDirection: 'row', flex: 1, width: '100%'}}>
+                        <RenderAdvancedConstaints/>
+                    </View>
                     <View key="AddConstraint" style={{
                         paddingTop: TOP, flexDirection: 'row', width: '100%',
                         justifyContent: 'space-between', alignItems: 'flex-end',

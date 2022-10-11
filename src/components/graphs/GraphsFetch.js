@@ -33,9 +33,14 @@ export default function GraphsFetch(props) {
         // graphs_request.searchParams.append("constraints", stringify(props.constraints));
         graphs_request = graphs_request.toString() + "&"  + stringify({
             constraints: props.constraints
-        })
+        });
 
-        fetchData(graphs_request).then(data => {
+        const advancedConstraits = {
+            query: props.advancedConstraints,
+        }
+
+
+        fetchData(graphs_request, advancedConstraits).then(data => {
             setData(data);
             setLoading(false);
             setError(null);
@@ -46,8 +51,8 @@ export default function GraphsFetch(props) {
         forceUpdate();
     }, [props.order, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue] );
 
-    const fetchData = (request) => {
-        return axios.get(request.toString(), {headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
+    const fetchData = (request, body) => {
+        return axios.post(request.toString(), {...body, headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then((d) => {
                 return readGraph(d.data, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue);
             });

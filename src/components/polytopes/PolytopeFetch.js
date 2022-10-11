@@ -31,7 +31,11 @@ export default function PolytopeFetch(props) {
                     colour: props.invariantColor === "num_vertices" || props.invariantColor === "mult" ? null : props.invariantColor,
                     constraints: props.constraints
         });
-        fetchData(envelope_request, points_request).then(
+        const advancedConstraits = {
+            query: props.advancedConstraints,
+        }
+
+        fetchData(envelope_request, points_request, advancedConstraits).then(
             (d) => {
                 setData(d);
                 setLoading(false);
@@ -45,10 +49,10 @@ export default function PolytopeFetch(props) {
         forceUpdate();
     }, []);
 
-    const fetchData = (requestEnvelope, requestPoints) => {
+    const fetchData = (requestEnvelope, requestPoints, body) => {
         return axios.all([
-            axios.get(requestEnvelope),
-            axios.get(requestPoints)
+            axios.post(requestEnvelope, body),
+            axios.post(requestPoints, body)
         ]).then(axios.spread((envelope, points) => {
             if (points.data[props.invariantX] === null || points.data[props.invariantY] === null || points.data[props.invariantColor] === null
                 || envelope.data[props.invariantX] === null || envelope.data[props.invariantY] === null || points.data === {} || envelope.data === {}) {
@@ -105,6 +109,7 @@ export default function PolytopeFetch(props) {
                     invariantY={props.invariantY}
                     invariantColor={props.invariantColor}
                     constraints={props.constraints}
+                    advancedConstraints={props.advancedConstraints}
                     envelope={data.envelope}
                     points={data.points}
                 />
