@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {accessors, computeColorsRange, computeTagsDomainGradient, computeTagsDomainIndep}
     from "../../core/utils_PolytopeChart";
 import {scaleLinear} from "@visx/scale";
@@ -464,6 +464,7 @@ export default function PolytopeChart(props) {
                             invariantXValue={selectedX}
                             invariantYValue={selectedY}
                             constraints={props.constraints}
+                            advancedConstraints={props.advancedConstraints}
                         />
                     </> : null
                 }
