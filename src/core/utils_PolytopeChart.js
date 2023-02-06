@@ -11,65 +11,9 @@ export const accessors = (data, param) => {
             case 'mult':
                 return data.mult;
             default:
-                return data.col;
+                return data.color;
         }
     }
-}
-
-// Fonctions pour regrouper les points et les calculs qui y sont associés
-export const regroupPointsByColor = (points) => {
-    let pointsGr = {};
-    for (let point of points) {
-        if (pointsGr[point.col] == null) {
-            pointsGr[point.col] = [];
-        }
-        pointsGr[point.col].push(point);
-    }
-    return pointsGr;
-}
-
-export const computeAllCluster = (groupedByColor, colors, points) => {
-    let currentNbCluster = 2;
-    let currentSizeCluster = Math.floor(colors.length / currentNbCluster);
-    let viewedNb = [1];
-    let result = {
-        1: [points]
-    };
-    while (currentNbCluster <= colors.length) {
-        let currentClusters = regroupPointsInCluster(currentSizeCluster, colors, groupedByColor);
-        if (!viewedNb.includes(currentClusters.length)) {
-            viewedNb.push(currentClusters.length);
-            result[currentClusters.length] = currentClusters;
-        }
-        currentNbCluster += 1;
-        currentSizeCluster = Math.ceil(colors.length / currentNbCluster);
-    }
-    return {
-        clustersList: viewedNb.sort((a, b) => a - b),
-        allClusters: result
-    };
-}
-
-export const regroupPointsInCluster = (sizeCluster, colors, groupedPointsByColor) => {
-    let result = [];
-    let start = 0;
-    let end = sizeCluster;
-    while (end <= colors.length - sizeCluster) {
-        let temp = [];
-        while (start < end) {
-            temp.push(...groupedPointsByColor[colors[start]]);
-            start += 1;
-        }
-        result.push(temp);
-        end += sizeCluster;
-    }
-    let temp = [];
-    while (start < colors.length) {
-        temp.push(...groupedPointsByColor[colors[start]]);
-        start += 1;
-    }
-    result.push(temp);
-    return result;
 }
 
 // Fonctions pour construire les noms de domaine lors d'une coloration avec choix
@@ -97,8 +41,8 @@ export const computeTagsDomainGradient = (currentGroupedPoints) => {
 }
 
 export const constructTagName = (group) => {
-    let min = Math.min(...group.map((d) => d.col));
-    let max = Math.max(...group.map((d) => d.col));
+    let min = Math.min(...group.map((d) => d.color));
+    let max = Math.max(...group.map((d) => d.color));
     if (min !== max) {
         return `[${min} ; ${max}]`;
     } else {

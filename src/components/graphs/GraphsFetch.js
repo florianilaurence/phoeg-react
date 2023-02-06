@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import GraphSlider from "./GraphSlider";
 import {API_URL} from "../../.env";
 import "./Graphs.css";
@@ -10,8 +10,11 @@ import {LEFT, RIGHT, TOP} from "../../designVars";
 import {readGraph} from "../../core/ParseFiles";
 import {Slider} from "@mui/material";
 import axios from "axios";
+import {Context} from "../context";
 
 export default function GraphsFetch(props) {
+    const context = useContext(Context);
+
     const [, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
 
@@ -23,20 +26,20 @@ export default function GraphsFetch(props) {
     useEffect( () => {
         let graphs_request = new URL(`${API_URL}/graphs`)
 
-        graphs_request.searchParams.append("order", props.order);
-        graphs_request.searchParams.append("invariants[0][name]", props.invariantX);
-        graphs_request.searchParams.append("invariants[1][name]", props.invariantY);
+        graphs_request.searchParams.append("order", context.order);
+        graphs_request.searchParams.append("invariants[0][name]", context.invariantX);
+        graphs_request.searchParams.append("invariants[1][name]", context.invariantY);
         // Filter for specific invariant values
         graphs_request.searchParams.append("invariants[0][value]", props.invariantXValue);
         graphs_request.searchParams.append("invariants[1][value]", props.invariantYValue);
 
         // graphs_request.searchParams.append("constraints", stringify(props.constraints));
         graphs_request = graphs_request.toString() + "&"  + stringify({
-            constraints: props.constraints
+            constraints: context.constraints
         });
 
         const advancedConstraits = {
-            query: props.advancedConstraints,
+            query: context.advancedConstraints,
         }
 
 
@@ -49,12 +52,12 @@ export default function GraphsFetch(props) {
             setLoading(false);
         });
         forceUpdate();
-    }, [props.order, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue] );
+    }, [context.order, context.invariantX, props.invariantXValue, context.invariantY, props.invariantYValue] );
 
     const fetchData = (request, body) => {
         return axios.post(request.toString(), {...body, headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}})
             .then((d) => {
-                return readGraph(d.data, props.invariantX, props.invariantXValue, props.invariantY, props.invariantYValue);
+                return readGraph(d.data, context.invariantX, props.invariantXValue, context.invariantY, props.invariantYValue);
             });
     }
 
