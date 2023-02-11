@@ -1,6 +1,6 @@
-import { createContext } from 'react';
+import { createContext } from "react";
 
-interface ContextType {
+interface InvContext {
   order: number;
   labelX: string;
   labelY: string;
@@ -12,4 +12,13 @@ interface ContextType {
 }
 
 // Create a context object without default values
-export const Context = createContext<ContextType | null>(null); 
+export const Context = createContext<InvContext>({
+  order: 7,
+  labelX: "",
+  labelY: "",
+  labelColor: "",
+  constraints: [],
+  advancedConstraints: "",
+  valueX: 0,
+  valueY: 0,
+});

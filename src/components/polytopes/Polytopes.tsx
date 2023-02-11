@@ -91,9 +91,9 @@ const Polytopes: React.FC = () => {
     <Context.Provider
       value={{
         order: 7,
-        labelX: invariants.invariants[0].name,
-        labelY: invariants.invariants[1].name,
-        labelColor: invariants.invariants[0].name,
+        labelX: "",
+        labelY: "",
+        labelColor: "",
         constraints: [],
         advancedConstraints: "",
         valueX: 0,
