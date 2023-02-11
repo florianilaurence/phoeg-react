@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import { View } from "react-native-web";
 import TitleText from "../styles_and_settings/TitleText";
 import InnerText from "../styles_and_settings/InnerText";
-import { Grid, Slider } from "@mui/material";
+import { CircularProgress, Grid, Slider, Typography } from "@mui/material";
 import {
   DEFAULT_NUMBER_OF_POLYTOPES,
   MAX_NUMBER_OF_POLYTOPES,
@@ -20,6 +20,8 @@ import Chart from "./Chart";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import MyError from "../MyError";
+import Loading from "../Loading";
 
 export interface Invariant {
   tablename: string;
@@ -33,14 +35,25 @@ export interface InvariantsProps {
 }
 
 const Polytopes: React.FC = () => {
-  const [, updateState] = useState();
-  const forceUpdate = useCallback(() => updateState(undefined), []);
-
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+
   const [invariants, setDataInvariants] = useState<InvariantsProps>({
     invariants: Array<Invariant>(),
   });
+
+  const orderReducer = (state: any, action: any) => {
+    switch (action.type) {
+      case "increment":
+        return state + 1;
+      case "decrement":
+        return state - 1;
+      default:
+        throw new Error();
+    }
+  };
+
+  const [order, dispatchOrder] = useReducer(orderReducer, 7);
 
   useEffect(() => {
     let request = new URL(`${API_URL}/invariants?type=any`);
@@ -55,7 +68,6 @@ const Polytopes: React.FC = () => {
       setDataInvariants({ invariants: inv });
       setLoading(false);
     });
-    forceUpdate();
   }, []);
 
   const fetchData = async (request: string): Promise<Array<Invariant>> => {
@@ -69,28 +81,30 @@ const Polytopes: React.FC = () => {
     }
   };
 
+  const nextOrder = () => {
+    if (order < 10) {
+      dispatchOrder({ type: "increment" });
+    }
+  };
+
+  const prevOrder = () => {
+    if (order > 1) {
+      dispatchOrder({ type: "decrement" });
+    }
+  };
+
   if (error) {
-    return (
-      <View>
-        <TitleText>Error</TitleText>
-        <InnerText>Something went wrong</InnerText>
-      </View>
-    );
+    return <MyError message={"invariants"} />;
   }
 
   if (loading) {
-    return (
-      <View>
-        <TitleText>Loading</TitleText>
-        <InnerText>Loading...</InnerText>
-      </View>
-    );
+    return <Loading />;
   }
 
   return (
     <Context.Provider
       value={{
-        order: 7,
+        order: order,
         labelX: "",
         labelY: "",
         labelColor: "",
@@ -105,13 +119,22 @@ const Polytopes: React.FC = () => {
         <Form invariants={invariants.invariants} />
         <Grid container spacing={2}>
           <Grid item xs={1}>
-            <ArrowBackIosIcon sx={{ fontSize: 40 }} />
+            <ArrowBackIosIcon
+              sx={{ fontSize: 40 }}
+              onClick={prevOrder}
+              color={order > 1 ? "success" : "disabled"}
+            />
           </Grid>
           <Grid item xs={10}>
+            order: {order}
             <Chart />
           </Grid>
           <Grid item xs={1}>
-            <ArrowForwardIosIcon sx={{ fontSize: 40 }} />
+            <ArrowForwardIosIcon
+              sx={{ fontSize: 40 }}
+              onClick={nextOrder}
+              color={order < 10 ? "success" : "disabled"}
+            />
           </Grid>
         </Grid>
       </Box>

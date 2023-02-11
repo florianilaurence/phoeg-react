@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useReducer, useState } from "react";
 import { Invariant, InvariantsProps } from "./Polytopes";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
