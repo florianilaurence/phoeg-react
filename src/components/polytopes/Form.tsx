@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useReducer, useState } from "react";
+import React, { useContext, useReducer, useState } from "react";
 import { Invariant, InvariantsProps } from "./Polytopes";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -21,13 +21,12 @@ import SendIcon from "@mui/icons-material/Send";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/system";
-import { Context } from "../context";
+import ChartContext from "../../store/utils/chart_context";
 
-type FormValues = {
-  invariantX: string;
-  invariantY: string;
-  invariantColor: string;
-  advanced: string;
+const getType = (id: number): string => {
+  if (id >= 2 && id <= 4) return "number";
+  if (id === 5) return "bool";
+  return "special";
 };
 
 enum ConstraintAction {
@@ -38,16 +37,12 @@ enum ConstraintAction {
   CHANGE_MAX,
 }
 
-const getType = (id: number): string => {
-  if (id >= 2 && id <= 4) return "number";
-  if (id === 5) return "bool";
-  return "special";
-};
+const HEIGHTCARD = 125;
 
 const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
-  const context = React.useContext(Context);
+  const chartContext = useContext(ChartContext);
 
-  const [show, setShow] = useState(true);
+  const [notCollapsed, setNotCollapsed] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -78,6 +73,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
         previous.push({
           id: currentId,
           name: inv.name,
+          tablename: inv.tablename,
           min: type === "bool" ? 1 : 0,
           max: 1,
           type: type,
@@ -116,84 +112,70 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
     }
   };
 
-  const formReducer = (state: FormValues, action: any) => {
-    switch (action.type) {
-      case "invariantX":
-        return { ...state, invariantX: action.value };
-      case "invariantY":
-        return { ...state, invariantY: action.value };
-      case "invariantColor":
-        return { ...state, invariantColor: action.value };
-      case "advanced":
-        return { ...state, advanced: action.value };
-      default:
-        throw new Error();
-    }
-  };
-
   const [constraints, dispatchConstraints] = useReducer(constraintsReducer, []);
 
-  const [formValues, dispatchFormValues] = useReducer(formReducer, {
-    invariantX: "",
-    invariantY: "",
-    invariantColor: "",
-    advanced: "",
-  });
-
-  const HEIGHTCARD = 125;
-
-  const handleChangeShow = () => {
-    setShow((prev) => !prev);
+  const handleCollapsed = () => {
+    setNotCollapsed((prev) => !prev);
   };
 
-  const handleChangeShowColoration = () => {
+  const handleLabelX = (data: any) => {
+    chartContext.handleIsSubmit(false);
+    chartContext.handleLabelX(data);
+  };
+
+  const handleLabelY = (data: any) => {
+    chartContext.handleIsSubmit(false);
+    chartContext.handleLabelY(data);
+  };
+
+  const handleShowColoration = () => {
+    chartContext.handleIsSubmit(false);
     setShowColoration((prev) => !prev);
-    dispatchFormValues({ type: "invariantColor", value: "" });
   };
 
-  const handleChangeShowAdvanced = () => {
+  const handleLabelColor = (data: any) => {
+    chartContext.handleIsSubmit(false);
+    chartContext.handleLabelColor(data);
+  };
+
+  const handleShowAdvanced = () => {
+    chartContext.handleIsSubmit(false);
     setShowAdvanced((prev) => !prev);
-    dispatchFormValues({ type: "advanced", value: "" });
+  };
+
+  const handleLabelAdvanced = (data: any) => {
+    chartContext.handleIsSubmit(false);
+    chartContext.handleAdvancedConstraints(data);
   };
 
   const handleRemoveConstraint = (id: number) => {
+    chartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.REMOVE_CONSTRAINT, id });
   };
 
   const handleAddConstraint = () => {
     setCurrentId((prev) => prev + 1);
+    chartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.ADD_CONSTRAINT });
   };
 
   const handleChangeName = (id: number, name: string | null) => {
+    chartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.CHANGE_NAME, id, name });
   };
 
   const handleChangeMin = (id: number, min: string) => {
+    chartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.CHANGE_MIN, id, min });
   };
 
   const handleChangeMax = (id: number, max: string) => {
+    chartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.CHANGE_MAX, id, max });
   };
 
-  const handleChangeX = (name: string | null) => {
-    dispatchFormValues({ type: "invariantX", value: name });
-  };
-
-  const handleChangeY = (name: string | null) => {
-    dispatchFormValues({ type: "invariantY", value: name });
-  };
-
-  const handleChangeColor = (name: string | null) => {
-    dispatchFormValues({ type: "invariantColor", value: name });
-  };
-
-  const handleChangeAdvanced = (name: string | null) => {
-    dispatchFormValues({ type: "advanced", value: name });
-  };
-
   const handleSwitch = (id: number, previous: number) => {
+    chartContext.handleIsSubmit(false);
     dispatchConstraints({
       type: ConstraintAction.CHANGE_MIN,
       id,
@@ -207,62 +189,65 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
   };
 
   const handleExchange = () => {
-    const currentY = formValues.invariantY;
-    dispatchFormValues({ type: "invariantY", value: formValues.invariantX });
-    dispatchFormValues({ type: "invariantX", value: currentY });
+    chartContext.handleIsSubmit(false);
+    const labelY = chartContext.labelY;
+    chartContext.handleLabelY(chartContext.labelX);
+    chartContext.handleLabelX(labelY);
   };
 
   const handleSubmit = () => {
     if (
-      formValues.invariantX === null ||
-      formValues.invariantX === undefined ||
-      formValues.invariantY === null ||
-      formValues.invariantY === undefined ||
-      (showColoration &&
-        (formValues.invariantColor === null ||
-          formValues.invariantColor === undefined)) ||
-      (showAdvanced &&
-        (formValues.advanced === null || formValues.advanced === undefined))
+      chartContext.labelX === null ||
+      chartContext.labelY === null ||
+      chartContext.labelX === "" ||
+      chartContext.labelY === ""
     ) {
-      alert("Please fill in all fields");
+      alert("Please complete all the required fields");
       return;
     }
-    context.labelX = formValues.invariantX;
-    context.labelY = formValues.invariantY;
-    context.labelColor = formValues.invariantColor;
-    context.advancedConstraints = formValues.advanced;
-    context.constraints = constraints;
+
+    chartContext.handleConstraints(parseConstraints());
+    chartContext.handleIsSubmit(true);
+  };
+
+  const parseConstraints = () => {
+    let result = "";
+    constraints.forEach((constraint: Constraint) => {
+      result += constraint.tablename + " ";
+      result += constraint.min + " ";
+      result += constraint.max + " ";
+    });
+    return result;
   };
 
   return (
     <form>
       <Box sx={{ mt: 1, mb: 1 }}>
         <Button
-          variant={show ? "outlined" : "contained"}
-          onClick={handleChangeShow}
+          variant={notCollapsed ? "contained" : "outlined"}
+          onClick={handleCollapsed}
           color="success"
+          sx={{ mr: 1 }}
         >
-          {show ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          {notCollapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </Button>
 
-        {show ? "Hide form" : "Show form"}
+        {notCollapsed ? "Hide form" : "Show form"}
       </Box>
-      <Collapse in={show} sx={{ mb: 2 }}>
+      <Collapse in={notCollapsed} sx={{ mb: 2 }}>
         <Grid container spacing={2}>
           <Grid item xs={2.9}>
             <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
               <Box sx={{ height: 40 }}>
                 <Typography variant="h6" align="center">
-                  X-Axis
+                  X-Axis*
                 </Typography>
               </Box>
               <Autocomplete
                 id="combo-box-demo"
                 sx={{ m: 1 }}
-                value={formValues.invariantX}
-                onChange={(event, newValue) => {
-                  handleChangeX(newValue);
-                }}
+                value={chartContext.labelX}
+                onChange={(event, newValue) => handleLabelX(newValue)}
                 options={invariants
                   .filter((inv) => getType(inv.datatype) === "number")
                   .map((inv) => inv.name)}
@@ -287,16 +272,14 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
             <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
               <Box sx={{ height: 40 }}>
                 <Typography variant="h6" align="center">
-                  Y-Axis
+                  Y-Axis*
                 </Typography>
               </Box>
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                value={formValues.invariantY}
-                onChange={(event, newValue) => {
-                  handleChangeY(newValue);
-                }}
+                value={chartContext.labelY}
+                onChange={(event, newValue) => handleLabelY(newValue)}
                 options={invariants
                   .filter((inv) => getType(inv.datatype) === "number")
                   .map((inv) => inv.name)}
@@ -318,7 +301,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
                   }}
                 >
                   <Checkbox
-                    onChange={handleChangeShowColoration}
+                    onChange={handleShowColoration}
                     size="small"
                     color="success"
                   />
@@ -329,10 +312,8 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
                 disabled={!showColoration}
                 disablePortal
                 id="combo-box-demo"
-                value={formValues.invariantColor}
-                onChange={(event, newValue) => {
-                  handleChangeColor(newValue);
-                }}
+                value={chartContext.labelColor}
+                onChange={(event, newValue) => handleLabelColor(newValue)}
                 options={invariants
                   .filter(
                     (inv) =>
@@ -359,7 +340,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
                   }}
                 >
                   <Checkbox
-                    onChange={handleChangeShowAdvanced}
+                    onChange={handleShowAdvanced}
                     size="small"
                     color="success"
                   />
@@ -369,10 +350,8 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
               <TextField
                 disabled={!showAdvanced}
                 sx={{ m: 1 }}
-                value={formValues.advanced}
-                onChange={(event) => {
-                  handleChangeAdvanced(event.target.value);
-                }}
+                value={chartContext.advancedConstraints}
+                onChange={(event) => handleLabelAdvanced(event.target.value)}
                 id="advanced-constraint"
                 label="Advanced constraint"
               />
@@ -407,10 +386,11 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
                         id="combo-box-demo"
                         options={constraintInvariant.map((inv) => inv.name)}
                         value={constraint.name}
+                        sx={{ m: 1 }}
+                        disableClearable
                         onChange={(e, value) =>
                           handleChangeName(constraint.id, value)
                         }
-                        sx={{ m: 1 }}
                         renderInput={(params) => (
                           <TextField {...params} label="Invariant color" />
                         )}
@@ -451,7 +431,9 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
                             id="max"
                             label="Max"
                             type="number"
-                            InputProps={{ inputProps: { min: constraint.min } }}
+                            InputProps={{
+                              inputProps: { min: constraint.min },
+                            }}
                             value={constraint.max}
                             onChange={(e) =>
                               handleChangeMax(constraint.id, e.target.value)
@@ -513,9 +495,10 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
   );
 };
 
-interface Constraint {
+export interface Constraint {
   id: number;
   name: string;
+  tablename: string;
   min: number;
   max: number;
   type: string;

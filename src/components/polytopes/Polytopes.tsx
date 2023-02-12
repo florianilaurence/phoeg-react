@@ -1,27 +1,30 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
-import { View } from "react-native-web";
+import { useEffect, useReducer, useState } from "react";
 import TitleText from "../styles_and_settings/TitleText";
-import InnerText from "../styles_and_settings/InnerText";
-import { CircularProgress, Grid, Slider, Typography } from "@mui/material";
-import {
-  DEFAULT_NUMBER_OF_POLYTOPES,
-  MAX_NUMBER_OF_POLYTOPES,
-  MIN_NUMBER_OF_POLYTOPES,
-  BOTTOM,
-  LEFT,
-  RIGHT,
-  TOP,
-} from "../../designVars";
-import { Context } from "../context";
+import { Grid } from "@mui/material";
+import { LEFT, RIGHT, TOP } from "../../designVars";
 import axios from "axios";
 import { API_URL } from "../../.env";
-import Form from "./Form";
+import Form, { Constraint } from "./Form";
 import Chart from "./Chart";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import MyError from "../MyError";
 import Loading from "../Loading";
+import {
+  initialChartState,
+  RequestChartReducer,
+} from "../../store/reducers/request_chart_reducer";
+import ChartContext from "../../store/utils/chart_context";
+import {
+  handleAdvancedConstraints,
+  handleLabelColor,
+  handleLabelX,
+  handleLabelY,
+  handleIsSubmit,
+  ChartAction,
+  handleConstraints,
+} from "../../store/actions/request_chart_action";
 
 export interface Invariant {
   tablename: string;
@@ -35,25 +38,17 @@ export interface InvariantsProps {
 }
 
 const Polytopes: React.FC = () => {
+  const [stateRequestChartReducer, dispatchRequestChartReducer] = useReducer(
+    RequestChartReducer,
+    initialChartState
+  );
+
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const [invariants, setDataInvariants] = useState<InvariantsProps>({
     invariants: Array<Invariant>(),
   });
-
-  const orderReducer = (state: any, action: any) => {
-    switch (action.type) {
-      case "increment":
-        return state + 1;
-      case "decrement":
-        return state - 1;
-      default:
-        throw new Error();
-    }
-  };
-
-  const [order, dispatchOrder] = useReducer(orderReducer, 7);
 
   useEffect(() => {
     let request = new URL(`${API_URL}/invariants?type=any`);
@@ -82,14 +77,16 @@ const Polytopes: React.FC = () => {
   };
 
   const nextOrder = () => {
-    if (order < 10) {
-      dispatchOrder({ type: "increment" });
+    if (stateRequestChartReducer.order < 10) {
+      const newOrder = stateRequestChartReducer.order + 1;
+      dispatchRequestChartReducer({ type: ChartAction.ORDER, newOrder });
     }
   };
 
   const prevOrder = () => {
-    if (order > 1) {
-      dispatchOrder({ type: "decrement" });
+    if (stateRequestChartReducer.order > 1) {
+      const newOrder = stateRequestChartReducer.order - 1;
+      dispatchRequestChartReducer({ type: ChartAction.ORDER, newOrder });
     }
   };
 
@@ -102,43 +99,63 @@ const Polytopes: React.FC = () => {
   }
 
   return (
-    <Context.Provider
+    <ChartContext.Provider
       value={{
-        order: order,
-        labelX: "",
-        labelY: "",
-        labelColor: "",
-        constraints: [],
-        advancedConstraints: "",
-        valueX: 0,
-        valueY: 0,
+        order: stateRequestChartReducer.order,
+        labelX: stateRequestChartReducer.labelX,
+        labelY: stateRequestChartReducer.labelY,
+        labelColor: stateRequestChartReducer.labelColor,
+        constraints: stateRequestChartReducer.constraints,
+        advancedConstraints: stateRequestChartReducer.advancedConstraints,
+        isSubmit: stateRequestChartReducer.isSubmit,
+        handleLabelX: (value: string) =>
+          handleLabelX(value, dispatchRequestChartReducer),
+        handleLabelY: (value: string) =>
+          handleLabelY(value, dispatchRequestChartReducer),
+        handleLabelColor: (value: string) =>
+          handleLabelColor(value, dispatchRequestChartReducer),
+        handleConstraints: (value: string) =>
+          handleConstraints(value, dispatchRequestChartReducer),
+        handleAdvancedConstraints: (value: string) =>
+          handleAdvancedConstraints(value, dispatchRequestChartReducer),
+        handleIsSubmit: (value: boolean) =>
+          handleIsSubmit(value, dispatchRequestChartReducer),
       }}
     >
       <TitleText>Polytopes</TitleText>
       <Box sx={{ ml: LEFT, mr: RIGHT }}>
         <Form invariants={invariants.invariants} />
-        <Grid container spacing={2}>
-          <Grid item xs={1}>
-            <ArrowBackIosIcon
-              sx={{ fontSize: 40 }}
-              onClick={prevOrder}
-              color={order > 1 ? "success" : "disabled"}
-            />
+        {stateRequestChartReducer.isSubmit && (
+          <Grid container spacing={2}>
+            <Grid item xs={1}>
+              <ArrowBackIosIcon
+                sx={{ fontSize: 40 }}
+                onClick={prevOrder}
+                color={
+                  stateRequestChartReducer.order > 1 ? "success" : "disabled"
+                }
+              />
+            </Grid>
+            <Grid item xs={10}>
+              <Chart />
+            </Grid>
+            <Grid item xs={1}>
+              <ArrowForwardIosIcon
+                sx={{ fontSize: 40 }}
+                onClick={nextOrder}
+                color={
+                  stateRequestChartReducer.order < 8
+                    ? "success"
+                    : stateRequestChartReducer.order < 10
+                    ? "warning"
+                    : "disabled"
+                }
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={10}>
-            order: {order}
-            <Chart />
-          </Grid>
-          <Grid item xs={1}>
-            <ArrowForwardIosIcon
-              sx={{ fontSize: 40 }}
-              onClick={nextOrder}
-              color={order < 10 ? "success" : "disabled"}
-            />
-          </Grid>
-        </Grid>
+        )}
       </Box>
-    </Context.Provider>
+    </ChartContext.Provider>
   );
 };
 
