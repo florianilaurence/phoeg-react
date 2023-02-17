@@ -8,6 +8,7 @@ export interface RequestChart {
   constraints: string;
   advancedConstraints: string;
   isSubmit: boolean;
+  isLoading: boolean;
 }
 
 export const initialChartState = {
@@ -18,6 +19,7 @@ export const initialChartState = {
   constraints: "",
   advancedConstraints: "",
   isSubmit: false,
+  isLoading: false,
 };
 
 export const RequestChartReducer = (
@@ -26,7 +28,7 @@ export const RequestChartReducer = (
 ) => {
   switch (action.type) {
     case ChartAction.ORDER:
-      return { ...state, order: action.newOrder };
+      return { ...state, order: action.payload };
     case ChartAction.LABEL_X:
       return { ...state, labelX: action.payload };
     case ChartAction.LABEL_Y:
@@ -39,6 +41,8 @@ export const RequestChartReducer = (
       return { ...state, advancedConstraints: action.payload };
     case ChartAction.IS_SUBMIT:
       return { ...state, isSubmit: action.payload };
+    case ChartAction.IS_LOADING:
+      return { ...state, isLoading: action.payload };
     default:
       return state;
   }

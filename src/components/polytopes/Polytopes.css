@@ -8,12 +8,3 @@
     stroke-width: 2;
     stroke-opacity: 1;
 }
-
-.select {
-    max-width: 500px;
-    padding-left: 25px;
-}
-
-.main-container {
-    display: flex;
-}

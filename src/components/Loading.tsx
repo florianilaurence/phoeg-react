@@ -4,11 +4,12 @@ import { LEFT, RIGHT } from "../designVars";
 const loading: React.FC = () => {
   return (
     <Box
-      sx={{ ml: LEFT, mr: RIGHT, height: "250px" }}
+      sx={{ ml: LEFT, mr: RIGHT, height: "400px" }}
+      display="flex"
       alignItems="center"
       justifyContent="center"
     >
-      <CircularProgress color="success" size="50" />
+      <CircularProgress color="success" size="10rem" />
     </Box>
   );
 };

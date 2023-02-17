@@ -21,7 +21,7 @@ import SendIcon from "@mui/icons-material/Send";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/system";
-import ChartContext from "../../store/utils/chart_context";
+import RequestChartContext from "../../store/utils/request_chart_context";
 
 const getType = (id: number): string => {
   if (id >= 2 && id <= 4) return "number";
@@ -40,7 +40,7 @@ enum ConstraintAction {
 const HEIGHTCARD = 125;
 
 const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
-  const chartContext = useContext(ChartContext);
+  const chartContext = useContext(RequestChartContext);
 
   const [notCollapsed, setNotCollapsed] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
@@ -84,6 +84,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
         const new_state_name = state.map((item: Constraint) => {
           if (item.id === action.id) {
             item.name = new_constraint.name;
+            item.tablename = new_constraint.tablename;
             item.type = getType(new_constraint.datatype);
             item.min = item.type === "bool" ? 1 : 0;
             item.max = 1;
@@ -205,7 +206,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
       alert("Please complete all the required fields");
       return;
     }
-
+    chartContext.handleIsLoading(true);
     chartContext.handleConstraints(parseConstraints());
     chartContext.handleIsSubmit(true);
   };
@@ -215,7 +216,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
     constraints.forEach((constraint: Constraint) => {
       result += constraint.tablename + " ";
       result += constraint.min + " ";
-      result += constraint.max + " ";
+      result += constraint.max + ";";
     });
     return result;
   };

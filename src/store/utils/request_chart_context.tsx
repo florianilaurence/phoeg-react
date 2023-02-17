@@ -1,7 +1,7 @@
 import { createContext } from "react";
 import { initialChartState } from "../reducers/request_chart_reducer";
 
-const ChartContext = createContext({
+const RequestChartContext = createContext({
   ...initialChartState,
   handleLabelX: (data: any) => {},
   handleLabelY: (data: any) => {},
@@ -9,6 +9,7 @@ const ChartContext = createContext({
   handleConstraints: (data: any) => {},
   handleAdvancedConstraints: (data: any) => {},
   handleIsSubmit: (data: any) => {},
+  handleIsLoading: (data: any) => {},
 });
 
-export default ChartContext;
+export default RequestChartContext;

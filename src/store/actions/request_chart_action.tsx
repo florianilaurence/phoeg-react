@@ -6,6 +6,7 @@ export enum ChartAction {
   CONSTRAINTS = "constraints",
   ADVANCED_CONSTRAINTS = "advancedConstraints",
   IS_SUBMIT = "isSubmit",
+  IS_LOADING = "isLoading",
 }
 
 export const handleLabelX = (data: any, dispatch: any) => {
@@ -47,5 +48,19 @@ export const handleIsSubmit = (data: any, dispatch: any) => {
   return dispatch({
     type: ChartAction.IS_SUBMIT,
     payload: data === null ? "" : data,
+  });
+};
+
+export const handleIsLoading = (data: any, dispatch: any) => {
+  return dispatch({
+    type: ChartAction.IS_LOADING,
+    payload: data === null ? "" : data,
+  });
+};
+
+export const handleOrder = (data: number, dispatch: any) => {
+  return dispatch({
+    type: ChartAction.ORDER,
+    payload: data === null ? -1 : data,
   });
 };
