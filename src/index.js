@@ -1,11 +1,10 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./components/home_and_frame/App";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import About from "./components/annex_pages/About.js";
-import Tutorial from "./components/annex_pages/Tutorial.js";
-import Welcome from "./components/annex_pages/Welcome";
+import About from "./components/annex_pages/About.tsx";
+import Tutorial from "./components/annex_pages/Tutorial.tsx";
+import Welcome from "./components/annex_pages/Welcome.tsx";
 
 const rootElement = document.getElementById("root");
 
