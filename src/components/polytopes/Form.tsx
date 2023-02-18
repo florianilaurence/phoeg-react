@@ -221,6 +221,12 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
       alert("Please complete all the required fields");
       return;
     }
+    const messageError = checkMainDifferent();
+    if (messageError !== "") {
+      alert(messageError);
+      return;
+    }
+
     setNotCollapsed(false);
     requestChartContext.handleIsLoading(true);
     requestChartContext.handleConstraints(encodeConstraints());
@@ -235,6 +241,21 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
       result += constraint.max + ";";
     });
     return result;
+  };
+
+  const checkMainDifferent = () => {
+    if (requestChartContext.labelX === requestChartContext.labelY) {
+      return "The main labels must be different (X and Y)";
+    } else if (showColoration) {
+      if (requestChartContext.labelX === requestChartContext.labelColor) {
+        return "The main labels must be different (X and Color)";
+      } else if (
+        requestChartContext.labelY === requestChartContext.labelColor
+      ) {
+        return "The main labels must be different (Y and Color)";
+      }
+    }
+    return "";
   };
 
   return (
