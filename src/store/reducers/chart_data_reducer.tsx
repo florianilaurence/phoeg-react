@@ -12,8 +12,8 @@ export interface MinMax {
   maxX: number;
   minY: number;
   maxY: number;
-  minColor?: number;
-  maxColor?: number;
+  minColor: number;
+  maxColor: number;
 }
 
 export const defaultMinMax: MinMax = {
@@ -21,6 +21,8 @@ export const defaultMinMax: MinMax = {
   maxX: 0,
   minY: 0,
   maxY: 0,
+  minColor: 0,
+  maxColor: 0,
 };
 
 export interface Concave {
@@ -47,20 +49,18 @@ export const defaultConcave: Concave = {
 
 export interface ChartData {
   envelope: Array<Coordinate>;
-  coordinates: Array<Coordinate>;
   minMax: MinMax;
-  clusterList: Array<number>;
-  allClusters: { [key: number]: Array<Array<Coordinate>> };
+  coordinates: Array<Coordinate>;
+  sorted: { [key: number]: Array<Coordinate> };
   concave: Concave;
   error: string;
 }
 
 export const initialChartDataState: ChartData = {
   envelope: [],
-  coordinates: [],
   minMax: defaultMinMax,
-  clusterList: [],
-  allClusters: { 0: [] },
+  coordinates: [],
+  sorted: {},
   concave: defaultConcave,
   error: "",
 };
@@ -70,24 +70,23 @@ export const ChartDataReducer = (state: ChartData, action: any) => {
     case ChartDataAction.SET_DATA:
       return {
         ...state,
-        envelope: action.payload.envelope,
-        coordinates: action.payload.coordinates,
-        minMax: action.payload.minMax,
-        clusterList: action.payload.clusterList,
-        allClusters: action.payload.allClusters,
-        concave: action.payload.concave,
+        envelope: action.chartData.envelope,
+        minMax: action.chartData.minMax,
+        coordinates: action.chartData.coordinates,
+        sorted: action.chartData.sorted,
+        concave: action.chartData.concave,
+        error: "",
       };
 
     case ChartDataAction.SET_ERROR:
       return {
         ...state,
         envelope: [],
-        coordinates: [],
         minMax: defaultMinMax,
-        clusterList: [],
-        allClusters: {},
+        coordinates: [],
+        sorted: {},
         concave: defaultConcave,
-        error: action.payload,
+        error: action.message,
       };
 
     default:

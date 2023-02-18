@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useReducer, useState } from "react";
-import { Invariant, InvariantsProps } from "./Polytopes";
+import { Invariant } from "./Polytopes";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
@@ -22,6 +22,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/system";
 import RequestChartContext from "../../store/utils/request_chart_context";
+import Inner from "../styles_and_settings/Inner";
 
 const getType = (id: number): string => {
   if (id >= 2 && id <= 4) return "number";
@@ -37,10 +38,23 @@ enum ConstraintAction {
   CHANGE_MAX,
 }
 
+export interface FormProps {
+  invariants: Array<Invariant>;
+}
+
+export interface Constraint {
+  id: number;
+  name: string;
+  tablename: string;
+  min: number;
+  max: number;
+  type: string;
+}
+
 const HEIGHTCARD = 125;
 
-const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
-  const chartContext = useContext(RequestChartContext);
+const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
+  const requestChartContext = useContext(RequestChartContext);
 
   const [notCollapsed, setNotCollapsed] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
@@ -120,63 +134,64 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
   };
 
   const handleLabelX = (data: any) => {
-    chartContext.handleIsSubmit(false);
-    chartContext.handleLabelX(data);
+    requestChartContext.handleIsSubmit(false);
+    requestChartContext.handleLabelX(data);
   };
 
   const handleLabelY = (data: any) => {
-    chartContext.handleIsSubmit(false);
-    chartContext.handleLabelY(data);
+    requestChartContext.handleIsSubmit(false);
+    requestChartContext.handleLabelY(data);
   };
 
   const handleShowColoration = () => {
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     setShowColoration((prev) => !prev);
+    requestChartContext.handleLabelColor("");
   };
 
   const handleLabelColor = (data: any) => {
-    chartContext.handleIsSubmit(false);
-    chartContext.handleLabelColor(data);
+    requestChartContext.handleIsSubmit(false);
+    requestChartContext.handleLabelColor(data);
   };
 
   const handleShowAdvanced = () => {
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     setShowAdvanced((prev) => !prev);
   };
 
   const handleLabelAdvanced = (data: any) => {
-    chartContext.handleIsSubmit(false);
-    chartContext.handleAdvancedConstraints(data);
+    requestChartContext.handleIsSubmit(false);
+    requestChartContext.handleAdvancedConstraints(data);
   };
 
   const handleRemoveConstraint = (id: number) => {
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.REMOVE_CONSTRAINT, id });
   };
 
   const handleAddConstraint = () => {
     setCurrentId((prev) => prev + 1);
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.ADD_CONSTRAINT });
   };
 
   const handleChangeName = (id: number, name: string | null) => {
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.CHANGE_NAME, id, name });
   };
 
   const handleChangeMin = (id: number, min: string) => {
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.CHANGE_MIN, id, min });
   };
 
   const handleChangeMax = (id: number, max: string) => {
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     dispatchConstraints({ type: ConstraintAction.CHANGE_MAX, id, max });
   };
 
   const handleSwitch = (id: number, previous: number) => {
-    chartContext.handleIsSubmit(false);
+    requestChartContext.handleIsSubmit(false);
     dispatchConstraints({
       type: ConstraintAction.CHANGE_MIN,
       id,
@@ -189,29 +204,30 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
     });
   };
 
-  const handleExchange = () => {
-    chartContext.handleIsSubmit(false);
-    const labelY = chartContext.labelY;
-    chartContext.handleLabelY(chartContext.labelX);
-    chartContext.handleLabelX(labelY);
+  const handleExchangeXY = () => {
+    requestChartContext.handleIsSubmit(false);
+    const labelY = requestChartContext.labelY;
+    requestChartContext.handleLabelY(requestChartContext.labelX);
+    requestChartContext.handleLabelX(labelY);
   };
 
   const handleSubmit = () => {
     if (
-      chartContext.labelX === null ||
-      chartContext.labelY === null ||
-      chartContext.labelX === "" ||
-      chartContext.labelY === ""
+      requestChartContext.labelX === null ||
+      requestChartContext.labelY === null ||
+      requestChartContext.labelX === "" ||
+      requestChartContext.labelY === ""
     ) {
       alert("Please complete all the required fields");
       return;
     }
-    chartContext.handleIsLoading(true);
-    chartContext.handleConstraints(parseConstraints());
-    chartContext.handleIsSubmit(true);
+    setNotCollapsed(false);
+    requestChartContext.handleIsLoading(true);
+    requestChartContext.handleConstraints(encodeConstraints());
+    requestChartContext.handleIsSubmit(true);
   };
 
-  const parseConstraints = () => {
+  const encodeConstraints = () => {
     let result = "";
     constraints.forEach((constraint: Constraint) => {
       result += constraint.tablename + " ";
@@ -223,18 +239,22 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
 
   return (
     <form>
-      <Box sx={{ mt: 1, mb: 1 }}>
+      <Stack
+        sx={{ mt: 1, mb: 1 }}
+        direction="row"
+        justifyContent="flex-start"
+        alignItems="center"
+        spacing={1}
+      >
         <Button
           variant={notCollapsed ? "contained" : "outlined"}
           onClick={handleCollapsed}
           color="success"
-          sx={{ mr: 1 }}
         >
           {notCollapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </Button>
-
-        {notCollapsed ? "Hide form" : "Show form"}
-      </Box>
+        <Inner>{notCollapsed ? "Hide form" : "Show form"}</Inner>
+      </Stack>
       <Collapse in={notCollapsed} sx={{ mb: 2 }}>
         <Grid container spacing={2}>
           <Grid item xs={2.9}>
@@ -247,7 +267,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
               <Autocomplete
                 id="combo-box-demo"
                 sx={{ m: 1 }}
-                value={chartContext.labelX}
+                value={requestChartContext.labelX}
                 onChange={(event, newValue) => handleLabelX(newValue)}
                 options={invariants
                   .filter((inv) => getType(inv.datatype) === "number")
@@ -264,7 +284,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
               justifyContent="center"
               alignItems="center"
               height={HEIGHTCARD}
-              onClick={handleExchange}
+              onClick={handleExchangeXY}
             >
               <SyncAltIcon />
             </Box>
@@ -279,7 +299,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
               <Autocomplete
                 disablePortal
                 id="combo-box-demo"
-                value={chartContext.labelY}
+                value={requestChartContext.labelY}
                 onChange={(event, newValue) => handleLabelY(newValue)}
                 options={invariants
                   .filter((inv) => getType(inv.datatype) === "number")
@@ -313,7 +333,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
                 disabled={!showColoration}
                 disablePortal
                 id="combo-box-demo"
-                value={chartContext.labelColor}
+                value={requestChartContext.labelColor}
                 onChange={(event, newValue) => handleLabelColor(newValue)}
                 options={invariants
                   .filter(
@@ -351,7 +371,7 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
               <TextField
                 disabled={!showAdvanced}
                 sx={{ m: 1 }}
-                value={chartContext.advancedConstraints}
+                value={requestChartContext.advancedConstraints}
                 onChange={(event) => handleLabelAdvanced(event.target.value)}
                 id="advanced-constraint"
                 label="Advanced constraint"
@@ -495,14 +515,5 @@ const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
     </form>
   );
 };
-
-export interface Constraint {
-  id: number;
-  name: string;
-  tablename: string;
-  min: number;
-  max: number;
-  type: string;
-}
 
 export default Form;

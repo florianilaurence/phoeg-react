@@ -3,8 +3,12 @@ import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
 import "./Home_and_frame.css";
 
+export interface BannerProps {
+  isHome: boolean;
+}
+
 // Reusable banner for each new page
-const Banner: React.FC = () => {
+const Banner: React.FC<BannerProps> = ({ isHome }: BannerProps) => {
   const navigate = useNavigate();
 
   return (

@@ -3,12 +3,8 @@ import { API_URL } from "../../.env";
 import RequestChartContext from "../../store/utils/request_chart_context";
 import { stringify } from "qs";
 import axios from "axios";
-import { InvariantsProps } from "./Polytopes";
-import Loading from "../Loading";
-import MyError from "../MyError";
-import Chart from "./Chart";
-import { Concave, Coordinate } from "../../store/reducers/chart_data_reducer";
 import ChartDataContext from "../../store/utils/chart_data_context";
+import { FormProps } from "./Form";
 
 interface PostConstraint {
   name: string;
@@ -16,7 +12,7 @@ interface PostConstraint {
   maximum_bound: string;
 }
 
-const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
+const Fetch: React.FC<FormProps> = ({ invariants }: FormProps) => {
   const requestChartContext = useContext(RequestChartContext);
   const chartDataContext = useContext(ChartDataContext);
 
@@ -28,7 +24,7 @@ const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
     return "";
   };
 
-  const parseContraints = (constraints: string): Array<PostConstraint> => {
+  const decodeConstraints = (constraints: string): Array<PostConstraint> => {
     let constraints_array: Array<PostConstraint> = [];
     if (constraints !== "") {
       const constraints_string = constraints.split(";");
@@ -50,7 +46,7 @@ const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
 
   useEffect(() => {
     requestChartContext.handleIsLoading(true);
-    const constraints = parseContraints(requestChartContext.constraints);
+    const constraints = decodeConstraints(requestChartContext.constraints);
     const x_tablename = getTablenameFromName(requestChartContext.labelX);
     const y_tablename = getTablenameFromName(requestChartContext.labelY);
     const color_tablename = getTablenameFromName(
@@ -124,10 +120,9 @@ const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
         axios.spread((envelope, points, concave) => {
           return {
             envelope: envelope.data,
-            coordinates: points.data.coordinates,
             minMax: points.data.minMax,
-            clusterList: points.data.clusterList,
-            allClusters: points.data.allClusters,
+            coordinates: points.data.coordinates,
+            sorted: points.data.sorted,
             concave: concave.data,
             error: "",
           };

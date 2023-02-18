@@ -1,10 +1,9 @@
 import { useEffect, useReducer, useState } from "react";
-import TitleText from "../styles_and_settings/TitleText";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Tooltip, Typography } from "@mui/material";
 import { LEFT, RIGHT } from "../../designVars";
 import axios from "axios";
 import { API_URL } from "../../.env";
-import Form from "./Form";
+import Form, { FormProps } from "./Form";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -21,7 +20,6 @@ import {
   handleLabelX,
   handleLabelY,
   handleIsSubmit,
-  ChartAction,
   handleConstraints,
   handleIsLoading,
   handleOrder,
@@ -35,16 +33,16 @@ import {
   initialChartDataState,
 } from "../../store/reducers/chart_data_reducer";
 import { setData, setError } from "../../store/actions/chart_data_action";
+import Title from "../styles_and_settings/Title";
+import { deepOrange, green, grey, orange } from "@mui/material/colors";
+import SubTitle from "../styles_and_settings/SubTitle";
+import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 
 export interface Invariant {
   tablename: string;
   datatype: number;
   name: string;
   description: string;
-}
-
-export interface InvariantsProps {
-  invariants: Array<Invariant>;
 }
 
 const Polytopes: React.FC = () => {
@@ -58,7 +56,7 @@ const Polytopes: React.FC = () => {
     initialChartDataState
   );
 
-  const [invariants, setDataInvariants] = useState<InvariantsProps>({
+  const [invariants, setDataInvariants] = useState<FormProps>({
     invariants: Array<Invariant>(),
   });
 
@@ -80,9 +78,10 @@ const Polytopes: React.FC = () => {
     try {
       const res = await axios.get(request);
       return res.data;
-    } catch (err) {
+    } catch (error) {
       dispatchChartDataReducer({
         type: "SET_ERROR",
+        message: " invariants loading",
       });
       return [];
     }
@@ -99,11 +98,36 @@ const Polytopes: React.FC = () => {
   const prevOrder = () => {
     if (stateRequestChartReducer.order > 1) {
       const newOrder = stateRequestChartReducer.order - 1;
-      console.log(stateRequestChartReducer.order);
-      console.log(newOrder);
       handleOrder(newOrder, dispatchRequestChartReducer);
-      console.log(stateRequestChartReducer.order);
       handleIsLoading(false, dispatchRequestChartReducer);
+    }
+  };
+
+  const colorNext = () => {
+    switch (stateRequestChartReducer.order) {
+      case 7:
+        return orange[500];
+      case 8:
+        return deepOrange[700];
+      case 9:
+        return deepOrange[900];
+      case 10:
+        return grey[400];
+      default:
+        return green[800];
+    }
+  };
+
+  const colorPrev = () => {
+    switch (stateRequestChartReducer.order) {
+      case 1:
+        return grey[400];
+      case 9:
+        return orange[500];
+      case 10:
+        return deepOrange[700];
+      default:
+        return green[800];
     }
   };
 
@@ -137,10 +161,9 @@ const Polytopes: React.FC = () => {
       <ChartDataContext.Provider
         value={{
           envelope: stateChartDataReducer.envelope,
-          coordinates: stateChartDataReducer.coordinates,
           minMax: stateChartDataReducer.minMax,
-          clusterList: stateChartDataReducer.clusterList,
-          allClusters: stateChartDataReducer.allClusters,
+          coordinates: stateChartDataReducer.coordinates,
+          sorted: stateChartDataReducer.sorted,
           concave: stateChartDataReducer.concave,
           error: stateChartDataReducer.error,
           handleSetData: (data: ChartData) =>
@@ -149,7 +172,7 @@ const Polytopes: React.FC = () => {
             setError(value, dispatchChartDataReducer),
         }}
       >
-        <TitleText>Polytopes</TitleText>
+        <Title>Polytope</Title>
         <Box sx={{ ml: LEFT, mr: RIGHT }}>
           <Form invariants={invariants.invariants} />
 
@@ -167,41 +190,46 @@ const Polytopes: React.FC = () => {
           {stateRequestChartReducer.isSubmit &&
             !stateRequestChartReducer.isLoading && (
               <>
-                <Typography variant="h5" sx={{ mt: 2, mb: 2 }}>
-                  Order {stateRequestChartReducer.order}
-                </Typography>
+                <SubTitle>
+                  Chart for order {stateRequestChartReducer.order}
+                </SubTitle>
+                <br />
                 <Grid
                   container
                   spacing={1}
                   alignItems="center"
                   justifyContent="center"
                 >
-                  <Grid item xs={1}>
-                    <ArrowBackIosIcon
-                      sx={{ fontSize: 40 }}
-                      onClick={prevOrder}
-                      color={
-                        stateRequestChartReducer.order > 1
-                          ? "success"
-                          : "disabled"
-                      }
-                    />
+                  <Grid item xs={0.5}>
+                    <Tooltip title="Previous order" placement="top">
+                      <ArrowBackIosIcon
+                        sx={{ fontSize: 40, color: colorPrev() }}
+                        onClick={prevOrder}
+                      />
+                    </Tooltip>
                   </Grid>
-                  <Grid item xs={10}>
-                    <Chart />
+                  <Grid item xs={11}>
+                    <ParentSize>
+                      {({ width }) => <Chart width={width} />}
+                    </ParentSize>
                   </Grid>
-                  <Grid item xs={1}>
-                    <ArrowForwardIosIcon
-                      sx={{ fontSize: 40 }}
-                      onClick={nextOrder}
-                      color={
+                  <Grid item xs={0.5}>
+                    <Tooltip
+                      title={
                         stateRequestChartReducer.order < 7
-                          ? "success"
-                          : stateRequestChartReducer.order < 10
-                          ? "warning"
-                          : "disabled"
+                          ? "Next order"
+                          : "Next order, warning !"
                       }
-                    />
+                      placement="top"
+                    >
+                      <ArrowForwardIosIcon
+                        sx={{
+                          fontSize: 40,
+                          color: colorNext(),
+                        }}
+                        onClick={nextOrder}
+                      />
+                    </Tooltip>
                   </Grid>
                 </Grid>
               </>

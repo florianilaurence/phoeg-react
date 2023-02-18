@@ -4,23 +4,23 @@ export enum GraphAction {
   IS_SELECTED = "is_selected",
 }
 
-export const handleChangeValueX = (data: any) => {
-  return {
+export const handleValueX = (data: number, dispatch: any) => {
+  return dispatch({
     type: GraphAction.VALUE_X,
-    payload: data,
-  };
+    valueX: data,
+  });
 };
 
-export const handleChangeValueY = (data: any) => {
-  return {
+export const handleValueY = (data: number, dispatch: any) => {
+  return dispatch({
     type: GraphAction.VALUE_Y,
-    payload: data,
-  };
+    valueY: data,
+  });
 };
 
-export const handleChangeIsSelected = (data: any) => {
-  return {
+export const handleIsSelected = (data: boolean, dispatch: any) => {
+  return dispatch({
     type: GraphAction.IS_SELECTED,
-    payload: data,
-  };
+    isSelected: data,
+  });
 };

@@ -1,29 +1,23 @@
 import { View } from "react-native-web";
-import TitleText from "../styles_and_settings/TitleText";
 import { useNavigate } from "react-router-dom";
 import LightbulbCircleIcon from "@mui/icons-material/LightbulbCircle";
 import "./Home_and_frame.css";
 import { BOTTOM, INNER, LEFT, RIGHT, TOP } from "../../designVars";
 import HelpIcon from "@mui/icons-material/Help";
-import { Box, Tooltip } from "@mui/material";
+import { Box, Stack, Tooltip } from "@mui/material";
 import Button from "@mui/material/Button";
 import InnerText from "../styles_and_settings/InnerText";
+import Title from "../styles_and_settings/Title";
+import Inner from "../styles_and_settings/Inner";
 
 export const Introduction: React.FC = () => {
   let navigate = useNavigate();
 
   return (
-    <View>
-      <TitleText>Introduction</TitleText>
-      <View
-        style={{
-          paddingTop: TOP,
-          paddingBottom: BOTTOM,
-          paddingLeft: LEFT,
-          paddingRight: RIGHT,
-        }}
-      >
-        <Box display="flex" justifyContent="space-between">
+    <>
+      <Title>Introduction</Title>
+      <Box sx={{ ml: LEFT, mr: RIGHT }}>
+        <Stack justifyContent="space-between" direction="row">
           <Tooltip
             title="More informations about PHOEG and developers"
             placement="top"
@@ -49,22 +43,15 @@ export const Introduction: React.FC = () => {
               Tutorial
             </Button>
           </Tooltip>
-        </Box>
-      </View>
-      <View style={{ textAlign: "center", paddingBottom: INNER }}>
-        <InnerText bold>
-          Could you give me your opinion by completing the following google
-          forms? Please click on:{" "}
-          <a
-            href={"https://forms.gle/bn1YqfqsGGrt4t1z6"}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Feedback
-          </a>
-          , thanks
-        </InnerText>
-      </View>
-    </View>
+        </Stack>
+        <br />
+        <Inner>
+          Welcome to the new user interface. Start using it by filling in the
+          following form to view your first polytope.
+          <br />
+          And enjoy!
+        </Inner>
+      </Box>
+    </>
   );
 };

@@ -18,11 +18,11 @@ export const RequestGraphReducer = (
 ) => {
   switch (action.type) {
     case GraphAction.VALUE_X:
-      return { ...state, valueX: action.payload };
+      return { ...state, valueX: action.valueX };
     case GraphAction.VALUE_Y:
-      return { ...state, valueY: action.payload };
+      return { ...state, valueY: action.valueY };
     case GraphAction.IS_SELECTED:
-      return { ...state, is_selected: action.payload };
+      return { ...state, is_selected: action.isSelected };
     default:
       return state;
   }
