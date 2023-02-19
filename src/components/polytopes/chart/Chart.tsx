@@ -1,33 +1,24 @@
 import { useContext, useMemo, useReducer, useRef, useState } from "react";
-import RequestChartContext from "../../store/utils/request_chart_context";
+import RequestChartContext from "../../../store/utils/request_chart_context";
 import {
   initialGraphState,
   RequestGraphReducer,
-} from "../../store/reducers/request_graph_reducer";
-import GraphContext from "../../store/utils/request_graph_context";
-import { Zoom } from "@visx/zoom";
-import { ScaleSVG } from "@visx/responsive";
-import { RectClipPath } from "@visx/clip-path";
-import { localPoint } from "@visx/event";
+} from "../../../store/reducers/request_graph_reducer";
+import RequestGraphContext from "../../../store/utils/request_graph_context";
 import { Group } from "@visx/group";
-import Tooltip from "@mui/material/Tooltip";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { GridColumns, GridRows } from "@visx/grid";
-import { Circle, LinePath } from "@visx/shape";
+import { LinePath } from "@visx/shape";
 import { scaleLinear } from "@visx/scale";
-import {
-  Concave,
-  Coordinate,
-  MinMax,
-} from "../../store/reducers/chart_data_reducer";
-import ChartDataContext from "../../store/utils/chart_data_context";
+import ChartDataContext from "../../../store/utils/chart_data_context";
 import {
   handleIsSelected,
   handleValueX,
   handleValueY,
-} from "../../store/actions/request_graph_action";
-import DrawConcave from "./DrawConcave";
+} from "../../../store/actions/request_graph_action";
+import DrawConcave, { DirectionColors } from "./DrawConcave";
 import DrawPoints from "./DrawPoints";
+import Legend from "./Legend";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
@@ -63,10 +54,7 @@ interface SizeProps {
 }
 
 const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
-  const [showMiniMap, setShowMiniMap] = useState(false);
-
   const chartDataContext = useContext(ChartDataContext);
-
   const requestChartContext = useContext(RequestChartContext);
 
   const [stateRequestGraphReducer, dispatchRequestGraphReducer] = useReducer(
@@ -118,7 +106,17 @@ const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
   });
 
   return (
-    <div>
+    <RequestGraphContext.Provider
+      value={{
+        ...stateRequestGraphReducer,
+        handleValueX: (data: number) =>
+          handleValueX(data, dispatchRequestGraphReducer),
+        handleValueY: (data: number) =>
+          handleValueY(data, dispatchRequestGraphReducer),
+        handleIsSelected: (data: boolean) =>
+          handleIsSelected(data, dispatchRequestGraphReducer),
+      }}
+    >
       <svg width={width} height={height} ref={svgRef}>
         <rect width={width} height={height} rx={14} fill={background} />
         <Group>
@@ -165,21 +163,8 @@ const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
           <DrawPoints xScale={xScale} yScale={yScale} colorScale={colorScale} />
         </Group>
       </svg>
-
-      <GraphContext.Provider
-        value={{
-          ...stateRequestGraphReducer,
-          handleValueX: (data: number) =>
-            handleValueX(data, dispatchRequestGraphReducer),
-          handleValueY: (data: number) =>
-            handleValueY(data, dispatchRequestGraphReducer),
-          handleIsSelected: (data: boolean) =>
-            handleIsSelected(data, dispatchRequestGraphReducer),
-        }}
-      >
-        {/*Pas nécessaire pour tous les fils, seulement pour graphslider et les graphes ...*/}
-      </GraphContext.Provider>
-    </div>
+      <Legend xScale={xScale} yScale={yScale} colorScale={colorScale} />
+    </RequestGraphContext.Provider>
   );
 };
 

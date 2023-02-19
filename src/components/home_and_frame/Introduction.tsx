@@ -1,12 +1,10 @@
-import { View } from "react-native-web";
 import { useNavigate } from "react-router-dom";
 import LightbulbCircleIcon from "@mui/icons-material/LightbulbCircle";
 import "./Home_and_frame.css";
-import { BOTTOM, INNER, LEFT, RIGHT, TOP } from "../../designVars";
+import { LEFT, RIGHT } from "../../designVars";
 import HelpIcon from "@mui/icons-material/Help";
 import { Box, Stack, Tooltip } from "@mui/material";
 import Button from "@mui/material/Button";
-import InnerText from "../styles_and_settings/InnerText";
 import Title from "../styles_and_settings/Title";
 import Inner from "../styles_and_settings/Inner";
 
@@ -15,7 +13,7 @@ export const Introduction: React.FC = () => {
 
   return (
     <>
-      <Title>Introduction</Title>
+      <Title title="Introduction" />
       <Box sx={{ ml: LEFT, mr: RIGHT }}>
         <Stack justifyContent="space-between" direction="row">
           <Tooltip

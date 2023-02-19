@@ -56,7 +56,7 @@ const HEIGHTCARD = 125;
 const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
   const requestChartContext = useContext(RequestChartContext);
 
-  const [notCollapsed, setNotCollapsed] = useState(true);
+  const [showForm, setShowForm] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -130,7 +130,7 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
   const [constraints, dispatchConstraints] = useReducer(constraintsReducer, []);
 
   const handleCollapsed = () => {
-    setNotCollapsed((prev) => !prev);
+    setShowForm((prev) => !prev);
   };
 
   const handleLabelX = (data: any) => {
@@ -227,7 +227,7 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
       return;
     }
 
-    setNotCollapsed(false);
+    setShowForm(false);
     requestChartContext.handleIsLoading(true);
     requestChartContext.handleConstraints(encodeConstraints());
     requestChartContext.handleIsSubmit(true);
@@ -268,15 +268,15 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
         spacing={1}
       >
         <Button
-          variant={notCollapsed ? "contained" : "outlined"}
+          variant={showForm ? "contained" : "outlined"}
           onClick={handleCollapsed}
           color="success"
         >
-          {notCollapsed ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          {showForm ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </Button>
-        <Inner>{notCollapsed ? "Hide form" : "Show form"}</Inner>
+        <Inner>{showForm ? "Hide form" : "Show form"}</Inner>
       </Stack>
-      <Collapse in={notCollapsed} sx={{ mb: 2 }}>
+      <Collapse in={showForm} sx={{ mb: 2 }}>
         <Grid container spacing={2}>
           <Grid item xs={2.9}>
             <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
@@ -306,6 +306,7 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
               alignItems="center"
               height={HEIGHTCARD}
               onClick={handleExchangeXY}
+              sx={{ cursor: "pointer" }}
             >
               <SyncAltIcon />
             </Box>
@@ -330,7 +331,7 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
                   <TextField {...params} label="Invariant Y" />
                 )}
               />
-            </Paper>{" "}
+            </Paper>
           </Grid>
           <Grid item xs={2.9}>
             <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
@@ -340,10 +341,12 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
                   align="center"
                   sx={{
                     color: showColoration ? "text.primary" : "text.disabled",
+                    cursor: "pointer",
                   }}
+                  onClick={handleShowColoration}
                 >
                   <Checkbox
-                    onChange={handleShowColoration}
+                    checked={showColoration}
                     size="small"
                     color="success"
                   />
@@ -379,10 +382,12 @@ const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
                   align="center"
                   sx={{
                     color: showAdvanced ? "text.primary" : "text.disabled",
+                    cursor: "pointer",
                   }}
+                  onClick={handleShowAdvanced}
                 >
                   <Checkbox
-                    onChange={handleShowAdvanced}
+                    checked={showAdvanced}
                     size="small"
                     color="success"
                   />

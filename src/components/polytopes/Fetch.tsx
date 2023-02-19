@@ -125,6 +125,8 @@ const Fetch: React.FC<FormProps> = ({ invariants }: FormProps) => {
             sorted: points.data.sorted,
             concave: concave.data,
             error: "",
+            pointClicked: null,
+            legendClicked: null,
           };
         })
       );

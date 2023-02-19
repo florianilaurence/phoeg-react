@@ -25,14 +25,20 @@ import {
   handleOrder,
 } from "../../store/actions/request_chart_action";
 import Fetch from "./Fetch";
-import Chart from "./Chart";
+import Chart from "./chart/Chart";
 import ChartDataContext from "../../store/utils/chart_data_context";
 import {
   ChartData,
   ChartDataReducer,
+  Coordinate,
   initialChartDataState,
 } from "../../store/reducers/chart_data_reducer";
-import { setData, setError } from "../../store/actions/chart_data_action";
+import {
+  setData,
+  setError,
+  setLegendClicked,
+  setPointClicked,
+} from "../../store/actions/chart_data_action";
 import Title from "../styles_and_settings/Title";
 import { deepOrange, green, grey, orange } from "@mui/material/colors";
 import SubTitle from "../styles_and_settings/SubTitle";
@@ -92,6 +98,8 @@ const Polytopes: React.FC = () => {
       const newOrder = stateRequestChartReducer.order + 1;
       handleOrder(newOrder, dispatchRequestChartReducer);
       handleIsLoading(false, dispatchRequestChartReducer);
+      setLegendClicked(null, dispatchChartDataReducer);
+      setPointClicked(null, dispatchChartDataReducer);
     }
   };
 
@@ -100,6 +108,8 @@ const Polytopes: React.FC = () => {
       const newOrder = stateRequestChartReducer.order - 1;
       handleOrder(newOrder, dispatchRequestChartReducer);
       handleIsLoading(false, dispatchRequestChartReducer);
+      setLegendClicked(null, dispatchChartDataReducer);
+      setPointClicked(null, dispatchChartDataReducer);
     }
   };
 
@@ -166,13 +176,19 @@ const Polytopes: React.FC = () => {
           sorted: stateChartDataReducer.sorted,
           concave: stateChartDataReducer.concave,
           error: stateChartDataReducer.error,
+          pointClicked: stateChartDataReducer.pointClicked,
+          legendClicked: stateChartDataReducer.legendClicked,
           handleSetData: (data: ChartData) =>
             setData(data, dispatchChartDataReducer),
-          handleSetError: (value: string) =>
-            setError(value, dispatchChartDataReducer),
+          handleSetError: (data: string) =>
+            setError(data, dispatchChartDataReducer),
+          handleSetPointClicked: (data: Coordinate) =>
+            setPointClicked(data, dispatchChartDataReducer),
+          handleSetLegendClicked: (data: number | null) =>
+            setLegendClicked(data, dispatchChartDataReducer),
         }}
       >
-        <Title>Polytope</Title>
+        <Title title="Polytope" />
         <Box sx={{ ml: LEFT, mr: RIGHT }}>
           <Form invariants={invariants.invariants} />
 
@@ -190,9 +206,9 @@ const Polytopes: React.FC = () => {
           {stateRequestChartReducer.isSubmit &&
             !stateRequestChartReducer.isLoading && (
               <>
-                <SubTitle>
-                  Chart for order {stateRequestChartReducer.order}
-                </SubTitle>
+                <SubTitle
+                  subtitle={`Chart for order ${stateRequestChartReducer.order}`}
+                />
                 <br />
                 <Grid
                   container

@@ -53,6 +53,8 @@ export interface ChartData {
   coordinates: Array<Coordinate>;
   sorted: { [key: number]: Array<Coordinate> };
   concave: Concave;
+  pointClicked: Coordinate | null;
+  legendClicked: number | null;
   error: string;
 }
 
@@ -62,6 +64,8 @@ export const initialChartDataState: ChartData = {
   coordinates: [],
   sorted: {},
   concave: defaultConcave,
+  pointClicked: null,
+  legendClicked: null,
   error: "",
 };
 
@@ -87,6 +91,18 @@ export const ChartDataReducer = (state: ChartData, action: any) => {
         sorted: {},
         concave: defaultConcave,
         error: action.message,
+      };
+
+    case ChartDataAction.SET_POINT_CLICKED:
+      return {
+        ...state,
+        pointClicked: action.pointClicked,
+      };
+
+    case ChartDataAction.SET_LEGEND_CLICKED:
+      return {
+        ...state,
+        legendClicked: action.legendClicked,
       };
 
     default:

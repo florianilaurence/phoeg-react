@@ -18,7 +18,7 @@ export default function Tutorial() {
   return (
     <>
       <Banner isHome={false} />
-      <Title>Tutorial</Title>
+      <Title title="Tutorial" />
       <Inner bold italic align="center">
         This is a demo video for interface.
       </Inner>

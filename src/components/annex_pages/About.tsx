@@ -8,7 +8,7 @@ const About: React.FC = () => {
   return (
     <>
       <Banner isHome={false} />
-      <Title>About</Title>
+      <Title title="About" />
       <Box sx={{ ml: LEFT, mr: RIGHT, mb: BOTTOM }}>
         <Inner bold align="center">
           PHOEG is an acronym for "PHOEG Helps to Obtain Extremal Graphs"

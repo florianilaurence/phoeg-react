@@ -1,8 +1,8 @@
 import { Group } from "@visx/group";
 import { LinePath } from "@visx/shape";
 import { useContext } from "react";
-import { Coordinate } from "../../store/reducers/chart_data_reducer";
-import ChartDataContext from "../../store/utils/chart_data_context";
+import { Coordinate } from "../../../store/reducers/chart_data_reducer";
+import ChartDataContext from "../../../store/utils/chart_data_context";
 import { ScalesProps } from "./Chart";
 
 // Couleur pour chaque direction

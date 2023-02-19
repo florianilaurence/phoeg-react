@@ -7,4 +7,5 @@
 .circle:hover {
     stroke-width: 2;
     stroke-opacity: 1;
+    cursor: pointer;
 }
