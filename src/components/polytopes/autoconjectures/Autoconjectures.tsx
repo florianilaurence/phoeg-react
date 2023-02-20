@@ -11,15 +11,21 @@ import SubTitle from "../../styles_and_settings/SubTitle";
 import TableDirection from "./TableDirection";
 import Loading from "../../Loading";
 
+interface CoordinateO {
+  x: number;
+  y: number;
+  order: number;
+}
+
 interface AutoconjecturesData {
-  minY: Array<Array<Coordinate>>; // First array = order 1, second array = order 2, etc.
-  minXminY: Array<Array<Coordinate>>;
-  minX: Array<Array<Coordinate>>;
-  maxXminY: Array<Array<Coordinate>>;
-  maxX: Array<Array<Coordinate>>;
-  maxXmaxY: Array<Array<Coordinate>>;
-  maxY: Array<Array<Coordinate>>;
-  minXmaxY: Array<Array<Coordinate>>;
+  minY: Array<Array<CoordinateO>>; // First array = order 1, second array = order 2, etc.
+  minXminY: Array<Array<CoordinateO>>;
+  minX: Array<Array<CoordinateO>>;
+  maxXminY: Array<Array<CoordinateO>>;
+  maxX: Array<Array<CoordinateO>>;
+  maxXmaxY: Array<Array<CoordinateO>>;
+  maxY: Array<Array<CoordinateO>>;
+  minXmaxY: Array<Array<CoordinateO>>;
   isLoading: boolean;
 }
 
@@ -122,11 +128,22 @@ const Autoconjectures: React.FC<InvariantsProps> = ({
         .finally(() => {
           dispatchAutoconjecture({
             type: AutoconjecturesAction.SET_DATA,
-            payload: autoconjectureData,
+            payload: sortByOrder(autoconjectureData),
           });
         });
     }
   }, [requestChartContext.isSubmit]);
+
+  const sortByOrder = (data: AutoconjecturesData) => {
+    Object.keys(data).forEach((key) => {
+      if (key !== "isLoading") {
+        data[key].sort(
+          (a: CoordinateO, b: CoordinateO) => a[0].order - b[0].order
+        );
+      }
+    });
+    return data;
+  };
 
   if (stateAutoconjectureData.isLoading) return <Loading />;
   else
