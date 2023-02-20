@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useReducer, useState } from "react";
-import { Invariant } from "./Polytopes";
+import { Invariant, InvariantsProps } from "./Polytopes";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
@@ -38,10 +38,6 @@ enum ConstraintAction {
   CHANGE_MAX,
 }
 
-export interface FormProps {
-  invariants: Array<Invariant>;
-}
-
 export interface Constraint {
   id: number;
   name: string;
@@ -53,7 +49,7 @@ export interface Constraint {
 
 const HEIGHTCARD = 125;
 
-const Form: React.FC<FormProps> = ({ invariants }: FormProps) => {
+const Form: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
   const requestChartContext = useContext(RequestChartContext);
 
   const [showForm, setShowForm] = useState(true);

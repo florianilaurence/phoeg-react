@@ -1,9 +1,9 @@
 import { useEffect, useReducer, useState } from "react";
-import { Grid, Tooltip, Typography } from "@mui/material";
+import { Button, Grid, Tooltip, Typography } from "@mui/material";
 import { LEFT, RIGHT } from "../../designVars";
 import axios from "axios";
 import { API_URL } from "../../.env";
-import Form, { FormProps } from "./Form";
+import Form from "./Form";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -43,12 +43,18 @@ import Title from "../styles_and_settings/Title";
 import { deepOrange, green, grey, orange } from "@mui/material/colors";
 import SubTitle from "../styles_and_settings/SubTitle";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
+import Autoconjectures from "./autoconjectures/Autoconjectures";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 
 export interface Invariant {
   tablename: string;
   datatype: number;
   name: string;
   description: string;
+}
+
+export interface InvariantsProps {
+  invariants: Array<Invariant>;
 }
 
 const Polytopes: React.FC = () => {
@@ -62,9 +68,11 @@ const Polytopes: React.FC = () => {
     initialChartDataState
   );
 
-  const [invariants, setDataInvariants] = useState<FormProps>({
+  const [invariants, setDataInvariants] = useState<InvariantsProps>({
     invariants: Array<Invariant>(),
   });
+
+  const [showAutoconjecture, setShowAutoconjecture] = useState<boolean>(false);
 
   useEffect(() => {
     let request = new URL(`${API_URL}/invariants?type=any`);
@@ -248,8 +256,21 @@ const Polytopes: React.FC = () => {
                     </Tooltip>
                   </Grid>
                 </Grid>
+
+                <Button
+                  sx={{ mt: 2 }}
+                  onClick={() => setShowAutoconjecture(!showAutoconjecture)}
+                  color="success"
+                  variant="outlined"
+                >
+                  <AutoFixHighIcon sx={{ mr: 1 }} />
+                  Autoconjectures
+                </Button>
               </>
             )}
+          {showAutoconjecture && (
+            <Autoconjectures invariants={invariants.invariants} />
+          )}
         </Box>
       </ChartDataContext.Provider>
     </RequestChartContext.Provider>
