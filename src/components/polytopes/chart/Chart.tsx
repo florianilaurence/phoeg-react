@@ -1,70 +1,30 @@
-import { useContext, useMemo, useReducer, useRef, useState } from "react";
-import RequestChartContext from "../../../store/utils/request_chart_context";
-import {
-  initialGraphState,
-  RequestGraphReducer,
-} from "../../../store/reducers/request_graph_reducer";
-import RequestGraphContext from "../../../store/utils/request_graph_context";
+import { useContext, useMemo, useRef } from "react";
 import { Group } from "@visx/group";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { GridColumns, GridRows } from "@visx/grid";
 import { LinePath } from "@visx/shape";
 import { scaleLinear } from "@visx/scale";
-import ChartDataContext from "../../../store/utils/chart_data_context";
-import {
-  handleIsSelected,
-  handleValueX,
-  handleValueY,
-} from "../../../store/actions/request_graph_action";
-import DrawConcave, { DirectionColors } from "./DrawConcave";
+import DrawConcave from "./DrawConcave";
 import DrawPoints from "./DrawPoints";
 import Legend from "./Legend";
+import MainContext from "../../../store/utils/main_context";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
 const background_mini_map = "rgba(197,197,197,0.9)";
 const margin = { top: 10, right: 0, bottom: 45, left: 70 };
 
-interface Params {
-  currentNbClusters: number;
-  showMiniMap: boolean;
-  maxDomain: number;
-  color1: string;
-  color2: string;
-  selectedMin: number;
-  selectedMax: number;
-  selectedTag: string;
-  isLegendClicked: boolean;
-}
-
-enum ParamsAction {
-  SET_CURRENT_NB_CLUSTERS = "SET_CURRENT_NB_CLUSTERS",
-  SET_SHOW_MINI_MAP = "SET_SHOW_MINI_MAP",
-  SET_MAX_DOMAIN = "SET_MAX_DOMAIN",
-  SET_COLOR_1 = "SET_COLOR_1",
-  SET_COLOR_2 = "SET_COLOR_2",
-  SET_SELECTED_MIN = "SET_SELECTED_MIN",
-  SET_SELECTED_MAX = "SET_SELECTED_MAX",
-  SET_SELECTED_TAG = "SET_SELECTED_TAG",
-  SET_IS_LEGEND_CLICKED = "SET_IS_LEGEND_CLICKED",
-}
-
 interface SizeProps {
   width: number;
 }
 
-const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
-  const chartDataContext = useContext(ChartDataContext);
-  const requestChartContext = useContext(RequestChartContext);
+const Chart = ({ width }: SizeProps) => {
+  const mainContext = useContext(MainContext);
 
-  const [stateRequestGraphReducer, dispatchRequestGraphReducer] = useReducer(
-    RequestGraphReducer,
-    initialGraphState
-  );
   const svgRef = useRef<SVGSVGElement>(null);
 
   const height = useMemo(() => {
-    return (width * 2) / 3;
+    return width * 0.5;
   }, [width]);
 
   const innerWidth = useMemo(() => {
@@ -78,7 +38,7 @@ const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
   const xScale = useMemo(
     () =>
       scaleLinear<number>({
-        domain: [chartDataContext.minMax.minX, chartDataContext.minMax.maxX],
+        domain: [mainContext.minMax.minX, mainContext.minMax.maxX],
         range: [margin.left, innerWidth],
         clamp: true,
       }),
@@ -88,7 +48,7 @@ const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
   const yScale = useMemo(
     () =>
       scaleLinear<number>({
-        domain: [chartDataContext.minMax.minY, chartDataContext.minMax.maxY],
+        domain: [mainContext.minMax.minY, mainContext.minMax.maxY],
         range: [innerHeight, margin.top],
         clamp: true,
       }),
@@ -97,38 +57,25 @@ const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
 
   const colorScale = scaleLinear<string>({
     // TODO: config colors reducer
-    domain: [
-      chartDataContext.minMax.minColor,
-      chartDataContext.minMax.maxColor,
-    ],
+    domain: [mainContext.minMax.minColor, mainContext.minMax.maxColor],
     range: ["#000000", "#00ff00"],
     clamp: true,
   });
 
   return (
-    <RequestGraphContext.Provider
-      value={{
-        ...stateRequestGraphReducer,
-        handleValueX: (data: number) =>
-          handleValueX(data, dispatchRequestGraphReducer),
-        handleValueY: (data: number) =>
-          handleValueY(data, dispatchRequestGraphReducer),
-        handleIsSelected: (data: boolean) =>
-          handleIsSelected(data, dispatchRequestGraphReducer),
-      }}
-    >
+    <>
       <svg width={width} height={height} ref={svgRef}>
         <rect width={width} height={height} rx={14} fill={background} />
         <Group>
           <AxisLeft
             scale={yScale}
             left={margin.left}
-            label={requestChartContext.labelY}
+            label={mainContext.labelY}
           />
           <AxisBottom
             scale={xScale}
             top={innerHeight}
-            label={requestChartContext.labelX}
+            label={mainContext.labelX}
           />
           <GridRows
             left={margin.left}
@@ -151,7 +98,7 @@ const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
           <LinePath
             stroke="black"
             strokeWidth={1}
-            data={chartDataContext.envelope}
+            data={mainContext.envelope}
             x={(d) => xScale(d.x)}
             y={(d) => yScale(d.y)}
           />
@@ -164,7 +111,7 @@ const Chart: React.FC<SizeProps> = ({ width }: SizeProps) => {
         </Group>
       </svg>
       <Legend xScale={xScale} yScale={yScale} colorScale={colorScale} />
-    </RequestGraphContext.Provider>
+    </>
   );
 };
 

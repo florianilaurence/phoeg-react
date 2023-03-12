@@ -9,9 +9,8 @@ import {
   TableRow,
 } from "@mui/material";
 import { useContext } from "react";
-import { Coordinate } from "../../../store/reducers/chart_data_reducer";
-import RequestChartContext from "../../../store/utils/request_chart_context";
-import SubSubTitle from "../../styles_and_settings/SubSubTitle";
+import { Coordinate } from "../../store/reducers/main_reducer";
+import SubSubTitle from "../styles_and_settings/SubSubTitle";
 
 export interface TableDirectionProps {
   title: string;
@@ -22,8 +21,6 @@ const TableDirection: React.FC<TableDirectionProps> = ({
   title,
   data,
 }: TableDirectionProps) => {
-  const requestChartContext = useContext(RequestChartContext);
-
   return (
     <Box>
       <SubSubTitle text={title} />
@@ -32,8 +29,16 @@ const TableDirection: React.FC<TableDirectionProps> = ({
           <TableHead>
             <TableRow>
               <TableCell>Order</TableCell>
-              <TableCell align="right">{requestChartContext.labelX}</TableCell>
-              <TableCell align="right">{requestChartContext.labelY}</TableCell>
+              <TableCell align="right">
+                {
+                  // requestChartContext.labelX
+                }
+              </TableCell>
+              <TableCell align="right">
+                {
+                  // requestChartContext.labelY
+                }
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -1,10 +1,10 @@
 import { Box, CircularProgress } from "@mui/material";
 import { LEFT, RIGHT } from "../designVars";
 
-const loading: React.FC = () => {
+const loading = () => {
   return (
     <Box
-      sx={{ ml: LEFT, mr: RIGHT, height: "400px" }}
+      sx={{ ml: LEFT, mr: RIGHT, height: "1000px" }}
       display="flex"
       alignItems="center"
       justifyContent="center"

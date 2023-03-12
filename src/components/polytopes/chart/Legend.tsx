@@ -1,32 +1,30 @@
 import { Box, Button, Collapse, Container, Divider } from "@mui/material";
 import { useContext, useState } from "react";
-import ChartDataContext from "../../../store/utils/chart_data_context";
-import RequestChartContext from "../../../store/utils/request_chart_context";
 import Inner from "../../styles_and_settings/Inner";
 import { ScalesProps } from "./Chart";
 import { DirectionColors } from "./DrawConcave";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import MainContext from "../../../store/utils/main_context";
 
 const Legend: React.FC<ScalesProps> = ({ colorScale }: ScalesProps) => {
+  const mainContext = useContext(MainContext);
+
   const [showLegend, setShowLegend] = useState<boolean>(true);
 
-  const chartDataContext = useContext(ChartDataContext);
-  const requestChartContext = useContext(RequestChartContext);
-
-  const colorsKeysStr = Object.keys(chartDataContext.sorted);
+  const colorsKeysStr = Object.keys(mainContext.sorted);
   let colorsKeys = colorsKeysStr.map((color) => Number(color));
   colorsKeys.sort((a, b) => (a > b ? 1 : -1));
 
-  const dirsKeys = Object.keys(chartDataContext.concave).filter(
-    (dir) => chartDataContext.concave[dir].length > 1
+  const dirsKeys = Object.keys(mainContext.concave).filter(
+    (dir) => mainContext.concave[dir].length > 1
   );
 
   const handleOnClickLegend = (item: number) => {
-    if (chartDataContext.legendClicked === item) {
-      chartDataContext.handleSetLegendClicked(null);
+    if (mainContext.legendClicked === item) {
+      mainContext.setLegendClicked(null);
     } else {
-      chartDataContext.handleSetLegendClicked(item);
+      mainContext.setLegendClicked(item);
     }
   };
 
@@ -49,7 +47,7 @@ const Legend: React.FC<ScalesProps> = ({ colorScale }: ScalesProps) => {
         <Inner size={12}>{showLegend ? "Hide legend" : "Show legend"}</Inner>
       </Box>
       <Collapse in={showLegend}>
-        {requestChartContext.labelColor !== "" && (
+        {mainContext.labelColor !== "" && (
           <Box
             sx={{
               display: "flex",
@@ -74,8 +72,8 @@ const Legend: React.FC<ScalesProps> = ({ colorScale }: ScalesProps) => {
                       size={14}
                       color={colorScale(color)}
                       italic={
-                        chartDataContext.legendClicked !== null &&
-                        chartDataContext.legendClicked === color
+                        mainContext.legendClicked !== null &&
+                        mainContext.legendClicked === color
                       }
                     >
                       {color}

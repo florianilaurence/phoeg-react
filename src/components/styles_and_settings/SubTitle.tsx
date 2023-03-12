@@ -1,13 +1,13 @@
-import { Divider, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { blueGrey } from "@mui/material/colors";
 
 export interface SubTitleProps {
   subtitle: string;
 }
 
-const SubTitle: React.FC<SubTitleProps> = ({ subtitle }: SubTitleProps) => {
+const SubTitle = ({ subtitle }: SubTitleProps) => {
   return (
-    <Divider textAlign="center" sx={{ m: 1 }}>
+    <Divider textAlign="center" sx={{ m: 2 }}>
       <Typography variant="h4" style={{ color: blueGrey[800] }}>
         {subtitle}
       </Typography>

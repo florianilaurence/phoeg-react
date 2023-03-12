@@ -6,7 +6,7 @@ const Welcome: React.FC = () => {
   const navigate = useNavigate();
 
   setTimeout(() => {
-    navigate("/home");
+    navigate("/main-app");
   }, 1750);
 
   return (

@@ -1,10 +1,9 @@
 import { useContext, useEffect, useReducer } from "react";
 import { API_URL } from "../../.env";
-import RequestChartContext from "../../store/utils/request_chart_context";
 import { stringify } from "qs";
 import axios from "axios";
-import ChartDataContext from "../../store/utils/chart_data_context";
-import { Invariant, InvariantsProps } from "./Polytopes";
+import { Invariant } from "../polytopes/PolytopesSlider";
+import MainContext from "../../store/utils/main_context";
 
 interface PostConstraint {
   name: string;
@@ -45,27 +44,24 @@ export const decodeConstraints = (
   return constraints_array;
 };
 
-const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
-  const requestChartContext = useContext(RequestChartContext);
-  const chartDataContext = useContext(ChartDataContext);
+interface FetchProps {
+  invariants: Array<Invariant>;
+}
+
+const Fetch = ({ invariants }: FetchProps) => {
+  const mainContext = useContext(MainContext);
 
   useEffect(() => {
-    requestChartContext.handleIsLoading(true);
-    const constraints = decodeConstraints(requestChartContext.constraints);
-    const x_tablename = getTablenameFromName(
-      requestChartContext.labelX,
-      invariants
-    );
-    const y_tablename = getTablenameFromName(
-      requestChartContext.labelY,
-      invariants
-    );
+    mainContext.setIsLoading(true);
+    const constraints = decodeConstraints(mainContext.constraints);
+    const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
+    const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
     const color_tablename = getTablenameFromName(
-      requestChartContext.labelColor,
+      mainContext.labelColor,
       invariants
     );
     const part_request = stringify({
-      order: requestChartContext.order,
+      order: mainContext.order,
       x_invariant: x_tablename,
       y_invariant: y_tablename,
       constraints: constraints,
@@ -77,7 +73,7 @@ const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
       `${API_URL}/graphs/points` +
         "?" +
         stringify({
-          order: requestChartContext.order,
+          order: mainContext.order,
           x_invariant: x_tablename,
           y_invariant: y_tablename,
           colour:
@@ -88,7 +84,7 @@ const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
         })
     );
     const advanced_constraints = {
-      query: requestChartContext.advancedConstraints,
+      query: mainContext.advancedConstraints,
     };
     const concave_request = new URL(
       `${API_URL}/graphs/concave` + "?" + part_request
@@ -101,20 +97,20 @@ const Fetch: React.FC<InvariantsProps> = ({ invariants }: InvariantsProps) => {
     )
       .then((data) => {
         if (data.coordinates.length === 0 || data.envelope.length === 0) {
-          chartDataContext.handleSetError(
+          mainContext.setError(
             "No data found, invariants are too restrictive."
           );
-          requestChartContext.handleIsLoading(false);
+          mainContext.setIsLoading(false);
           return;
         }
-        chartDataContext.handleSetData(data);
-        requestChartContext.handleIsLoading(false);
+        mainContext.setData(data);
+        mainContext.setIsLoading(false);
       })
       .catch((error) => {
-        chartDataContext.handleSetError(error);
-        requestChartContext.handleIsLoading(false);
+        mainContext.setError(error);
+        mainContext.setIsLoading(false);
       });
-  }, [requestChartContext.order]);
+  }, [mainContext.order]);
 
   const fetchData = (
     requestEnvelope: URL,

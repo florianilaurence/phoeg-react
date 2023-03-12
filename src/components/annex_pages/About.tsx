@@ -1,13 +1,12 @@
-import Banner from "../home_and_frame/Banner";
 import { BOTTOM, LEFT, RIGHT } from "../../designVars";
 import Title from "../styles_and_settings/Title";
 import { Box } from "@mui/material";
 import Inner from "../styles_and_settings/Inner";
+import Frame from "../home_and_frame/Frame";
 
 const About: React.FC = () => {
   return (
-    <>
-      <Banner isHome={false} />
+    <Frame>
       <Title title="About" />
       <Box sx={{ ml: LEFT, mr: RIGHT, mb: BOTTOM }}>
         <Inner bold align="center">
@@ -62,7 +61,7 @@ const About: React.FC = () => {
           .
         </Inner>
       </Box>
-    </>
+    </Frame>
   );
 };
 

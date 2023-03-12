@@ -1,8 +1,7 @@
 import { Group } from "@visx/group";
 import { LinePath } from "@visx/shape";
 import { useContext } from "react";
-import { Coordinate } from "../../../store/reducers/chart_data_reducer";
-import ChartDataContext from "../../../store/utils/chart_data_context";
+import MainContext from "../../../store/utils/main_context";
 import { ScalesProps } from "./Chart";
 
 // Couleur pour chaque direction
@@ -21,8 +20,10 @@ const DrawConcave: React.FC<ScalesProps> = ({
   xScale,
   yScale,
 }: ScalesProps) => {
-  const chartDataContext = useContext(ChartDataContext);
-  const keys = Object.keys(chartDataContext.concave);
+  const mainContext = useContext(MainContext);
+
+  const keys = Object.keys(mainContext.concave);
+
   return (
     <Group>
       {keys.map((key) => {
@@ -31,7 +32,7 @@ const DrawConcave: React.FC<ScalesProps> = ({
             key={key}
             stroke={DirectionColors[key as keyof typeof DirectionColors]}
             strokeWidth={2}
-            data={chartDataContext.concave[key as keyof typeof DirectionColors]}
+            data={mainContext.concave[key as keyof typeof DirectionColors]}
             x={(d) => xScale(d.x)}
             y={(d) => yScale(d.y)}
           />
