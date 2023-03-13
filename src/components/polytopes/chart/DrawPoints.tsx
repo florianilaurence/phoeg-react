@@ -5,21 +5,18 @@ import { ScalesProps } from "./Chart";
 import "./DrawPoints.css";
 import MainContext from "../../../store/utils/main_context";
 import { Coordinate } from "../../../store/reducers/main_reducer";
+import { Tooltip } from "@mui/material";
 
-const DrawPoints: React.FC<ScalesProps> = ({
-  xScale,
-  yScale,
-  colorScale,
-}: ScalesProps) => {
+const DrawPoints = ({ xScale, yScale, colorScale }: ScalesProps) => {
   const mainContext = useContext(MainContext);
 
-  const handleClickOnCircle = (x: number, y: number) => {
-    const pointClicked: Coordinate = {
-      x: x,
-      y: y,
-    };
-    mainContext.setPointClicked(pointClicked);
-  };
+  // const handleClickOnCircle = (x: number, y: number) => {
+  //   const pointClicked: Coordinate = {
+  //     x: x,
+  //     y: y,
+  //   };
+  //   mainContext.setPointClicked(pointClicked);
+  // };
 
   return (
     <Group>
@@ -30,12 +27,12 @@ const DrawPoints: React.FC<ScalesProps> = ({
             className="circle"
             cx={xScale(point.x)}
             cy={yScale(point.y)}
-            r={mainContext.legendClicked === point.color ? 10 : 5}
+            r={mainContext.legendClicked === point.color ? 5 : 3}
             fillOpacity={0.75}
             fill={
               mainContext.labelColor === "" ? "black" : colorScale(point.color)
             }
-            onClick={() => handleClickOnCircle(point.x, point.y)}
+            // onClick={() => handleClickOnCircle(point.x, point.y)}
           />
         );
       })}

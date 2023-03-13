@@ -148,7 +148,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   };
 
   const handleChangeForm = (data: any, type: FormAction) => {
-    mainContext.setIsSubmit(false);
+    mainContext.reset();
     switch (type) {
       case FormAction.LABEL_X:
         mainContext.setLabelX(data);
@@ -157,7 +157,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
         mainContext.setLabelY(data);
         break;
       case FormAction.SHOW_COLORATION:
-        setShowColoration(!data);
+        setShowColoration(data);
         mainContext.setLabelColor("");
         break;
       case FormAction.LABEL_COLOR:
@@ -180,22 +180,22 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   };
 
   const handleChangeName = (id: number, name: string | null) => {
-    mainContext.setIsSubmit(false);
+    mainContext.reset();
     dispatchConstraints({ type: ConstraintAction.CHANGE_NAME, id, name });
   };
 
   const handleChangeMin = (id: number, min: string) => {
-    mainContext.setIsSubmit(false);
+    mainContext.reset();
     dispatchConstraints({ type: ConstraintAction.CHANGE_MIN, id, min });
   };
 
   const handleChangeMax = (id: number, max: string) => {
-    mainContext.setIsSubmit(false);
+    mainContext.reset();
     dispatchConstraints({ type: ConstraintAction.CHANGE_MAX, id, max });
   };
 
   const handleSwitch = (id: number, previous: number) => {
-    mainContext.setIsSubmit(false);
+    mainContext.reset();
     dispatchConstraints({
       type: ConstraintAction.CHANGE_MIN,
       id,
@@ -209,7 +209,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   };
 
   const handleExchangeXY = () => {
-    mainContext.setIsSubmit(false);
+    mainContext.reset();
     const labelY = mainContext.labelY;
     mainContext.setLabelY(mainContext.labelX);
     mainContext.setLabelX(labelY);
@@ -352,7 +352,10 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                       cursor: "pointer",
                     }}
                     onClick={() =>
-                      handleChangeForm(null, FormAction.SHOW_COLORATION)
+                      handleChangeForm(
+                        !showColoration,
+                        FormAction.SHOW_COLORATION
+                      )
                     }
                   >
                     <Checkbox

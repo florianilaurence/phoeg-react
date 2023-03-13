@@ -16,7 +16,7 @@ ReactDOM.render(
       <Route path="/main-app" exact element={<MainApp />} />
       <Route path="/tutorial" element={<Tutorial />} />
       <Route path="/about" element={<About />} />
-      <Route path="/autonconj-app" element={<AutoConjApp />} />
+      <Route path="/autoconj-app" element={<AutoConjApp />} />
       <Route path="/infos" element={<Infos />} />
     </Routes>
   </BrowserRouter>,

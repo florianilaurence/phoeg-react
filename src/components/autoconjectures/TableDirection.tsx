@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useContext } from "react";
 import { Coordinate } from "../../store/reducers/main_reducer";
-import SubSubTitle from "../styles_and_settings/SubSubTitle";
+import Inner from "../styles_and_settings/Inner";
 
 export interface TableDirectionProps {
   title: string;
@@ -23,7 +23,7 @@ const TableDirection: React.FC<TableDirectionProps> = ({
 }: TableDirectionProps) => {
   return (
     <Box>
-      <SubSubTitle text={title} />
+      <Inner>{title}</Inner>
       <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
         <Table aria-label="simple table">
           <TableHead>

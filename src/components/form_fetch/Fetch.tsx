@@ -1,4 +1,4 @@
-import { useContext, useEffect, useReducer } from "react";
+import { useContext, useEffect } from "react";
 import { API_URL } from "../../.env";
 import { stringify } from "qs";
 import axios from "axios";
@@ -89,6 +89,7 @@ const Fetch = ({ invariants }: FetchProps) => {
     const concave_request = new URL(
       `${API_URL}/graphs/concave` + "?" + part_request
     );
+
     fetchData(
       envelope_request,
       points_request,

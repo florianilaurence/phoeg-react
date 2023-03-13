@@ -90,7 +90,7 @@ const Frame = ({ children }: FrameProps) => {
           flexShrink: 0,
         }}
       >
-        <Toolbar sx={{ height: heightToolbar }} />
+        <Toolbar sx={{ height: 82 }} />
         <Box
           sx={{
             width: open ? drawerWidthOpen : drawerWidthClosed,
@@ -98,17 +98,17 @@ const Frame = ({ children }: FrameProps) => {
             backgroundColor: blueGrey[50],
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: open ? "flex-end" : "center",
-              mt: 1,
-              height: 45,
-            }}
+          <Tooltip
+            title={open ? "Collapse menu" : "Expand menu"}
+            placement="top-start"
           >
-            <Tooltip
-              title={open ? "Collapse menu" : "Expand menu"}
-              placement="top-start"
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: open ? "flex-end" : "center",
+                mt: 1,
+                height: 45,
+              }}
             >
               <IconButton onClick={onClickOpen}>
                 {open ? (
@@ -117,8 +117,8 @@ const Frame = ({ children }: FrameProps) => {
                   <KeyboardDoubleArrowRightIcon />
                 )}
               </IconButton>
-            </Tooltip>
-          </Box>
+            </Box>
+          </Tooltip>
           <Divider />
           <List>
             {options.map((option) => (
@@ -127,14 +127,14 @@ const Frame = ({ children }: FrameProps) => {
                 key={option.text}
                 disablePadding
               >
-                <ListItemButton
-                  sx={{
-                    height: 45,
-                    justifyContent: open ? "initial" : "center",
-                  }}
-                  onClick={() => navigate(option.link, { replace: true })}
-                >
-                  <Tooltip title={option.text} placement="top-start">
+                <Tooltip title={option.text} placement="top-start">
+                  <ListItemButton
+                    sx={{
+                      height: 45,
+                      justifyContent: open ? "initial" : "center",
+                    }}
+                    onClick={() => navigate(option.link, { replace: true })}
+                  >
                     <ListItemIcon
                       sx={{
                         minWidth: 0,
@@ -144,9 +144,9 @@ const Frame = ({ children }: FrameProps) => {
                     >
                       {option.icon}
                     </ListItemIcon>
-                  </Tooltip>
-                  {open ? <ListItemText primary={option.text} /> : null}
-                </ListItemButton>
+                    {open ? <ListItemText primary={option.text} /> : null}
+                  </ListItemButton>
+                </Tooltip>
               </ListItem>
             ))}
           </List>

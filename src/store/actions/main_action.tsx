@@ -16,6 +16,8 @@ export enum MainAction {
   SET_LEGEND_CLICKED = "setLegendClicked",
 
   SET_ERROR = "setError",
+
+  RESET = "reset",
 }
 
 export const setOrder = (order: number, dispatch: any) => {
@@ -90,14 +92,17 @@ export const setPointClicked = (
 ) => {
   dispatch({
     type: MainAction.SET_POINT_CLICKED,
-    pointClicked: coordinate,
+    coordinate: coordinate,
   });
 };
 
-export const setLegendClicked = (isClicked: number | null, dispatch: any) => {
+export const setLegendClicked = (
+  legendClicked: number | null,
+  dispatch: any
+) => {
   dispatch({
     type: MainAction.SET_LEGEND_CLICKED,
-    legendClicked: isClicked,
+    legendClicked: legendClicked,
   });
 };
 
@@ -105,5 +110,11 @@ export const setError = (message: string, dispatch: any) => {
   dispatch({
     type: MainAction.SET_ERROR,
     message: message,
+  });
+};
+
+export const reset = (dispatch: any) => {
+  dispatch({
+    type: MainAction.RESET,
   });
 };

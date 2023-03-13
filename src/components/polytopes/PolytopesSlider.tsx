@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { Grid, Tooltip } from "@mui/material";
-import { LEFT, RIGHT } from "../../designVars";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -19,7 +18,7 @@ export interface Invariant {
   description: string;
 }
 
-const Polytopes: React.FC = () => {
+const Polytopes = () => {
   const mainContext = useContext(MainContext);
 
   const nextOrder = () => {
@@ -76,12 +75,12 @@ const Polytopes: React.FC = () => {
       {mainContext.isSubmit && !mainContext.isLoading && (
         <Box sx={{ ml: 1, mr: 1 }}>
           <SubTitle subtitle={`Chart for order ${mainContext.order}`} />
-          <br />
           <Grid
             container
             spacing={1}
             alignItems="center"
             justifyContent="center"
+            sx={{ mt: 1, mb: 1 }}
           >
             <Grid item xs={0.5}>
               <Tooltip

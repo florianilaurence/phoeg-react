@@ -3,8 +3,8 @@ import { MainAction } from "../actions/main_action";
 export interface Coordinate {
   x: number;
   y: number;
-  color?: number;
-  mult?: number;
+  color: number;
+  mult: number;
 }
 
 export interface MinMax {
@@ -131,10 +131,20 @@ export const MainReducer = (state: MainState, action: any): MainState => {
     case MainAction.SET_POINT_CLICKED:
       return { ...state, pointClicked: action.coordinate };
     case MainAction.SET_LEGEND_CLICKED:
-      return { ...state, legendClicked: action.isClicked };
+      return { ...state, legendClicked: action.legendClicked };
 
     case MainAction.SET_ERROR:
       return { ...state, error: action.message };
+
+    case MainAction.RESET:
+      return {
+        ...state,
+        order: 7,
+        isSubmit: false,
+        isLoading: false,
+        pointClicked: null,
+        legendClicked: null,
+      };
 
     default:
       return state;

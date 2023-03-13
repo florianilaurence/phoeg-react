@@ -14,6 +14,7 @@ import {
   MainReducer,
 } from "../../store/reducers/main_reducer";
 import {
+  MainAction,
   setAdvancedConstraints,
   setConstraints,
   setData,
@@ -27,6 +28,7 @@ import {
   setOrder,
   setPointClicked,
 } from "../../store/actions/main_action";
+import Graphs from "../graphs/Graphs";
 
 // Main component
 const MainApp: React.FC = () => {
@@ -89,11 +91,15 @@ const MainApp: React.FC = () => {
             setLegendClicked(legendClicked, dispatchMainReducer),
 
           setError: (message: string) => setError(message, dispatchMainReducer),
+
+          reset: () => dispatchMainReducer({ type: MainAction.RESET }),
         }}
       >
         <Form invariants={invariants} withOrders={false} />
         <Polytopes />
-        {/* Add graphs when it is implementing */}
+        {stateMainReducer.isSubmit &&
+          !stateMainReducer.isLoading &&
+          stateMainReducer.pointClicked && <Graphs invariants={invariants} />}
       </MainContext.Provider>
     </Frame>
   );

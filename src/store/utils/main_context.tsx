@@ -22,6 +22,8 @@ const MainContext = createContext({
   setLegendClicked: (isClicked: number | null) => {},
 
   setError: (message: string) => {},
+
+  reset: () => {},
 });
 
 export default MainContext;
