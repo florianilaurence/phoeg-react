@@ -10,6 +10,7 @@ import {
   Stack,
   Switch,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useContext, useReducer, useState } from "react";
@@ -25,12 +26,26 @@ import Inner from "../styles_and_settings/Inner";
 import Title from "../styles_and_settings/Title";
 import MainContext from "../../store/utils/main_context";
 import Fetch from "./Fetch";
+import OrderForm from "./OrderForm";
 
-const getType = (id: number): string => {
-  if (id >= 2 && id <= 4) return "number";
-  if (id === 5) return "bool";
-  return "special";
+enum ConstraintTypes {
+  NUMBER = "number",
+  BOOL = "bool",
+  SPECIAL = "special",
+  ADVANCED = "advanced",
+  NONE = "none",
+}
+
+export const getType = (id: number): string => {
+  if (id >= 2 && id <= 4) return ConstraintTypes.NUMBER;
+  if (id === 5) return ConstraintTypes.BOOL;
+  return ConstraintTypes.SPECIAL;
 };
+
+export interface FormProps {
+  invariants: Array<Invariant>;
+  withOrders: boolean;
+}
 
 enum ConstraintAction {
   ADD_CONSTRAINT,
@@ -38,6 +53,9 @@ enum ConstraintAction {
   CHANGE_NAME,
   CHANGE_MIN,
   CHANGE_MAX,
+  CHANGE_ADVANCED_MODE,
+  CHANGE_ADVANCED_FIELD,
+  RESET_CONSTRAINTS,
 }
 
 export interface Constraint {
@@ -47,40 +65,39 @@ export interface Constraint {
   min: number;
   max: number;
   type: string;
-}
-
-export interface FormProps {
-  invariants: Array<Invariant>;
-  withOrders: boolean;
-}
-
-enum FormAction {
-  LABEL_X,
-  LABEL_Y,
-  SHOW_COLORATION,
-  LABEL_COLOR,
-  SHOW_ADVANCED,
-  LABEL_ADVANCED,
-  ADD_CONSTRAINT,
-  REMOVE_CONSTRAINT,
+  advancedMode: boolean;
+  advancedField: string;
 }
 
 const HEIGHTCARD = 125;
+const HEIGHTCARDCONSTRAINT = 250;
 
 const Form = ({ invariants, withOrders }: FormProps) => {
   const mainContext = useContext(MainContext);
 
+  const [currentId, setCurrentId] = useState(1); // Unique id for each item (not change if add or remove item)
   const [showForm, setShowForm] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showConstrSubForm, setShowConstrSubForm] = useState(false);
 
-  const [currentId, setCurrentId] = useState(0); // Unique id for each item (not change if add or remove item)
+  const initialConstraint = (id: number): Constraint => {
+    return {
+      id: id,
+      name: "",
+      tablename: "",
+      min: 0,
+      max: 0,
+      type: ConstraintTypes.NONE,
+      advancedMode: false,
+      advancedField: "",
+    };
+  };
 
   const constraintInvariant: Array<Invariant> = invariants.filter(
     (inv: Invariant) =>
-      getType(inv.datatype) === "number" ||
-      getType(inv.datatype) === "bool" ||
-      getType(inv.datatype) === "special"
+      getType(inv.datatype) === ConstraintTypes.NUMBER ||
+      getType(inv.datatype) === ConstraintTypes.BOOL ||
+      getType(inv.datatype) === ConstraintTypes.SPECIAL
   );
 
   const getConstraintFromName = (name: string): Invariant => {
@@ -94,19 +111,12 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           (item: Constraint) => item.id !== action.id
         );
         return new_state;
+
       case ConstraintAction.ADD_CONSTRAINT:
         let previous = state;
-        const inv = constraintInvariant[previous.length];
-        const type = getType(inv.datatype);
-        previous.push({
-          id: currentId,
-          name: inv.name,
-          tablename: inv.tablename,
-          min: type === "bool" ? 1 : 0,
-          max: 1,
-          type: type,
-        });
+        previous.push(initialConstraint(currentId));
         return previous;
+
       case ConstraintAction.CHANGE_NAME:
         const new_constraint = getConstraintFromName(action.name as string);
         const new_state_name = state.map((item: Constraint) => {
@@ -114,12 +124,13 @@ const Form = ({ invariants, withOrders }: FormProps) => {
             item.name = new_constraint.name;
             item.tablename = new_constraint.tablename;
             item.type = getType(new_constraint.datatype);
-            item.min = item.type === "bool" ? 1 : 0;
+            item.min = item.type === ConstraintTypes.BOOL ? 1 : 0;
             item.max = 1;
           }
           return item;
         });
         return new_state_name;
+
       case ConstraintAction.CHANGE_MIN:
         const new_state_min = state.map((item: Constraint) => {
           if (item.id === action.id) {
@@ -128,6 +139,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           return item;
         });
         return new_state_min;
+
       case ConstraintAction.CHANGE_MAX:
         const new_state_max = state.map((item: Constraint) => {
           if (item.id === action.id) {
@@ -136,50 +148,41 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           return item;
         });
         return new_state_max;
+
+      case ConstraintAction.CHANGE_ADVANCED_MODE:
+        const new_state_advanced_mode = state.map((item: Constraint) => {
+          if (item.id === action.id) {
+            item.advancedMode = action.advancedMode;
+            item.type = action.newType;
+          }
+          return item;
+        });
+        return new_state_advanced_mode;
+
+      case ConstraintAction.CHANGE_ADVANCED_FIELD:
+        const new_state_advanced = state.map((item: Constraint) => {
+          if (item.id === action.id) {
+            item.advancedField = action.advancedField;
+          }
+          return item;
+        });
+        return new_state_advanced;
+
+      case ConstraintAction.RESET_CONSTRAINTS:
+        setCurrentId(1);
+        return [initialConstraint(1)];
+
       default:
         throw new Error();
     }
   };
 
-  const [constraints, dispatchConstraints] = useReducer(constraintsReducer, []);
+  const [constraints, dispatchConstraints] = useReducer(constraintsReducer, [
+    initialConstraint(1),
+  ]);
 
-  const handleCollapsed = () => {
-    setShowForm((prev) => !prev);
-  };
-
-  const handleChangeForm = (data: any, type: FormAction) => {
-    mainContext.reset();
-    switch (type) {
-      case FormAction.LABEL_X:
-        mainContext.setLabelX(data);
-        break;
-      case FormAction.LABEL_Y:
-        mainContext.setLabelY(data);
-        break;
-      case FormAction.SHOW_COLORATION:
-        setShowColoration(data);
-        mainContext.setLabelColor("");
-        break;
-      case FormAction.LABEL_COLOR:
-        mainContext.setLabelColor(data);
-        break;
-      case FormAction.SHOW_ADVANCED:
-        setShowAdvanced(!data);
-        break;
-      case FormAction.LABEL_ADVANCED:
-        mainContext.setAdvancedConstraints(data);
-        break;
-      case FormAction.ADD_CONSTRAINT:
-        setCurrentId((prev) => prev + 1);
-        dispatchConstraints({ type: ConstraintAction.ADD_CONSTRAINT });
-        break;
-      case FormAction.REMOVE_CONSTRAINT:
-        dispatchConstraints({ type: ConstraintAction.REMOVE_CONSTRAINT, data });
-        break;
-    }
-  };
-
-  const handleChangeName = (id: number, name: string | null) => {
+  // Constraints controllers
+  const handleChangeName = (id: number, name: string) => {
     mainContext.reset();
     dispatchConstraints({ type: ConstraintAction.CHANGE_NAME, id, name });
   };
@@ -194,7 +197,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     dispatchConstraints({ type: ConstraintAction.CHANGE_MAX, id, max });
   };
 
-  const handleSwitch = (id: number, previous: number) => {
+  const handleActiveConstraint = (id: number, previous: number) => {
     mainContext.reset();
     dispatchConstraints({
       type: ConstraintAction.CHANGE_MIN,
@@ -208,6 +211,57 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     });
   };
 
+  const handleAddConstraint = () => {
+    mainContext.reset();
+    setCurrentId((prev) => prev + 1);
+    dispatchConstraints({ type: ConstraintAction.ADD_CONSTRAINT });
+  };
+
+  const handleRemoveConstraint = (id: number) => {
+    mainContext.reset();
+    dispatchConstraints({ type: ConstraintAction.REMOVE_CONSTRAINT, id });
+  };
+
+  const resetConstraints = () => {
+    mainContext.reset();
+    dispatchConstraints({ type: ConstraintAction.RESET_CONSTRAINTS });
+  };
+
+  const handleAdvancedMode = (id: number, previousMode: boolean) => {
+    mainContext.reset();
+    dispatchConstraints({
+      type: ConstraintAction.CHANGE_ADVANCED_MODE,
+      id: id,
+      advancedMode: !previousMode,
+      newType: previousMode ? ConstraintTypes.NONE : ConstraintTypes.ADVANCED,
+    });
+  };
+
+  const handleChangeAdvancedField = (id: number, field: string) => {
+    mainContext.reset();
+    dispatchConstraints({
+      type: ConstraintAction.CHANGE_ADVANCED_FIELD,
+      id,
+      advancedField: field,
+    });
+  };
+
+  // Axis and coloration controllers
+  const handleChangeX = (value: string) => {
+    mainContext.reset();
+    mainContext.setLabelX(value);
+  };
+
+  const handleChangeY = (value: string) => {
+    mainContext.reset();
+    mainContext.setLabelY(value);
+  };
+
+  const handleChangeColoration = (value: string) => {
+    mainContext.reset();
+    mainContext.setLabelColor(value);
+  };
+
   const handleExchangeXY = () => {
     mainContext.reset();
     const labelY = mainContext.labelY;
@@ -215,6 +269,12 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     mainContext.setLabelX(labelY);
   };
 
+  const handleShowColoration = (value: boolean) => {
+    mainContext.reset();
+    setShowColoration(value);
+  };
+
+  // Submit controllers and annex functions
   const handleSubmit = () => {
     if (
       mainContext.labelX === null ||
@@ -233,18 +293,31 @@ const Form = ({ invariants, withOrders }: FormProps) => {
 
     setShowForm(false);
     mainContext.setIsLoading(true);
-    mainContext.setConstraints(encodeConstraints());
+    let { encodedConstraints, encodedAdvanced } = encodeConstraints();
+    mainContext.setConstraints(encodedConstraints);
+    mainContext.setAdvancedConstraints(encodedAdvanced);
     mainContext.setIsSubmit(true);
   };
 
+  // TODO: add a check for the advanced mode and separete the advanced mode from the normal mode **
   const encodeConstraints = () => {
-    let result = "";
+    let encodedConstraints = "";
+    let encodedAdvanced = "";
+
     constraints.forEach((constraint: Constraint) => {
-      result += constraint.tablename + " ";
-      result += constraint.min + " ";
-      result += constraint.max + ";";
+      if (
+        constraint.type !== ConstraintTypes.NONE &&
+        constraint.type !== ConstraintTypes.ADVANCED &&
+        constraint.name !== ""
+      ) {
+        encodedConstraints += constraint.tablename + " ";
+        encodedConstraints += constraint.min + " ";
+        encodedConstraints += constraint.max + ";";
+      } else if (constraint.advancedMode) {
+        encodedAdvanced += constraint.advancedField + ";";
+      }
     });
-    return result;
+    return { encodedConstraints, encodedAdvanced };
   };
 
   const checkMainDifferent = () => {
@@ -260,10 +333,33 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     return "";
   };
 
+  // Syntax for the problem definition
+  const constructProblemDefinition = () => {
+    let problemDefinition = "";
+    problemDefinition += mainContext.labelX;
+    problemDefinition += " ╳ ";
+    problemDefinition += mainContext.labelY;
+    if (showColoration) {
+      problemDefinition += " (";
+      problemDefinition += mainContext.labelColor;
+      problemDefinition += ")";
+    }
+    if (mainContext.constraints !== "") {
+      problemDefinition += " || ";
+      problemDefinition += mainContext.constraints;
+    }
+    if (mainContext.advancedConstraints !== "") {
+      problemDefinition += " // ";
+      problemDefinition += mainContext.advancedConstraints;
+    }
+    return problemDefinition;
+  };
+
+  // Render
   return (
     <>
       <form>
-        <Title title="Form" />
+        <Title title="Problem definition" />
         <Stack
           sx={{ mt: 1, mb: 1 }}
           direction="row"
@@ -273,16 +369,33 @@ const Form = ({ invariants, withOrders }: FormProps) => {
         >
           <Button
             variant={showForm ? "contained" : "outlined"}
-            onClick={handleCollapsed}
+            onClick={() => {
+              setShowForm((prev) => !prev);
+            }}
             color="success"
           >
             {showForm ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </Button>
-          <Inner>{showForm ? "Hide form" : "Show form"}</Inner>
+          <Inner>
+            {showForm ? "Hide problem definition" : "Show problem definition"}
+          </Inner>
+          {mainContext.isSubmit && (
+            <Box sx={{ ml: 2 }}>
+              <Inner italic size={12}>
+                {constructProblemDefinition()}
+              </Inner>
+            </Box>
+          )}
         </Stack>
         <Collapse in={showForm} sx={{ mb: 2 }}>
+          {withOrders && (
+            <>
+              <OrderForm />
+              <Divider sx={{ mt: 2, mb: 2 }} />
+            </>
+          )}
           <Grid container spacing={2}>
-            <Grid item xs={2.9}>
+            <Grid item xs={3.9}>
               <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
                 <Box sx={{ height: 40 }}>
                   <Typography variant="h6" align="center">
@@ -294,7 +407,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                   sx={{ m: 1 }}
                   value={mainContext.labelX}
                   onChange={(event, newValue) =>
-                    handleChangeForm(newValue, FormAction.LABEL_X)
+                    handleChangeX(newValue as string)
                   }
                   options={invariants
                     .filter((inv) => getType(inv.datatype) === "number")
@@ -305,7 +418,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                 />
               </Paper>
             </Grid>
-            <Grid item xs={0.4}>
+            <Grid item xs={0.3}>
               <Box
                 display="flex"
                 justifyContent="center"
@@ -317,7 +430,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                 <SyncAltIcon />
               </Box>
             </Grid>
-            <Grid item xs={2.9}>
+            <Grid item xs={3.9}>
               <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
                 <Box sx={{ height: 40 }}>
                   <Typography variant="h6" align="center">
@@ -329,7 +442,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                   id="combo-box-demo"
                   value={mainContext.labelY}
                   onChange={(event, newValue) =>
-                    handleChangeForm(newValue, FormAction.LABEL_Y)
+                    handleChangeY(newValue as string)
                   }
                   options={invariants
                     .filter((inv) => getType(inv.datatype) === "number")
@@ -341,7 +454,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                 />
               </Paper>
             </Grid>
-            <Grid item xs={2.9}>
+            <Grid item xs={3.9}>
               <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
                 <Box sx={{ height: 40 }}>
                   <Typography
@@ -351,12 +464,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                       color: showColoration ? "text.primary" : "text.disabled",
                       cursor: "pointer",
                     }}
-                    onClick={() =>
-                      handleChangeForm(
-                        !showColoration,
-                        FormAction.SHOW_COLORATION
-                      )
-                    }
+                    onClick={() => handleShowColoration(!showColoration)}
                   >
                     <Checkbox
                       checked={showColoration}
@@ -372,7 +480,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                   id="combo-box-demo"
                   value={mainContext.labelColor}
                   onChange={(event, newValue) =>
-                    handleChangeForm(newValue, FormAction.LABEL_COLOR)
+                    handleChangeColoration(newValue as string)
                   }
                   options={invariants
                     .filter(
@@ -389,183 +497,246 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                 />
               </Paper>
             </Grid>
-            <Grid item xs={2.9}>
-              <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
-                <Box sx={{ height: 40 }}>
-                  <Typography
-                    variant="h6"
-                    align="center"
-                    sx={{
-                      color: showAdvanced ? "text.primary" : "text.disabled",
-                      cursor: "pointer",
-                    }}
-                    onClick={() =>
-                      handleChangeForm(null, FormAction.SHOW_ADVANCED)
-                    }
-                  >
-                    <Checkbox
-                      checked={showAdvanced}
-                      size="small"
-                      color="success"
-                    />
-                    Advanced
-                  </Typography>
-                </Box>
-                <TextField
-                  disabled={!showAdvanced}
-                  sx={{ m: 1 }}
-                  value={mainContext.advancedConstraints}
-                  onChange={(event) =>
-                    handleChangeForm(
-                      event.target.value,
-                      FormAction.LABEL_ADVANCED
-                    )
-                  }
-                  id="advanced-constraint"
-                  label="Advanced constraint"
-                />
-              </Paper>
-            </Grid>
           </Grid>
 
-          <Grid container spacing={3} sx={{ mt: 1 }}>
-            {constraints.map((constraint: Constraint, index: number) => {
-              return (
-                <Grid item sm={4} key={constraint.id}>
-                  <Paper
-                    elevation={6}
-                    sx={{ p: 1, height: HEIGHTCARD * 1.5 }}
-                    square
-                  >
-                    <Grid container>
-                      <Grid item xs={10}>
+          {showConstrSubForm ? (
+            <Box>
+              <Divider sx={{ mt: 2, mb: 2 }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  mt: 2,
+                  mb: 2,
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  color="success"
+                  startIcon={
+                    showConstrSubForm ? (
+                      <KeyboardArrowUpIcon />
+                    ) : (
+                      <KeyboardArrowDownIcon />
+                    )
+                  }
+                  onClick={() => {
+                    resetConstraints();
+                    setShowConstrSubForm(!showConstrSubForm);
+                  }}
+                >
+                  {showConstrSubForm ? "Hide" : "Show"} constraints
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="success"
+                  endIcon={<AddCircleOutlineIcon />}
+                  onClick={handleAddConstraint}
+                >
+                  Add constraint
+                </Button>
+              </Box>
+
+              <Grid container spacing={2}>
+                {constraints.map((constraint: Constraint, index: number) => (
+                  <Grid item xs={4} key={constraint.id}>
+                    <Paper
+                      elevation={1}
+                      sx={{ p: 1, height: HEIGHTCARDCONSTRAINT }}
+                    >
+                      <Box
+                        sx={{
+                          height: 40,
+                          display: "flex",
+                          justifyContent: "space-around",
+                        }}
+                      >
                         <Typography variant="h6" align="center">
-                          Constraint {index + 1}
+                          {constraint.advancedMode ? "Advanced" : "Simple"}{" "}
+                          constraint #{index + 1}
                         </Typography>
-                      </Grid>
-                      <Grid item xs={2}>
-                        <IconButton
+                        <Tooltip title="Remove this constraint">
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              handleRemoveConstraint(constraint.id)
+                            }
+                          >
+                            <DeleteOutlineIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                      <Divider sx={{ mt: 1, mb: 1 }} />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Button
                           onClick={() =>
-                            handleChangeForm(
+                            handleAdvancedMode(
                               constraint.id,
-                              FormAction.REMOVE_CONSTRAINT
+                              constraint.advancedMode
                             )
                           }
                         >
-                          <DeleteOutlineIcon />
-                        </IconButton>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Autocomplete
-                          id="combo-box-demo"
-                          options={constraintInvariant.map((inv) => inv.name)}
-                          value={constraint.name}
-                          sx={{ m: 1 }}
-                          disableClearable
-                          onChange={(e, value) =>
-                            handleChangeName(constraint.id, value)
-                          }
-                          renderInput={(params) => (
-                            <TextField {...params} label="Invariant color" />
-                          )}
-                        />
-                      </Grid>
-                      {constraint.type === "number" ||
-                      constraint.type === "special" ? (
-                        <Grid
-                          item
-                          xs={12}
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Stack
-                            direction={{ xs: "column", sm: "row" }}
-                            spacing={{ xs: 1, sm: 2, md: 2 }}
-                            divider={
-                              <Divider orientation="vertical" flexItem />
+                          <Inner size={10}>
+                            Change to{" "}
+                            {constraint.advancedMode ? "simple " : "advanced "}
+                          </Inner>
+                        </Button>
+                      </Box>
+                      {constraint.advancedMode ? (
+                        <Box>
+                          <TextField
+                            sx={{ ml: 1, mr: 1, mt: 1, width: "95%" }}
+                            label="Enter your expression"
+                            multiline
+                            rows="4"
+                            onChange={(event) =>
+                              handleChangeAdvancedField(
+                                constraint.id,
+                                event.target.value
+                              )
                             }
-                            alignItems="center"
-                          >
-                            <TextField
-                              sx={{ m: 1, width: "50%" }}
-                              id="min"
-                              label="Min"
-                              type="number"
-                              InputProps={{
-                                inputProps: { min: 0, max: constraint.max },
-                              }}
-                              value={constraint.min}
-                              onChange={(e) =>
-                                handleChangeMin(constraint.id, e.target.value)
-                              }
-                            />
-                            <TextField
-                              sx={{ m: 1, width: "50%" }}
-                              id="max"
-                              label="Max"
-                              type="number"
-                              InputProps={{
-                                inputProps: { min: constraint.min },
-                              }}
-                              value={constraint.max}
-                              onChange={(e) =>
-                                handleChangeMax(constraint.id, e.target.value)
-                              }
-                            />
-                          </Stack>
-                        </Grid>
-                      ) : (
-                        <Grid
-                          item
-                          xs={12}
-                          sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Switch
-                            checked={constraint.min === 1}
-                            onChange={() =>
-                              handleSwitch(constraint.id, constraint.min)
-                            }
-                            color="success"
                           />
-                        </Grid>
+                        </Box>
+                      ) : (
+                        <Box>
+                          <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            value={constraint.name}
+                            onChange={(event, newValue) =>
+                              handleChangeName(
+                                constraint.id,
+                                newValue === null ? "" : newValue
+                              )
+                            }
+                            options={constraintInvariant.map((inv) => inv.name)}
+                            sx={{ m: 1 }}
+                            renderInput={(params) => (
+                              <TextField {...params} label="Invariant" />
+                            )}
+                          />
+                          {constraint.type !== ConstraintTypes.NONE ? (
+                            constraint.type === ConstraintTypes.BOOL ? (
+                              <Box
+                                sx={{
+                                  mt: 2,
+                                  display: "flex",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <Switch
+                                  checked={constraint.min === 1}
+                                  onChange={() => {
+                                    handleActiveConstraint(
+                                      constraint.id,
+                                      constraint.min
+                                    );
+                                  }}
+                                  color="success"
+                                />
+                              </Box>
+                            ) : (
+                              <Box
+                                sx={{
+                                  m: 1,
+                                  display: "flex",
+                                  justifyContent: "space-around",
+                                }}
+                              >
+                                <TextField
+                                  sx={{ m: 1, width: "50%" }}
+                                  id="min"
+                                  label="Min"
+                                  type="number"
+                                  InputProps={{
+                                    inputProps: { min: 0, max: constraint.max },
+                                  }}
+                                  value={constraint.min}
+                                  onChange={(e) =>
+                                    handleChangeMin(
+                                      constraint.id,
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <TextField
+                                  sx={{ m: 1, width: "50%" }}
+                                  id="max"
+                                  label="Max"
+                                  type="number"
+                                  InputProps={{
+                                    inputProps: { min: constraint.min },
+                                  }}
+                                  value={constraint.max}
+                                  onChange={(e) =>
+                                    handleChangeMax(
+                                      constraint.id,
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                              </Box>
+                            )
+                          ) : null}
+                        </Box>
                       )}
-                    </Grid>
-                  </Paper>
-                </Grid>
-              );
-            })}
-          </Grid>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ mt: 2, mb: 1 }}
-          >
-            <Button
-              variant="outlined"
-              onClick={() => handleChangeForm(null, FormAction.ADD_CONSTRAINT)}
-              color="success"
-              startIcon={<AddCircleOutlineIcon />}
-            >
-              Do you want add a constraint?
-            </Button>
-
-            <Button
-              variant="contained"
-              color="success"
-              endIcon={<SendIcon />}
-              onClick={handleSubmit}
-            >
-              Submit
-            </Button>
-          </Stack>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+              <Divider sx={{ mt: 2, mb: 2 }} />
+              <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  endIcon={<SendIcon />}
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </Button>
+              </Box>
+            </Box>
+          ) : (
+            <Box>
+              <Divider sx={{ mt: 2, mb: 2 }} />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  mt: 2,
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  color="success"
+                  startIcon={
+                    showConstrSubForm ? (
+                      <KeyboardArrowUpIcon />
+                    ) : (
+                      <KeyboardArrowDownIcon />
+                    )
+                  }
+                  onClick={() => setShowConstrSubForm(!showConstrSubForm)}
+                >
+                  {showConstrSubForm ? "Hide" : "Show"} constraints
+                </Button>
+                <Button
+                  variant="contained"
+                  color="success"
+                  endIcon={<SendIcon />}
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </Button>
+              </Box>
+            </Box>
+          )}
         </Collapse>
       </form>
       {mainContext.isSubmit && <Fetch invariants={invariants} />}

@@ -1,12 +1,13 @@
 import { Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import AppRoutes from "../../routes";
 import Inner from "../styles_and_settings/Inner";
 
-const Welcome: React.FC = () => {
+const Welcome = () => {
   const navigate = useNavigate();
 
   setTimeout(() => {
-    navigate("/main-app");
+    navigate(AppRoutes.PHOEG, { state: { open: true } });
   }, 1750);
 
   return (

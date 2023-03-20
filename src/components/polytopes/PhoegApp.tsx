@@ -1,11 +1,10 @@
-import Polytopes, { Invariant } from "../polytopes/PolytopesSlider";
+import Polytopes, { Invariant } from "./PolytopesSlider";
 import "react-banner/dist/style.css";
-import { Introduction } from "./Introduction";
 import Form from "../form_fetch/Form";
 import axios from "axios";
 import { API_URL } from "../../.env";
 import { useEffect, useReducer, useState } from "react";
-import Frame from "./Frame";
+import Frame from "../annex_pages/Frame";
 import MainContext from "../../store/utils/main_context";
 import {
   ChartData,
@@ -29,9 +28,17 @@ import {
   setPointClicked,
 } from "../../store/actions/main_action";
 import Graphs from "../graphs/Graphs";
+import { Box } from "@mui/material";
+import Inner from "../styles_and_settings/Inner";
+import { useLocation } from "react-router-dom";
 
-// Main component
-const MainApp: React.FC = () => {
+export interface OpenProps {
+  isOpenMenu: boolean;
+  setIsOpenMenu: (isOpenMenu: boolean) => void;
+}
+
+// Main component of PHOEG application
+const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   const [invariants, setDataInvariants] = useState<Array<Invariant>>([]);
 
   const [stateMainReducer, dispatchMainReducer] = useReducer(
@@ -63,8 +70,15 @@ const MainApp: React.FC = () => {
   };
 
   return (
-    <Frame>
-      <Introduction />
+    <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
+      <Box sx={{ mt: 2 }}>
+        <Inner align="center">
+          Welcome to the new user interface. Start using it by filling in the
+          following form to view your first polytope.
+          <br />
+          And enjoy!
+        </Inner>
+      </Box>
       <MainContext.Provider
         value={{
           ...stateMainReducer,
@@ -105,4 +119,4 @@ const MainApp: React.FC = () => {
   );
 };
 
-export default MainApp;
+export default PhoegApp;

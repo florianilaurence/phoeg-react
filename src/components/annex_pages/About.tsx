@@ -1,14 +1,14 @@
-import { BOTTOM, LEFT, RIGHT } from "../../designVars";
 import Title from "../styles_and_settings/Title";
 import { Box } from "@mui/material";
 import Inner from "../styles_and_settings/Inner";
-import Frame from "../home_and_frame/Frame";
+import Frame from "./Frame";
+import { OpenProps } from "../polytopes/PhoegApp";
 
-const About: React.FC = () => {
+const About = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   return (
-    <Frame>
+    <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
       <Title title="About" />
-      <Box sx={{ ml: LEFT, mr: RIGHT, mb: BOTTOM }}>
+      <Box sx={{ ml: 3, mr: 3, mb: 3 }}>
         <Inner bold align="center">
           PHOEG is an acronym for "PHOEG Helps to Obtain Extremal Graphs"
         </Inner>

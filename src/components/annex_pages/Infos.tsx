@@ -1,10 +1,11 @@
-import Frame from "../home_and_frame/Frame";
+import Frame from "./Frame";
 import Inner from "../styles_and_settings/Inner";
 import Title from "../styles_and_settings/Title";
+import { OpenProps } from "../polytopes/PhoegApp";
 
-const Infos = () => {
+const Infos = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   return (
-    <Frame>
+    <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
       <Title title="Informations on invariants" />
       <Inner align="center">Work in progress, please wait and be patient</Inner>
     </Frame>

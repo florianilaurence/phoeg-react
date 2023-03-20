@@ -71,7 +71,9 @@ const Polytopes = () => {
   return (
     <>
       {mainContext.isSubmit && <Title title="Polytope" />}
-      {mainContext.isSubmit && mainContext.isLoading && <Loading />}
+      {mainContext.isSubmit && mainContext.isLoading && (
+        <Loading height="1000px" />
+      )}
       {mainContext.isSubmit && !mainContext.isLoading && (
         <Box sx={{ ml: 1, mr: 1 }}>
           <SubTitle subtitle={`Chart for order ${mainContext.order}`} />

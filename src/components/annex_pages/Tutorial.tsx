@@ -2,9 +2,10 @@ import YouTube from "react-youtube";
 import Title from "../styles_and_settings/Title";
 import Inner from "../styles_and_settings/Inner";
 import { Box } from "@mui/material";
-import Frame from "../home_and_frame/Frame";
+import Frame from "./Frame";
+import { OpenProps } from "../polytopes/PhoegApp";
 
-export default function Tutorial() {
+export default function Tutorial({ isOpenMenu, setIsOpenMenu }: OpenProps) {
   const opts = {
     height: "585",
     width: "960",
@@ -12,7 +13,7 @@ export default function Tutorial() {
   };
 
   return (
-    <Frame>
+    <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
       <Title title="Tutorial" />
       <Inner bold italic align="center">
         This is a demo video for interface.

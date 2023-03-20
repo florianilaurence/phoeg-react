@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from "@mui/material";
+import { Stack } from "@mui/material";
 import { LEFT, RIGHT } from "../designVars";
 import Inner from "./styles_and_settings/Inner";
 

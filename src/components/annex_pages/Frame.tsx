@@ -18,12 +18,15 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import IconButton from "@mui/material/IconButton";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { blueGrey } from "@mui/material/colors";
 import { Link, Tooltip } from "@mui/material";
+import AppRoutes from "../../routes";
 
 interface FrameProps {
   children: ReactNode;
+  isOpenMenu: boolean;
+  setIsOpenMenu: (isOpenMenu: boolean) => void;
 }
 
 const drawerWidthOpen = 230;
@@ -31,31 +34,31 @@ const drawerWidthClosed = 60;
 const heightToolbar = 75;
 
 const options = [
-  { text: "Main app", link: "/main-app", icon: <HomeIcon /> },
+  { text: "PHOEG", link: AppRoutes.PHOEG, icon: <HomeIcon /> },
   {
-    text: "Autoconjectures app",
-    link: "/autoconj-app",
+    text: "Autoconjectures",
+    link: AppRoutes.AUTOCONJECTURES,
     icon: <AutoFixHighIcon />,
   },
   {
-    text: "About",
-    link: "/about",
-    icon: <LightbulbCircleIcon />,
-  },
-  { text: "Tutorial", link: "/tutorial", icon: <HelpIcon /> },
-  {
-    text: "Information on invariants",
-    link: "/infos",
+    text: "Informations on invariants",
+    link: AppRoutes.INFORMATIONS,
     icon: <TableRowsIcon />,
+  },
+  { text: "Tutorial", link: AppRoutes.TUTORIAL, icon: <HelpIcon /> },
+  {
+    text: "About",
+    link: AppRoutes.ABOUT,
+    icon: <LightbulbCircleIcon />,
   },
 ];
 
-const Frame = ({ children }: FrameProps) => {
-  const [open, setOpen] = useState(false);
+const Frame = ({ children, isOpenMenu, setIsOpenMenu }: FrameProps) => {
+  const location = useLocation();
   const navigate = useNavigate();
 
   const onClickOpen = () => {
-    setOpen(!open);
+    setIsOpenMenu(!isOpenMenu);
   };
 
   return (
@@ -86,32 +89,32 @@ const Frame = ({ children }: FrameProps) => {
       <Drawer
         variant="permanent"
         sx={{
-          width: open ? drawerWidthOpen : drawerWidthClosed,
+          width: isOpenMenu ? drawerWidthOpen : drawerWidthClosed,
           flexShrink: 0,
         }}
       >
         <Toolbar sx={{ height: 82 }} />
         <Box
           sx={{
-            width: open ? drawerWidthOpen : drawerWidthClosed,
+            width: isOpenMenu ? drawerWidthOpen : drawerWidthClosed,
             height: "100%",
             backgroundColor: blueGrey[50],
           }}
         >
           <Tooltip
-            title={open ? "Collapse menu" : "Expand menu"}
-            placement="top-start"
+            title={isOpenMenu ? "Collapse menu" : "Expand menu"}
+            placement={isOpenMenu ? "top-end" : "right"}
           >
             <Box
               sx={{
                 display: "flex",
-                justifyContent: open ? "flex-end" : "center",
+                justifyContent: isOpenMenu ? "flex-end" : "center",
                 mt: 1,
                 height: 45,
               }}
             >
               <IconButton onClick={onClickOpen}>
-                {open ? (
+                {isOpenMenu ? (
                   <KeyboardDoubleArrowLeftIcon />
                 ) : (
                   <KeyboardDoubleArrowRightIcon />
@@ -127,24 +130,31 @@ const Frame = ({ children }: FrameProps) => {
                 key={option.text}
                 disablePadding
               >
-                <Tooltip title={option.text} placement="top-start">
+                <Tooltip
+                  title={option.text}
+                  placement={isOpenMenu ? "top" : "right"}
+                >
                   <ListItemButton
                     sx={{
                       height: 45,
-                      justifyContent: open ? "initial" : "center",
+                      justifyContent: isOpenMenu ? "initial" : "center",
+                      backgroundColor:
+                        location.pathname === option.link
+                          ? blueGrey[100]
+                          : "transparent",
                     }}
                     onClick={() => navigate(option.link, { replace: true })}
                   >
                     <ListItemIcon
                       sx={{
                         minWidth: 0,
-                        mr: open ? 3 : "auto",
+                        mr: isOpenMenu ? 3 : "auto",
                         justifyContent: "center",
                       }}
                     >
                       {option.icon}
                     </ListItemIcon>
-                    {open ? <ListItemText primary={option.text} /> : null}
+                    {isOpenMenu ? <ListItemText primary={option.text} /> : null}
                   </ListItemButton>
                 </Tooltip>
               </ListItem>
