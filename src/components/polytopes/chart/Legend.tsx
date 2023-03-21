@@ -1,4 +1,4 @@
-import { Box, Button, Collapse, Container, Divider } from "@mui/material";
+import { Box, Button, Collapse, Divider } from "@mui/material";
 import { useContext, useState } from "react";
 import Inner from "../../styles_and_settings/Inner";
 import { ScalesProps } from "./Chart";

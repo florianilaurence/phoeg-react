@@ -111,6 +111,7 @@ const Fetch = ({ invariants }: FetchProps) => {
         mainContext.setError(error);
         mainContext.setIsLoading(false);
       });
+    console.log(mainContext.coordinates);
   }, [mainContext.order]);
 
   const fetchData = (

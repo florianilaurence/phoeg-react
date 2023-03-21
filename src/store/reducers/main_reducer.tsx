@@ -47,8 +47,28 @@ export const defaultConcave: Concave = {
   maxXminY: [],
 };
 
+export interface ChartData {
+  envelope: Array<Coordinate>;
+  minMax: MinMax;
+  concave: Concave;
+  coordinates: Array<Coordinate>;
+  sorted: { [key: number]: Array<Coordinate> };
+}
+
+export interface SimplifiedChartData {
+  envelope: Array<Coordinate>;
+  minMax: MinMax;
+  concave: Concave;
+}
+
 export interface MainState {
+  // Only for phoeg app
   order: number;
+
+  coordinates: Array<Coordinate>;
+  sorted: { [key: number]: Array<Coordinate> };
+
+  // For both apps
   labelX: string;
   labelY: string;
   labelColor: string;
@@ -59,26 +79,26 @@ export interface MainState {
 
   envelope: Array<Coordinate>;
   minMax: MinMax;
-  coordinates: Array<Coordinate>;
-  sorted: { [key: number]: Array<Coordinate> };
   concave: Concave;
 
   pointClicked: Coordinate | null; // point clicked => graphs request
   legendClicked: number | null; // color clicked => bigger point
 
   error: string;
-}
 
-export interface ChartData {
-  envelope: Array<Coordinate>;
-  minMax: MinMax;
-  concave: Concave;
-  coordinates: Array<Coordinate>;
-  sorted: { [key: number]: Array<Coordinate> };
+  // Only for conjecture app
+  orders: Array<number>;
+  pointsClicked: Array<Array<Coordinate>>;
 }
 
 export const initialMainState: MainState = {
+  // Only for phoeg app
   order: 7,
+
+  coordinates: [],
+  sorted: {},
+
+  // For both apps
   labelX: "",
   labelY: "",
   labelColor: "",
@@ -89,14 +109,16 @@ export const initialMainState: MainState = {
 
   envelope: [],
   minMax: defaultMinMax,
-  coordinates: [],
-  sorted: {},
   concave: defaultConcave,
 
   pointClicked: null,
   legendClicked: null,
 
   error: "",
+
+  // Only for conjecture app
+  orders: [],
+  pointsClicked: [],
 };
 
 export const MainReducer = (state: MainState, action: any): MainState => {
@@ -146,6 +168,35 @@ export const MainReducer = (state: MainState, action: any): MainState => {
         legendClicked: null,
       };
 
+    // Only for conjecture app
+    case MainAction.ORDERS:
+      return { ...state, orders: action.orders };
+    case MainAction.SET_SIMPLIFIED_DATA:
+      return {
+        ...state,
+        envelope: action.envelope,
+        minMax: action.minMax,
+        concave: action.concave,
+      };
+    case MainAction.ADD_POINT_CLICKED:
+      // action.pointClicked is a coordinate AND action.index is the index of the sublist
+      const newPointsClicked = state.pointsClicked;
+      newPointsClicked[action.index].push(action.pointClicked);
+      return {
+        ...state,
+        pointsClicked: newPointsClicked,
+      };
+    case MainAction.REMOVE_POINT_CLICKED:
+      // action.pointClicked is a coordinate AND action.index is the index of the sublist
+      const newPointsClicked2 = state.pointsClicked;
+      newPointsClicked2[action.index].filter(
+        (point) =>
+          point.x !== action.pointClicked.x || point.y !== action.pointClicked.y
+      );
+      return {
+        ...state,
+        pointsClicked: newPointsClicked2,
+      };
     default:
       return state;
   }

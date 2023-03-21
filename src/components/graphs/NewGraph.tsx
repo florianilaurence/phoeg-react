@@ -4,7 +4,7 @@ import fcose from "cytoscape-fcose";
 import cola from "cytoscape-cola";
 import dagre from "cytoscape-dagre";
 import Cytoscape from "cytoscape";
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Inner from "../styles_and_settings/Inner";
 import {
   Autocomplete,
@@ -70,11 +70,6 @@ Cytoscape.use(dagre);
 interface NewGraphProps {
   sign: string;
   width: number;
-}
-
-interface Layout {
-  name: string;
-  animate: boolean;
 }
 
 const layouts = {
@@ -143,7 +138,7 @@ const NewGraph = ({ sign, width }: NewGraphProps) => {
     setEdges(resEdges);
     setEdgesComplement(resEdgesComplement);
     forceUpdate();
-  }, [sign]);
+  }, [sign, forceUpdate]);
 
   const handleChangeChecked = (event) => {
     setIsComplement(event.target.checked);

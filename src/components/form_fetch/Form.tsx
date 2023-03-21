@@ -24,9 +24,9 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/system";
 import Inner from "../styles_and_settings/Inner";
 import Title from "../styles_and_settings/Title";
-import MainContext from "../../store/utils/main_context";
 import Fetch from "./Fetch";
-import OrderForm from "./OrderForm";
+import MainContext from "../../store/utils/main_context";
+import CalculateIcon from "@mui/icons-material/Calculate";
 
 enum ConstraintTypes {
   NUMBER = "number",
@@ -69,6 +69,40 @@ export interface Constraint {
   advancedField: string;
 }
 
+const initialConstraint = (id: number): Constraint => {
+  return {
+    id: id,
+    name: "",
+    tablename: "",
+    min: 0,
+    max: 0,
+    type: ConstraintTypes.NONE,
+    advancedMode: false,
+    advancedField: "",
+  };
+};
+
+enum OrdersAction {
+  MIN,
+  MAX,
+  STEP,
+  FIELD,
+}
+
+interface Orders {
+  min: number;
+  max: number;
+  step: number;
+  field: string;
+}
+
+const initialOrders = {
+  min: 1,
+  max: 1,
+  step: 1,
+  field: "",
+};
+
 const HEIGHTCARD = 125;
 const HEIGHTCARDCONSTRAINT = 250;
 
@@ -79,19 +113,6 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   const [showForm, setShowForm] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
   const [showConstrSubForm, setShowConstrSubForm] = useState(false);
-
-  const initialConstraint = (id: number): Constraint => {
-    return {
-      id: id,
-      name: "",
-      tablename: "",
-      min: 0,
-      max: 0,
-      type: ConstraintTypes.NONE,
-      advancedMode: false,
-      advancedField: "",
-    };
-  };
 
   const constraintInvariant: Array<Invariant> = invariants.filter(
     (inv: Invariant) =>
@@ -104,6 +125,54 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     return constraintInvariant.find((inv) => inv.name === name) as Invariant;
   };
 
+  // Orders reducer
+  const ordersReducer = (state: Orders, action: any) => {
+    switch (action.type) {
+      case OrdersAction.MIN:
+        return { ...state, min: +action.min }; // +action.min to convert string to number (if not, it's maybe a string)
+      case OrdersAction.MAX:
+        return { ...state, max: +action.max };
+      case OrdersAction.STEP:
+        return { ...state, step: +action.step };
+      case OrdersAction.FIELD:
+        return { ...state, field: action.field };
+      default:
+        return state;
+    }
+  };
+
+  const [stateOrders, dispatchOrders] = useReducer(
+    ordersReducer,
+    initialOrders
+  );
+
+  // Orders controllers
+
+  const handleOrdersMin = (event: any) => {
+    dispatchOrders({ type: OrdersAction.MIN, min: event.target.value });
+  };
+
+  const handleOrdersMax = (event: any) => {
+    dispatchOrders({ type: OrdersAction.MAX, max: event.target.value });
+  };
+
+  const handleOrdersStep = (event: any) => {
+    dispatchOrders({ type: OrdersAction.STEP, step: event.target.value });
+  };
+
+  const handleOrdersField = (event: any) => {
+    dispatchOrders({ type: OrdersAction.FIELD, field: event.target.value });
+  };
+
+  const submitOrders = () => {
+    const orders: Array<number> = [];
+    for (let i = stateOrders.min; i <= stateOrders.max; i += stateOrders.step) {
+      orders.push(i);
+    }
+    dispatchOrders({ type: OrdersAction.FIELD, field: orders.join(", ") });
+  };
+
+  // Constraints reducer
   const constraintsReducer = (state: any, action: any) => {
     switch (action.type) {
       case ConstraintAction.REMOVE_CONSTRAINT:
@@ -390,7 +459,69 @@ const Form = ({ invariants, withOrders }: FormProps) => {
         <Collapse in={showForm} sx={{ mb: 2 }}>
           {withOrders && (
             <>
-              <OrderForm />
+              <Paper elevation={5}>
+                <Box sx={{ p: 2 }}>
+                  <Typography variant="h6" align="center">
+                    Orders
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      direction: "row",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <TextField
+                      sx={{ m: 1, width: "100px" }}
+                      id="min"
+                      label="Min"
+                      type="number"
+                      InputProps={{
+                        inputProps: { min: 1, max: 10 },
+                      }}
+                      value={stateOrders.min}
+                      onChange={handleOrdersMin}
+                    />
+                    <TextField
+                      sx={{ m: 1, width: "100px" }}
+                      id="max"
+                      label="Max"
+                      type="number"
+                      InputProps={{
+                        inputProps: { min: 1, max: 10 },
+                      }}
+                      value={stateOrders.max}
+                      onChange={handleOrdersMax}
+                    />
+                    <TextField
+                      sx={{ m: 1, width: "100px" }}
+                      id="step"
+                      label="Step"
+                      type="number"
+                      InputProps={{
+                        inputProps: { min: 1, max: 10 },
+                      }}
+                      value={stateOrders.step}
+                      onChange={handleOrdersStep}
+                    />
+                    <Button
+                      sx={{ m: 1 }}
+                      variant="contained"
+                      onClick={submitOrders}
+                      color="success"
+                    >
+                      <CalculateIcon />
+                    </Button>
+                    <TextField
+                      sx={{ m: 1, width: "250px" }}
+                      id="list"
+                      label="Orders list"
+                      value={stateOrders.field}
+                      onChange={handleOrdersField}
+                    />
+                  </Box>
+                </Box>
+              </Paper>
               <Divider sx={{ mt: 2, mb: 2 }} />
             </>
           )}

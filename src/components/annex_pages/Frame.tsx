@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import AppBar from "@mui/material/AppBar";
@@ -130,33 +130,32 @@ const Frame = ({ children, isOpenMenu, setIsOpenMenu }: FrameProps) => {
                 key={option.text}
                 disablePadding
               >
-                <Tooltip
-                  title={option.text}
-                  placement={isOpenMenu ? "top" : "right"}
+                <ListItemButton
+                  sx={{
+                    height: 45,
+                    justifyContent: isOpenMenu ? "initial" : "center",
+                    backgroundColor:
+                      location.pathname === option.link
+                        ? blueGrey[100]
+                        : "transparent",
+                  }}
+                  onClick={() => navigate(option.link, { replace: true })}
                 >
-                  <ListItemButton
-                    sx={{
-                      height: 45,
-                      justifyContent: isOpenMenu ? "initial" : "center",
-                      backgroundColor:
-                        location.pathname === option.link
-                          ? blueGrey[100]
-                          : "transparent",
-                    }}
-                    onClick={() => navigate(option.link, { replace: true })}
+                  <Tooltip
+                    title={option.text}
+                    placement={isOpenMenu ? "top" : "right"}
                   >
                     <ListItemIcon
                       sx={{
-                        minWidth: 0,
-                        mr: isOpenMenu ? 3 : "auto",
+                        mr: isOpenMenu ? 1 : "auto",
                         justifyContent: "center",
                       }}
                     >
                       {option.icon}
                     </ListItemIcon>
-                    {isOpenMenu ? <ListItemText primary={option.text} /> : null}
-                  </ListItemButton>
-                </Tooltip>
+                  </Tooltip>
+                  {isOpenMenu ? <ListItemText primary={option.text} /> : null}
+                </ListItemButton>
               </ListItem>
             ))}
           </List>

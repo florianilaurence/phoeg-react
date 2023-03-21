@@ -24,6 +24,11 @@ const MainContext = createContext({
   setError: (message: string) => {},
 
   reset: () => {},
+
+  // For conjecture app
+  setOrders: (orders: number[]) => {},
+  addPoint: (coordinate: Coordinate, index: number) => {},
+  removePoint: (coordinate: Coordinate, index: number) => {},
 });
 
 export default MainContext;

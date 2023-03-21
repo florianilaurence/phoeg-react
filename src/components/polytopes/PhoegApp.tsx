@@ -30,44 +30,46 @@ import {
 import Graphs from "../graphs/Graphs";
 import { Box } from "@mui/material";
 import Inner from "../styles_and_settings/Inner";
-import { useLocation } from "react-router-dom";
 
 export interface OpenProps {
   isOpenMenu: boolean;
   setIsOpenMenu: (isOpenMenu: boolean) => void;
 }
 
+const fetchData = async (request: string): Promise<Array<Invariant>> => {
+  try {
+    const res = await axios.get(request);
+    return res.data;
+  } catch (error) {
+    return [];
+  }
+};
+
+export const fetchInvariants = async () => {
+  let request = new URL(`${API_URL}/invariants?type=any`);
+  const inv = await fetchData(request.toString());
+  inv.push({
+    name: "Multiplicity",
+    datatype: -1,
+    tablename: "mult",
+    description: "",
+  });
+  inv.sort((a, b) => (a.name > b.name ? 1 : -1));
+  return inv;
+};
+
 // Main component of PHOEG application
 const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   const [invariants, setDataInvariants] = useState<Array<Invariant>>([]);
 
-  const [stateMainReducer, dispatchMainReducer] = useReducer(
+  const [statePhoegReducer, dispatchPhoegReducer] = useReducer(
     MainReducer,
     initialMainState
   );
 
   useEffect(() => {
-    let request = new URL(`${API_URL}/invariants?type=any`);
-    fetchData(request.toString()).then((inv) => {
-      inv.push({
-        name: "Multiplicity",
-        datatype: -1,
-        tablename: "mult",
-        description: "",
-      });
-      inv.sort((a, b) => (a.name > b.name ? 1 : -1));
-      setDataInvariants(inv);
-    });
+    fetchInvariants().then((inv) => setDataInvariants(inv));
   }, []);
-
-  const fetchData = async (request: string): Promise<Array<Invariant>> => {
-    try {
-      const res = await axios.get(request);
-      return res.data;
-    } catch (error) {
-      return [];
-    }
-  };
 
   return (
     <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
@@ -81,39 +83,60 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
       </Box>
       <MainContext.Provider
         value={{
-          ...stateMainReducer,
+          ...statePhoegReducer,
 
-          setOrder: (order: number) => setOrder(order, dispatchMainReducer),
-          setLabelX: (labelX: string) => setLabelX(labelX, dispatchMainReducer),
-          setLabelY: (labelY: string) => setLabelY(labelY, dispatchMainReducer),
+          setOrder: (order: number) => setOrder(order, dispatchPhoegReducer),
+          setLabelX: (labelX: string) =>
+            setLabelX(labelX, dispatchPhoegReducer),
+          setLabelY: (labelY: string) =>
+            setLabelY(labelY, dispatchPhoegReducer),
           setLabelColor: (labelColor: string) =>
-            setLabelColor(labelColor, dispatchMainReducer),
+            setLabelColor(labelColor, dispatchPhoegReducer),
           setConstraints: (constraints: string) =>
-            setConstraints(constraints, dispatchMainReducer),
+            setConstraints(constraints, dispatchPhoegReducer),
           setAdvancedConstraints: (advancedConstraints: string) =>
-            setAdvancedConstraints(advancedConstraints, dispatchMainReducer),
+            setAdvancedConstraints(advancedConstraints, dispatchPhoegReducer),
           setIsSubmit: (isSubmit: boolean) =>
-            setIsSubmit(isSubmit, dispatchMainReducer),
+            setIsSubmit(isSubmit, dispatchPhoegReducer),
           setIsLoading: (isLoading: boolean) =>
-            setIsLoading(isLoading, dispatchMainReducer),
+            setIsLoading(isLoading, dispatchPhoegReducer),
 
-          setData: (data: ChartData) => setData(data, dispatchMainReducer),
+          setData: (data: ChartData) => setData(data, dispatchPhoegReducer),
 
           setPointClicked: (coordinate: Coordinate | null) =>
-            setPointClicked(coordinate, dispatchMainReducer),
+            setPointClicked(coordinate, dispatchPhoegReducer),
           setLegendClicked: (legendClicked: number | null) =>
-            setLegendClicked(legendClicked, dispatchMainReducer),
+            setLegendClicked(legendClicked, dispatchPhoegReducer),
 
-          setError: (message: string) => setError(message, dispatchMainReducer),
+          setError: (message: string) =>
+            setError(message, dispatchPhoegReducer),
 
-          reset: () => dispatchMainReducer({ type: MainAction.RESET }),
+          reset: () => dispatchPhoegReducer({ type: MainAction.RESET }),
+
+          setOrders: (orders: number[]) =>
+            dispatchPhoegReducer({
+              type: MainAction.ORDERS,
+              orders: orders,
+            }),
+          addPoint: (coordinate: Coordinate, index: number) =>
+            dispatchPhoegReducer({
+              type: MainAction.ADD_POINT_CLICKED,
+              coordinate: coordinate,
+              index: index,
+            }),
+          removePoint: (coordinate: Coordinate, index: number) =>
+            dispatchPhoegReducer({
+              type: MainAction.REMOVE_POINT_CLICKED,
+              coordinate: coordinate,
+              index: index,
+            }),
         }}
       >
         <Form invariants={invariants} withOrders={false} />
         <Polytopes />
-        {stateMainReducer.isSubmit &&
-          !stateMainReducer.isLoading &&
-          stateMainReducer.pointClicked && <Graphs invariants={invariants} />}
+        {statePhoegReducer.isSubmit &&
+          !statePhoegReducer.isLoading &&
+          statePhoegReducer.pointClicked && <Graphs invariants={invariants} />}
       </MainContext.Provider>
     </Frame>
   );

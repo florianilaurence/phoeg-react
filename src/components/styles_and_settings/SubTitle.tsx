@@ -1,4 +1,4 @@
-import { Box, Divider, Typography } from "@mui/material";
+import { Divider, Typography } from "@mui/material";
 import { blueGrey } from "@mui/material/colors";
 
 export interface SubTitleProps {

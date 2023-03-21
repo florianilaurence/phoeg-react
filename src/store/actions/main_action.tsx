@@ -1,25 +1,36 @@
-import { ChartData, Coordinate, MainState } from "../reducers/main_reducer";
+import {
+  ChartData,
+  Coordinate,
+  SimplifiedChartData,
+} from "../reducers/main_reducer";
 
 export enum MainAction {
-  ORDER = "order",
-  LABEL_X = "labelX",
-  LABEL_Y = "labelY",
-  LABEL_COLOR = "labelColor",
-  CONSTRAINTS = "constraints",
-  ADVANCED_CONSTRAINTS = "advancedConstraints",
-  IS_SUBMIT = "isSubmit",
-  IS_LOADING = "isLoading",
+  // Common actions for phoeg app and conjecture app
+  ORDER,
+  LABEL_X,
+  LABEL_Y,
+  LABEL_COLOR,
+  CONSTRAINTS,
+  ADVANCED_CONSTRAINTS,
+  IS_SUBMIT,
+  IS_LOADING,
 
-  SET_DATA = "setData",
+  SET_DATA,
 
-  SET_POINT_CLICKED = "setPointClicked",
-  SET_LEGEND_CLICKED = "setLegendClicked",
+  SET_POINT_CLICKED,
+  SET_LEGEND_CLICKED,
 
-  SET_ERROR = "setError",
+  SET_ERROR,
+  RESET,
 
-  RESET = "reset",
+  // Special actions for conjecture app
+  ORDERS,
+  SET_SIMPLIFIED_DATA,
+  ADD_POINT_CLICKED,
+  REMOVE_POINT_CLICKED,
 }
 
+// Common actions for phoeg app and conjecture app
 export const setOrder = (order: number, dispatch: any) => {
   dispatch({
     type: MainAction.ORDER,
@@ -116,5 +127,45 @@ export const setError = (message: string, dispatch: any) => {
 export const reset = (dispatch: any) => {
   dispatch({
     type: MainAction.RESET,
+  });
+};
+
+// Special actions for conjecture app
+
+export const setOrders = (orders: number[], dispatch: any) => {
+  dispatch({
+    type: MainAction.ORDERS,
+    orders: orders,
+  });
+};
+
+export const setSimplifiedData = (data: SimplifiedChartData, dispatch: any) => {
+  dispatch({
+    type: MainAction.SET_DATA,
+    data: data,
+  });
+};
+
+export const addPointClicked = (
+  coordinate: Coordinate,
+  index: number,
+  dispatch: any
+) => {
+  dispatch({
+    type: MainAction.ADD_POINT_CLICKED,
+    coordinate: coordinate,
+    index: index,
+  });
+};
+
+export const removePointClicked = (
+  coordinate: Coordinate,
+  index: number,
+  dispatch: any
+) => {
+  dispatch({
+    type: MainAction.REMOVE_POINT_CLICKED,
+    coordinate: coordinate,
+    index: index,
   });
 };

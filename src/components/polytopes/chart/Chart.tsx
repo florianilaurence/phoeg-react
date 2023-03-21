@@ -46,7 +46,7 @@ const Chart = ({ width }: SizeProps) => {
         range: [margin.left, innerWidth],
         clamp: true,
       }),
-    [width]
+    [innerWidth, mainContext.minMax.maxX, mainContext.minMax.minX]
   );
 
   const yScale = useMemo(
@@ -56,7 +56,7 @@ const Chart = ({ width }: SizeProps) => {
         range: [innerHeight, margin.top],
         clamp: true,
       }),
-    [height]
+    [innerHeight, mainContext.minMax.maxY, mainContext.minMax.minY]
   );
 
   const colorScale = scaleLinear<string>({
