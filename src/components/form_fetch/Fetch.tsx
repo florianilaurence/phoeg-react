@@ -4,6 +4,7 @@ import { stringify } from "qs";
 import axios from "axios";
 import { Invariant } from "../polytopes/PolytopesSlider";
 import MainContext from "../../store/utils/main_context";
+import { Concave } from "../../store/reducers/main_reducer";
 
 interface PostConstraint {
   name: string;
@@ -46,13 +47,23 @@ export const decodeConstraints = (
 
 interface FetchProps {
   invariants: Array<Invariant>;
+  orders?: Array<number>; //Only for conjecture app
 }
 
-const Fetch = ({ invariants }: FetchProps) => {
+const Fetch = ({ invariants, orders }: FetchProps) => {
   const mainContext = useContext(MainContext);
 
   useEffect(() => {
     mainContext.setIsLoading(true);
+    if (orders) {
+      concavesUseEffect();
+      console.log(mainContext.concaves);
+    } else {
+      phoegUseEffect();
+    }
+  }, [mainContext.order]);
+
+  const phoegUseEffect = () => {
     const constraints = decodeConstraints(mainContext.constraints);
     const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
     const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
@@ -89,8 +100,7 @@ const Fetch = ({ invariants }: FetchProps) => {
     const concave_request = new URL(
       `${API_URL}/graphs/concave` + "?" + part_request
     );
-
-    fetchData(
+    phoegFetchData(
       envelope_request,
       points_request,
       concave_request,
@@ -111,10 +121,9 @@ const Fetch = ({ invariants }: FetchProps) => {
         mainContext.setError(error);
         mainContext.setIsLoading(false);
       });
-    console.log(mainContext.coordinates);
-  }, [mainContext.order]);
+  };
 
-  const fetchData = (
+  const phoegFetchData = (
     requestEnvelope: URL,
     requestPoints: URL,
     requestConcave: URL,
@@ -140,6 +149,52 @@ const Fetch = ({ invariants }: FetchProps) => {
           };
         })
       );
+  };
+
+  const concavesUseEffect = () => {
+    const constraints = decodeConstraints(mainContext.constraints);
+    const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
+    const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
+    const concaves_res: Array<Concave> = [];
+
+    if (orders) {
+      orders.forEach((order) => {
+        const part_request = stringify({
+          order: order,
+          x_invariant: x_tablename,
+          y_invariant: y_tablename,
+          constraints: constraints,
+        });
+        const concave_request = new URL(
+          `${API_URL}/graphs/concave` + "?" + part_request
+        );
+        concavesFetchData(concave_request)
+          .then((data) => {
+            if (data.concave.length === 0) {
+              mainContext.setError(
+                "No data found, invariants are too restrictive."
+              );
+              mainContext.setIsLoading(false);
+              return;
+            }
+            concaves_res.push(data.concave);
+          })
+          .catch((error) => {
+            mainContext.setError(error);
+            mainContext.setIsLoading(false);
+          });
+      });
+      mainContext.setConcaves(concaves_res);
+      mainContext.setIsLoading(false);
+    }
+  };
+
+  const concavesFetchData = async (requestConcave: URL) => {
+    const concave = await axios.post(requestConcave.toString());
+    return {
+      concave: concave.data,
+      error: "",
+    };
   };
 
   return <></>;

@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import {
   ChartData,
+  Concave,
   Coordinate,
   initialMainState,
 } from "../reducers/main_reducer";
@@ -27,8 +28,9 @@ const MainContext = createContext({
 
   // For conjecture app
   setOrders: (orders: number[]) => {},
-  addPoint: (coordinate: Coordinate, index: number) => {},
-  removePoint: (coordinate: Coordinate, index: number) => {},
+  setConcaves: (concaves: Concave[]) => {},
+  addPointClicked: (coordinate: Coordinate, index: number) => {},
+  removePointClicked: (coordinate: Coordinate, index: number) => {},
 });
 
 export default MainContext;

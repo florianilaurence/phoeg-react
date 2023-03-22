@@ -8,13 +8,18 @@ import Frame from "../annex_pages/Frame";
 import MainContext from "../../store/utils/main_context";
 import {
   ChartData,
+  Concave,
   Coordinate,
   initialMainState,
   MainReducer,
 } from "../../store/reducers/main_reducer";
 import {
+  addPointClicked,
   MainAction,
+  removePointClicked,
+  reset,
   setAdvancedConstraints,
+  setConcaves,
   setConstraints,
   setData,
   setError,
@@ -25,6 +30,7 @@ import {
   setLabelY,
   setLegendClicked,
   setOrder,
+  setOrders,
   setPointClicked,
 } from "../../store/actions/main_action";
 import Graphs from "../graphs/Graphs";
@@ -62,7 +68,7 @@ export const fetchInvariants = async () => {
 const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   const [invariants, setDataInvariants] = useState<Array<Invariant>>([]);
 
-  const [statePhoegReducer, dispatchPhoegReducer] = useReducer(
+  const [stateMainReducer, dispatchMainReducer] = useReducer(
     MainReducer,
     initialMainState
   );
@@ -83,60 +89,49 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
       </Box>
       <MainContext.Provider
         value={{
-          ...statePhoegReducer,
+          ...stateMainReducer,
 
-          setOrder: (order: number) => setOrder(order, dispatchPhoegReducer),
-          setLabelX: (labelX: string) =>
-            setLabelX(labelX, dispatchPhoegReducer),
-          setLabelY: (labelY: string) =>
-            setLabelY(labelY, dispatchPhoegReducer),
+          setOrder: (order: number) => setOrder(order, dispatchMainReducer),
+          setLabelX: (labelX: string) => setLabelX(labelX, dispatchMainReducer),
+          setLabelY: (labelY: string) => setLabelY(labelY, dispatchMainReducer),
           setLabelColor: (labelColor: string) =>
-            setLabelColor(labelColor, dispatchPhoegReducer),
+            setLabelColor(labelColor, dispatchMainReducer),
           setConstraints: (constraints: string) =>
-            setConstraints(constraints, dispatchPhoegReducer),
+            setConstraints(constraints, dispatchMainReducer),
           setAdvancedConstraints: (advancedConstraints: string) =>
-            setAdvancedConstraints(advancedConstraints, dispatchPhoegReducer),
+            setAdvancedConstraints(advancedConstraints, dispatchMainReducer),
           setIsSubmit: (isSubmit: boolean) =>
-            setIsSubmit(isSubmit, dispatchPhoegReducer),
+            setIsSubmit(isSubmit, dispatchMainReducer),
           setIsLoading: (isLoading: boolean) =>
-            setIsLoading(isLoading, dispatchPhoegReducer),
+            setIsLoading(isLoading, dispatchMainReducer),
 
-          setData: (data: ChartData) => setData(data, dispatchPhoegReducer),
+          setData: (data: ChartData) => setData(data, dispatchMainReducer),
 
           setPointClicked: (coordinate: Coordinate | null) =>
-            setPointClicked(coordinate, dispatchPhoegReducer),
+            setPointClicked(coordinate, dispatchMainReducer),
           setLegendClicked: (legendClicked: number | null) =>
-            setLegendClicked(legendClicked, dispatchPhoegReducer),
+            setLegendClicked(legendClicked, dispatchMainReducer),
 
-          setError: (message: string) =>
-            setError(message, dispatchPhoegReducer),
+          setError: (message: string) => setError(message, dispatchMainReducer),
 
-          reset: () => dispatchPhoegReducer({ type: MainAction.RESET }),
+          reset: () => reset(dispatchMainReducer),
 
           setOrders: (orders: number[]) =>
-            dispatchPhoegReducer({
-              type: MainAction.ORDERS,
-              orders: orders,
-            }),
-          addPoint: (coordinate: Coordinate, index: number) =>
-            dispatchPhoegReducer({
-              type: MainAction.ADD_POINT_CLICKED,
-              coordinate: coordinate,
-              index: index,
-            }),
-          removePoint: (coordinate: Coordinate, index: number) =>
-            dispatchPhoegReducer({
-              type: MainAction.REMOVE_POINT_CLICKED,
-              coordinate: coordinate,
-              index: index,
-            }),
+            setOrders(orders, dispatchMainReducer),
+          setConcaves: (concaves: Array<Concave>) =>
+            setConcaves(concaves, dispatchMainReducer),
+
+          addPointClicked: (coordinate: Coordinate, index: number) =>
+            addPointClicked(coordinate, index, dispatchMainReducer),
+          removePointClicked: (coordinate: Coordinate, index: number) =>
+            removePointClicked(coordinate, index, dispatchMainReducer),
         }}
       >
         <Form invariants={invariants} withOrders={false} />
         <Polytopes />
-        {statePhoegReducer.isSubmit &&
-          !statePhoegReducer.isLoading &&
-          statePhoegReducer.pointClicked && <Graphs invariants={invariants} />}
+        {stateMainReducer.isSubmit &&
+          !stateMainReducer.isLoading &&
+          stateMainReducer.pointClicked && <Graphs invariants={invariants} />}
       </MainContext.Provider>
     </Frame>
   );

@@ -88,6 +88,7 @@ export interface MainState {
 
   // Only for conjecture app
   orders: Array<number>;
+  concaves: Array<Concave>;
   pointsClicked: Array<Array<Coordinate>>;
 }
 
@@ -118,6 +119,7 @@ export const initialMainState: MainState = {
 
   // Only for conjecture app
   orders: [],
+  concaves: [],
   pointsClicked: [],
 };
 
@@ -171,13 +173,8 @@ export const MainReducer = (state: MainState, action: any): MainState => {
     // Only for conjecture app
     case MainAction.ORDERS:
       return { ...state, orders: action.orders };
-    case MainAction.SET_SIMPLIFIED_DATA:
-      return {
-        ...state,
-        envelope: action.envelope,
-        minMax: action.minMax,
-        concave: action.concave,
-      };
+    case MainAction.SET_CONCAVES:
+      return { ...state, concaves: action.concaves };
     case MainAction.ADD_POINT_CLICKED:
       // action.pointClicked is a coordinate AND action.index is the index of the sublist
       const newPointsClicked = state.pointsClicked;

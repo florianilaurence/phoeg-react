@@ -6,6 +6,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  Modal,
   Paper,
   Stack,
   Switch,
@@ -98,16 +99,20 @@ interface Orders {
 
 const initialOrders = {
   min: 1,
-  max: 1,
+  max: 9,
   step: 1,
   field: "",
 };
 
 const HEIGHTCARD = 125;
-const HEIGHTCARDCONSTRAINT = 250;
+const HEIGHTCARDCONSTRAINT = 200;
 
 const Form = ({ invariants, withOrders }: FormProps) => {
   const mainContext = useContext(MainContext);
+
+  const [openModal, setOpenModal] = useState(false);
+  const handleOpen = () => setOpenModal(true);
+  const handleClose = () => setOpenModal(false);
 
   const [currentId, setCurrentId] = useState(1); // Unique id for each item (not change if add or remove item)
   const [showForm, setShowForm] = useState(true);
@@ -147,7 +152,6 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   );
 
   // Orders controllers
-
   const handleOrdersMin = (event: any) => {
     dispatchOrders({ type: OrdersAction.MIN, min: event.target.value });
   };
@@ -457,74 +461,6 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           )}
         </Stack>
         <Collapse in={showForm} sx={{ mb: 2 }}>
-          {withOrders && (
-            <>
-              <Paper elevation={5}>
-                <Box sx={{ p: 2 }}>
-                  <Typography variant="h6" align="center">
-                    Orders
-                  </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      direction: "row",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <TextField
-                      sx={{ m: 1, width: "100px" }}
-                      id="min"
-                      label="Min"
-                      type="number"
-                      InputProps={{
-                        inputProps: { min: 1, max: 10 },
-                      }}
-                      value={stateOrders.min}
-                      onChange={handleOrdersMin}
-                    />
-                    <TextField
-                      sx={{ m: 1, width: "100px" }}
-                      id="max"
-                      label="Max"
-                      type="number"
-                      InputProps={{
-                        inputProps: { min: 1, max: 10 },
-                      }}
-                      value={stateOrders.max}
-                      onChange={handleOrdersMax}
-                    />
-                    <TextField
-                      sx={{ m: 1, width: "100px" }}
-                      id="step"
-                      label="Step"
-                      type="number"
-                      InputProps={{
-                        inputProps: { min: 1, max: 10 },
-                      }}
-                      value={stateOrders.step}
-                      onChange={handleOrdersStep}
-                    />
-                    <Button
-                      sx={{ m: 1 }}
-                      variant="contained"
-                      onClick={submitOrders}
-                      color="success"
-                    >
-                      <CalculateIcon />
-                    </Button>
-                    <TextField
-                      sx={{ m: 1, width: "250px" }}
-                      id="list"
-                      label="Orders list"
-                      value={stateOrders.field}
-                      onChange={handleOrdersField}
-                    />
-                  </Box>
-                </Box>
-              </Paper>
-              <Divider sx={{ mt: 2, mb: 2 }} />
-            </>
-          )}
           <Grid container spacing={2}>
             <Grid item xs={3.9}>
               <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
@@ -546,6 +482,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                   renderInput={(params) => (
                     <TextField {...params} label="Invariant X" />
                   )}
+                  size="small"
                 />
               </Paper>
             </Grid>
@@ -582,51 +519,190 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                   renderInput={(params) => (
                     <TextField {...params} label="Invariant Y" />
                   )}
+                  size="small"
                 />
               </Paper>
             </Grid>
             <Grid item xs={3.9}>
-              <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
-                <Box sx={{ height: 40 }}>
-                  <Typography
-                    variant="h6"
-                    align="center"
+              {withOrders ? (
+                <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
+                  <Box sx={{ height: 40 }}>
+                    <Typography variant="h6" align="center">
+                      Orders
+                    </Typography>
+                  </Box>
+                  <Box
                     sx={{
-                      color: showColoration ? "text.primary" : "text.disabled",
-                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
-                    onClick={() => handleShowColoration(!showColoration)}
                   >
-                    <Checkbox
-                      checked={showColoration}
+                    <TextField
+                      sx={{ m: 1, width: "90%" }}
+                      id="list"
+                      label="Orders list"
+                      value={stateOrders.field}
+                      onChange={handleOrdersField}
                       size="small"
-                      color="success"
                     />
-                    Coloration
-                  </Typography>
-                </Box>
-                <Autocomplete
-                  disabled={!showColoration}
-                  disablePortal
-                  id="combo-box-demo"
-                  value={mainContext.labelColor}
-                  onChange={(event, newValue) =>
-                    handleChangeColoration(newValue as string)
-                  }
-                  options={invariants
-                    .filter(
-                      (inv) =>
-                        getType(inv.datatype) === "number" ||
-                        getType(inv.datatype) === "bool" ||
-                        getType(inv.datatype) === "special"
-                    )
-                    .map((inv) => inv.name)}
-                  sx={{ m: 1 }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Invariant color" />
-                  )}
-                />
-              </Paper>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Button onClick={handleOpen}>
+                      <Inner size={10}>Generate automatically</Inner>
+                    </Button>
+                  </Box>
+                  <Modal
+                    open={openModal}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                  >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        width: 500,
+                        bgcolor: "whitesmoke",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        p: 2,
+                        borderRadius: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Typography
+                        id="modal-modal-title"
+                        variant="h6"
+                        component="h2"
+                        sx={{ textAlign: "center" }}
+                      >
+                        Fill the fields to generate the orders automatically and
+                        change this if necessary
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <TextField
+                          sx={{ m: 1, width: "100px" }}
+                          id="min"
+                          label="Min"
+                          type="number"
+                          InputProps={{
+                            inputProps: { min: 1, max: 10 },
+                          }}
+                          value={stateOrders.min}
+                          onChange={handleOrdersMin}
+                          size="small"
+                        />
+                        <TextField
+                          sx={{ m: 1, width: "100px" }}
+                          id="max"
+                          label="Max"
+                          type="number"
+                          InputProps={{
+                            inputProps: { min: 1, max: 10 },
+                          }}
+                          value={stateOrders.max}
+                          onChange={handleOrdersMax}
+                          size="small"
+                        />
+                        <TextField
+                          sx={{ m: 1, width: "100px" }}
+                          id="step"
+                          label="Step"
+                          type="number"
+                          InputProps={{
+                            inputProps: { min: 1, max: 10 },
+                          }}
+                          value={stateOrders.step}
+                          onChange={handleOrdersStep}
+                          size="small"
+                        />
+                        <Button
+                          sx={{ m: 1, width: "25px" }}
+                          variant="contained"
+                          onClick={submitOrders}
+                          color="success"
+                          size="small"
+                        >
+                          <CalculateIcon />
+                        </Button>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <TextField
+                          sx={{ m: 1, width: "410px" }}
+                          id="list"
+                          label="Orders list"
+                          value={stateOrders.field}
+                          onChange={handleOrdersField}
+                        />
+                      </Box>
+                    </Box>
+                  </Modal>
+                </Paper>
+              ) : (
+                <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
+                  <Box sx={{ height: 40 }}>
+                    <Typography
+                      variant="h6"
+                      align="center"
+                      sx={{
+                        color: showColoration
+                          ? "text.primary"
+                          : "text.disabled",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => handleShowColoration(!showColoration)}
+                    >
+                      <Checkbox
+                        checked={showColoration}
+                        size="small"
+                        color="success"
+                      />
+                      Coloration
+                    </Typography>
+                  </Box>
+                  <Autocomplete
+                    disabled={!showColoration}
+                    disablePortal
+                    id="combo-box-demo"
+                    value={mainContext.labelColor}
+                    onChange={(event, newValue) =>
+                      handleChangeColoration(newValue as string)
+                    }
+                    options={invariants
+                      .filter(
+                        (inv) =>
+                          getType(inv.datatype) === "number" ||
+                          getType(inv.datatype) === "bool" ||
+                          getType(inv.datatype) === "special"
+                      )
+                      .map((inv) => inv.name)}
+                    sx={{ m: 1 }}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Invariant color" />
+                    )}
+                    size="small"
+                  />
+                </Paper>
+              )}
             </Grid>
           </Grid>
 
@@ -732,6 +808,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                                 event.target.value
                               )
                             }
+                            size="small"
                           />
                         </Box>
                       ) : (
@@ -751,6 +828,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                             renderInput={(params) => (
                               <TextField {...params} label="Invariant" />
                             )}
+                            size="small"
                           />
                           {constraint.type !== ConstraintTypes.NONE ? (
                             constraint.type === ConstraintTypes.BOOL ? (
@@ -770,6 +848,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                                     );
                                   }}
                                   color="success"
+                                  size="small"
                                 />
                               </Box>
                             ) : (
@@ -795,6 +874,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                                       e.target.value
                                     )
                                   }
+                                  size="small"
                                 />
                                 <TextField
                                   sx={{ m: 1, width: "50%" }}
@@ -811,6 +891,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                                       e.target.value
                                     )
                                   }
+                                  size="small"
                                 />
                               </Box>
                             )
@@ -870,7 +951,11 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           )}
         </Collapse>
       </form>
-      {mainContext.isSubmit && <Fetch invariants={invariants} />}
+      {mainContext.isSubmit && withOrders ? (
+        <Fetch invariants={invariants} orders={stateOrders.field} />
+      ) : (
+        <Fetch invariants={invariants} />
+      )}
     </>
   );
 };

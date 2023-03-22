@@ -1,5 +1,6 @@
 import {
   ChartData,
+  Concave,
   Coordinate,
   SimplifiedChartData,
 } from "../reducers/main_reducer";
@@ -25,7 +26,7 @@ export enum MainAction {
 
   // Special actions for conjecture app
   ORDERS,
-  SET_SIMPLIFIED_DATA,
+  SET_CONCAVES,
   ADD_POINT_CLICKED,
   REMOVE_POINT_CLICKED,
 }
@@ -139,10 +140,10 @@ export const setOrders = (orders: number[], dispatch: any) => {
   });
 };
 
-export const setSimplifiedData = (data: SimplifiedChartData, dispatch: any) => {
+export const setConcaves = (concaves: Array<Concave>, dispatch: any) => {
   dispatch({
-    type: MainAction.SET_DATA,
-    data: data,
+    type: MainAction.SET_CONCAVES,
+    concaves: concaves,
   });
 };
 
