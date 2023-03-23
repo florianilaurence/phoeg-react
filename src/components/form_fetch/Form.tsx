@@ -107,6 +107,12 @@ const initialOrders = {
 const HEIGHTCARD = 125;
 const HEIGHTCARDCONSTRAINT = 200;
 
+const parseOrders = (orders: string): Array<number> => {
+  const orders_array = orders.split(",");
+  const orders_int = orders_array.map((order) => parseInt(order));
+  return orders_int;
+};
+
 const Form = ({ invariants, withOrders }: FormProps) => {
   const mainContext = useContext(MainContext);
 
@@ -153,18 +159,22 @@ const Form = ({ invariants, withOrders }: FormProps) => {
 
   // Orders controllers
   const handleOrdersMin = (event: any) => {
+    mainContext.reset();
     dispatchOrders({ type: OrdersAction.MIN, min: event.target.value });
   };
 
   const handleOrdersMax = (event: any) => {
+    mainContext.reset();
     dispatchOrders({ type: OrdersAction.MAX, max: event.target.value });
   };
 
   const handleOrdersStep = (event: any) => {
+    mainContext.reset();
     dispatchOrders({ type: OrdersAction.STEP, step: event.target.value });
   };
 
   const handleOrdersField = (event: any) => {
+    mainContext.reset();
     dispatchOrders({ type: OrdersAction.FIELD, field: event.target.value });
   };
 
@@ -364,8 +374,14 @@ const Form = ({ invariants, withOrders }: FormProps) => {
       return;
     }
 
+    if (withOrders && stateOrders.field === "") {
+      alert("Please complete all the required fields");
+      return;
+    }
+
+    mainContext.setOrders(parseOrders(stateOrders.field));
+
     setShowForm(false);
-    mainContext.setIsLoading(true);
     let { encodedConstraints, encodedAdvanced } = encodeConstraints();
     mainContext.setConstraints(encodedConstraints);
     mainContext.setAdvancedConstraints(encodedAdvanced);
@@ -412,6 +428,11 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     problemDefinition += mainContext.labelX;
     problemDefinition += " ╳ ";
     problemDefinition += mainContext.labelY;
+    if (withOrders) {
+      problemDefinition += " (orders: ";
+      problemDefinition += stateOrders.field;
+      problemDefinition += ")";
+    }
     if (showColoration) {
       problemDefinition += " (";
       problemDefinition += mainContext.labelColor;
@@ -452,7 +473,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           <Inner>
             {showForm ? "Hide problem definition" : "Show problem definition"}
           </Inner>
-          {mainContext.isSubmit && (
+          {mainContext.isSubmit && !showForm && (
             <Box sx={{ ml: 2 }}>
               <Inner italic size={12}>
                 {constructProblemDefinition()}
@@ -528,7 +549,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                 <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
                   <Box sx={{ height: 40 }}>
                     <Typography variant="h6" align="center">
-                      Orders
+                      Orders*
                     </Typography>
                   </Box>
                   <Box
@@ -951,10 +972,8 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           )}
         </Collapse>
       </form>
-      {mainContext.isSubmit && withOrders ? (
-        <Fetch invariants={invariants} orders={stateOrders.field} />
-      ) : (
-        <Fetch invariants={invariants} />
+      {mainContext.isSubmit && (
+        <Fetch invariants={invariants} withOrders={withOrders} />
       )}
     </>
   );

@@ -12,7 +12,6 @@ import {
   setPointClicked,
   setLegendClicked,
   setError,
-  MainAction,
   addPointClicked,
   removePointClicked,
   reset,
@@ -31,6 +30,7 @@ import Frame from "../annex_pages/Frame";
 import Form from "../form_fetch/Form";
 import { fetchInvariants, OpenProps } from "../polytopes/PhoegApp";
 import { Invariant } from "../polytopes/PolytopesSlider";
+import PolytopesContainer from "./PolytopesContainer";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
@@ -88,6 +88,7 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
         }}
       >
         <Form invariants={invariants} withOrders={true} />
+        <PolytopesContainer />
       </MainContext.Provider>
     </Frame>
   );
