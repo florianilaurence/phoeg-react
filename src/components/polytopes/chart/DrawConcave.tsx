@@ -1,8 +1,7 @@
 import { Group } from "@visx/group";
-import { LinePath } from "@visx/shape";
-import { useContext } from "react";
+import { Circle, LinePath } from "@visx/shape";
+import { useContext, useEffect } from "react";
 import MainContext from "../../../store/utils/main_context";
-import { ScalesProps } from "./Chart";
 
 // Couleur pour chaque direction
 export enum DirectionColors {
@@ -16,26 +15,78 @@ export enum DirectionColors {
   minXmaxY = "grey",
 }
 
-const DrawConcave: React.FC<ScalesProps> = ({
+interface DrawConcaveProps {
+  xScale: any;
+  yScale: any;
+  tooltipData: string;
+  setTooltipData: any;
+  currentIndexOrder?: number;
+}
+
+const DrawConcave = ({
   xScale,
   yScale,
-}: ScalesProps) => {
+  tooltipData,
+  setTooltipData,
+  currentIndexOrder,
+}: DrawConcaveProps) => {
   const mainContext = useContext(MainContext);
 
   const keys = Object.keys(mainContext.concave);
 
+  const onClickCircle = (e: any) => {
+    // TODO
+  };
+
   return (
     <Group>
-      {keys.map((key) => {
+      {keys.map((key, i) => {
         return (
-          <LinePath
-            key={key}
-            stroke={DirectionColors[key as keyof typeof DirectionColors]}
-            strokeWidth={2}
-            data={mainContext.concave[key as keyof typeof DirectionColors]}
-            x={(d) => xScale(d.x)}
-            y={(d) => yScale(d.y)}
-          />
+          <Group key={`group-conc-${key}-${i}`}>
+            <LinePath
+              key={key}
+              stroke={DirectionColors[key as keyof typeof DirectionColors]}
+              strokeWidth={2}
+              data={
+                currentIndexOrder !== undefined
+                  ? mainContext.concaves[currentIndexOrder][key]
+                  : mainContext.concave[key as keyof typeof DirectionColors]
+              }
+              x={(d: any) => xScale(d.x)}
+              y={(d: any) => yScale(d.y)}
+            />
+            {currentIndexOrder !== undefined
+              ? mainContext.concaves[currentIndexOrder][key].map(
+                  (point: any, i: number) => {
+                    return (
+                      <Circle
+                        key={`point-${point.x}-${i}`}
+                        className="circle"
+                        cx={xScale(point.x)}
+                        cy={yScale(point.y)}
+                        r={2}
+                        fillOpacity={0.75}
+                        onClick={onClickCircle}
+                        onMouseEnter={() => {
+                          setTooltipData(
+                            mainContext.labelX +
+                              " = " +
+                              point.x +
+                              " | " +
+                              mainContext.labelY +
+                              " = " +
+                              point.y
+                          );
+                        }}
+                        onMouseLeave={() => {
+                          setTooltipData("");
+                        }}
+                      />
+                    );
+                  }
+                )
+              : null}
+          </Group>
         );
       })}
     </Group>

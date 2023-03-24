@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Grid, Tooltip } from "@mui/material";
+import { Grid, Slider, Tooltip } from "@mui/material";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -40,6 +40,13 @@ const Polytopes = () => {
     }
   };
 
+  const onChangeOrder = (event: any) => {
+    mainContext.setOrder(event.target.value);
+    mainContext.setIsLoading(false);
+    mainContext.setLegendClicked(null);
+    mainContext.setPointClicked(null);
+  };
+
   const colorNext = () => {
     switch (mainContext.order) {
       case 7:
@@ -76,13 +83,28 @@ const Polytopes = () => {
       )}
       {mainContext.isSubmit && !mainContext.isLoading && (
         <Box sx={{ ml: 1, mr: 1 }}>
-          <SubTitle subtitle={`Chart for order ${mainContext.order}`} />
+          <SubTitle>{`Chart for order ${mainContext.order}`}</SubTitle>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Slider
+              value={mainContext.order}
+              onChange={(event) => onChangeOrder(event)}
+              min={1}
+              max={10}
+              step={1}
+              valueLabelDisplay="auto"
+              marks
+              sx={{
+                width: "75%",
+                color: "success.main",
+                "& .MuiSlider-thumb": { borderRadius: "1px" },
+              }}
+            />
+          </Box>
           <Grid
             container
             spacing={1}
             alignItems="center"
             justifyContent="center"
-            sx={{ mt: 1, mb: 1 }}
           >
             <Grid item xs={0.5}>
               <Tooltip

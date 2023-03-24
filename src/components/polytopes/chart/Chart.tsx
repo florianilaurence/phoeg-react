@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Group } from "@visx/group";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { GridColumns, GridRows } from "@visx/grid";
@@ -11,19 +11,22 @@ import { Coordinate } from "../../../store/reducers/main_reducer";
 import "./Chart.css";
 import Inner from "../../styles_and_settings/Inner";
 import { Box } from "@mui/system";
+import DrawEnvelope from "./DrawEnvelope";
+import DrawPoints from "./DrawPoints";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
 const background_mini_map = "rgba(197,197,197,0.9)";
 const margin = { top: 10, right: 0, bottom: 45, left: 70 };
 
-interface SizeProps {
+interface ChartProps {
   width: number;
+  currentIndexOrder?: number; // Only for autoconjectures app
 }
 
-const Chart = ({ width }: SizeProps) => {
+const Chart = ({ width, currentIndexOrder }: ChartProps) => {
   const mainContext = useContext(MainContext);
-  const [tooltipData, setTooltipData] = useState<string>();
+  const [tooltipData, setTooltipData] = useState<string>("");
 
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -42,44 +45,56 @@ const Chart = ({ width }: SizeProps) => {
   const xScale = useMemo(
     () =>
       scaleLinear<number>({
-        domain: [mainContext.minMax.minX, mainContext.minMax.maxX],
+        domain: [
+          currentIndexOrder !== undefined
+            ? mainContext.minMaxList[currentIndexOrder].minX
+            : mainContext.minMax.minX,
+          currentIndexOrder !== undefined
+            ? mainContext.minMaxList[currentIndexOrder].maxX
+            : mainContext.minMax.maxX,
+        ],
         range: [margin.left, innerWidth],
         clamp: true,
       }),
-    [innerWidth, mainContext.minMax.maxX, mainContext.minMax.minX]
+    [
+      innerWidth,
+      mainContext.minMax.maxX,
+      mainContext.minMax.minX,
+      mainContext.minMaxList,
+    ]
   );
 
   const yScale = useMemo(
     () =>
       scaleLinear<number>({
-        domain: [mainContext.minMax.minY, mainContext.minMax.maxY],
+        domain: [
+          currentIndexOrder !== undefined
+            ? mainContext.minMaxList[currentIndexOrder].minY
+            : mainContext.minMax.minY,
+          currentIndexOrder !== undefined
+            ? mainContext.minMaxList[currentIndexOrder].maxY
+            : mainContext.minMax.maxY,
+        ],
         range: [innerHeight, margin.top],
         clamp: true,
       }),
-    [innerHeight, mainContext.minMax.maxY, mainContext.minMax.minY]
+    [
+      innerHeight,
+      mainContext.minMax.maxY,
+      mainContext.minMax.minY,
+      mainContext.minMaxList,
+    ]
   );
 
   const colorScale = scaleLinear<string>({
     // TODO: config colors reducer (could change select colors)
-    domain: [mainContext.minMax.minColor, mainContext.minMax.maxColor],
+    domain:
+      currentIndexOrder !== undefined
+        ? [0, 0]
+        : [mainContext.minMax.minColor, mainContext.minMax.maxColor],
     range: ["#000000", "#00ff00"],
     clamp: true,
   });
-
-  const handleClickOnCircle = (
-    x: number,
-    y: number,
-    color: number,
-    mult: number
-  ) => {
-    const pointClicked: Coordinate = {
-      x: x,
-      y: y,
-      color: color,
-      mult: mult,
-    };
-    mainContext.setPointClicked(pointClicked);
-  };
 
   return (
     <>
@@ -119,65 +134,33 @@ const Chart = ({ width }: SizeProps) => {
             strokeOpacity={0.25}
             pointerEvents="none"
           />
-          <LinePath
-            stroke="black"
-            strokeWidth={1}
-            data={mainContext.envelope}
-            x={(d) => xScale(d.x)}
-            y={(d) => yScale(d.y)}
+
+          <DrawEnvelope
+            xScale={xScale}
+            yScale={yScale}
+            currentIndexOrder={currentIndexOrder}
           />
+
           <DrawConcave
             xScale={xScale}
             yScale={yScale}
-            colorScale={colorScale}
+            tooltipData={tooltipData}
+            setTooltipData={setTooltipData}
+            currentIndexOrder={currentIndexOrder}
           />
 
-          <Group>
-            {mainContext.coordinates.map((point, i) => {
-              return (
-                <Circle
-                  key={`point-${point[0]}-${i}`}
-                  className="circle"
-                  cx={xScale(point.x)}
-                  cy={yScale(point.y)}
-                  r={mainContext.legendClicked === point.color ? 7 : 4}
-                  fillOpacity={0.75}
-                  fill={
-                    mainContext.labelColor === ""
-                      ? "black"
-                      : colorScale(point.color)
-                  }
-                  onClick={() =>
-                    handleClickOnCircle(
-                      point.x,
-                      point.y,
-                      point.color,
-                      point.mult
-                    )
-                  }
-                  onMouseEnter={() => {
-                    setTooltipData(
-                      mainContext.labelX +
-                        " = " +
-                        point.x +
-                        " | " +
-                        mainContext.labelY +
-                        " = " +
-                        point.y +
-                        " | mult = " +
-                        point.mult
-                    );
-                  }}
-                  onMouseLeave={() => {
-                    setTooltipData("");
-                  }}
-                />
-              );
-            })}
-          </Group>
+          {currentIndexOrder === undefined && (
+            <DrawPoints
+              xScale={xScale}
+              yScale={yScale}
+              colorScale={colorScale}
+              tooltipData={tooltipData}
+              setTooltipData={setTooltipData}
+            />
+          )}
         </Group>
       </svg>
-      <Legend xScale={xScale} yScale={yScale} colorScale={colorScale} />
+      <Legend colorScale={colorScale} currentIndexOrder={currentIndexOrder} />
     </>
   );
 };

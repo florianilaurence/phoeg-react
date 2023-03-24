@@ -56,7 +56,7 @@ const Fetch = ({ invariants, withOrders }: FetchProps) => {
   useEffect(() => {
     mainContext.setIsLoading(true);
     if (withOrders) {
-      concavesUseEffect();
+      autoconjUseEffect();
     } else {
       phoegUseEffect();
     }
@@ -141,7 +141,7 @@ const Fetch = ({ invariants, withOrders }: FetchProps) => {
             minMax: points.data.minMax,
             coordinates: points.data.coordinates,
             sorted: points.data.sorted,
-            concave: concave.data,
+            concave: concave.data.concave,
             error: "",
             pointClicked: null,
             legendClicked: null,
@@ -150,7 +150,7 @@ const Fetch = ({ invariants, withOrders }: FetchProps) => {
       );
   };
 
-  const concavesUseEffect = () => {
+  const autoconjUseEffect = () => {
     const constraints = decodeConstraints(mainContext.constraints);
     const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
     const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
@@ -165,11 +165,15 @@ const Fetch = ({ invariants, withOrders }: FetchProps) => {
       `${API_URL}/graphs/concaves` + "?" + part_request
     );
 
+    const envelopes_request = new URL(
+      `${API_URL}/graphs/polytopes` + "?" + part_request
+    );
+
     const advanced_constraints = {
       query: mainContext.advancedConstraints,
     };
 
-    concavesFetchData(concave_request, advanced_constraints)
+    autoconjFetchData(concave_request, envelopes_request, advanced_constraints)
       .then((data) => {
         if (data.concaves.length === 0) {
           mainContext.setError(
@@ -180,6 +184,8 @@ const Fetch = ({ invariants, withOrders }: FetchProps) => {
         }
         mainContext.setIsLoading(false);
         mainContext.setConcaves(data.concaves);
+        mainContext.setMinMaxList(data.minMax);
+        mainContext.setEnvelopes(data.envelopes);
       })
       .catch((error) => {
         mainContext.setError(error);
@@ -187,15 +193,25 @@ const Fetch = ({ invariants, withOrders }: FetchProps) => {
       });
   };
 
-  const concavesFetchData = async (
+  const autoconjFetchData = async (
     requestConcave: URL,
+    requestEnvelopes: URL,
     body: { query: string }
   ) => {
-    const concave = await axios.post(requestConcave.toString(), body);
-    return {
-      concaves: concave.data,
-      error: "",
-    };
+    return axios
+      .all([
+        axios.post(requestConcave.toString(), body),
+        axios.post(requestEnvelopes.toString(), body),
+      ])
+      .then(
+        axios.spread((concaves, envelopes) => {
+          return {
+            concaves: concaves.data.concaves,
+            minMax: concaves.data.minMax,
+            envelopes: envelopes.data,
+          };
+        })
+      );
   };
 
   return <></>;

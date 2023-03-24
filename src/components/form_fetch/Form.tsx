@@ -738,23 +738,25 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                   mb: 2,
                 }}
               >
-                <Button
-                  variant="outlined"
-                  color="success"
-                  startIcon={
-                    showConstrSubForm ? (
-                      <KeyboardArrowUpIcon />
-                    ) : (
-                      <KeyboardArrowDownIcon />
-                    )
-                  }
-                  onClick={() => {
-                    resetConstraints();
-                    setShowConstrSubForm(!showConstrSubForm);
-                  }}
-                >
-                  {showConstrSubForm ? "Hide" : "Show"} constraints
-                </Button>
+                <Tooltip title="Warning! Reset constraints" placement="top">
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    startIcon={
+                      showConstrSubForm ? (
+                        <KeyboardArrowUpIcon />
+                      ) : (
+                        <KeyboardArrowDownIcon />
+                      )
+                    }
+                    onClick={() => {
+                      resetConstraints();
+                      setShowConstrSubForm(!showConstrSubForm);
+                    }}
+                  >
+                    {showConstrSubForm ? "Hide" : "Show"} constraints
+                  </Button>
+                </Tooltip>
                 <Button
                   variant="outlined"
                   color="success"

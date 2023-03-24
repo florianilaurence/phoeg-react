@@ -2,7 +2,7 @@ import {
   ChartData,
   Concave,
   Coordinate,
-  SimplifiedChartData,
+  MinMax,
 } from "../reducers/main_reducer";
 
 export enum MainAction {
@@ -27,6 +27,8 @@ export enum MainAction {
   // Special actions for conjecture app
   ORDERS,
   SET_CONCAVES,
+  SET_ENVELOPES,
+  SET_MIN_MAX_LIST,
   ADD_POINT_CLICKED,
   REMOVE_POINT_CLICKED,
 }
@@ -144,6 +146,23 @@ export const setConcaves = (concaves: Array<Concave>, dispatch: any) => {
   dispatch({
     type: MainAction.SET_CONCAVES,
     concaves: concaves,
+  });
+};
+
+export const setEnvelopes = (
+  envelopes: Array<Array<Coordinate>>,
+  dispatch: any
+) => {
+  dispatch({
+    type: MainAction.SET_ENVELOPES,
+    envelopes: envelopes,
+  });
+};
+
+export const setMinMaxList = (minMaxList: Array<MinMax>, dispatch: any) => {
+  dispatch({
+    type: MainAction.SET_MIN_MAX_LIST,
+    minMaxList: minMaxList,
   });
 };
 

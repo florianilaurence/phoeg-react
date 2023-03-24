@@ -7,18 +7,81 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MainContext from "../../../store/utils/main_context";
 
-const Legend: React.FC<ScalesProps> = ({ colorScale }: ScalesProps) => {
+interface LegendProps {
+  colorScale: any;
+  currentIndexOrder?: number;
+}
+
+const Legend = ({ colorScale, currentIndexOrder }: LegendProps) => {
   const mainContext = useContext(MainContext);
 
   const [showLegend, setShowLegend] = useState<boolean>(true);
 
+  const dirsKeys =
+    currentIndexOrder !== undefined
+      ? Object.keys(mainContext.concaves[currentIndexOrder]).filter(
+          (dir) => mainContext.concaves[currentIndexOrder][dir].length > 1
+        )
+      : Object.keys(mainContext.concave).filter(
+          (dir) => mainContext.concave[dir].length > 1
+        );
+
+  if (currentIndexOrder !== undefined) {
+    return (
+      <>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Button
+            variant={showLegend ? "contained" : "outlined"}
+            onClick={() => setShowLegend(!showLegend)}
+            color="success"
+            sx={{ height: 20, mr: 1 }}
+          >
+            {showLegend ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </Button>
+          <Inner size={12}>{showLegend ? "Hide legend" : "Show legend"}</Inner>
+        </Box>
+        <Collapse in={showLegend}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            {dirsKeys.map((dir, i) => {
+              return (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    mr: 1,
+                  }}
+                  key={`leg-dir-${dir}`}
+                >
+                  <Inner size={10} color={DirectionColors[dir]} bold>
+                    {dir}
+                  </Inner>
+                  {i !== dirsKeys.length - 1 && (
+                    <Divider
+                      sx={{
+                        ml: 1,
+                      }}
+                      orientation="vertical"
+                      variant="middle"
+                      flexItem
+                    />
+                  )}
+                </Box>
+              );
+            })}
+          </Box>
+        </Collapse>
+      </>
+    );
+  }
+
   const colorsKeysStr = Object.keys(mainContext.sorted);
   let colorsKeys = colorsKeysStr.map((color) => Number(color));
   colorsKeys.sort((a, b) => (a > b ? 1 : -1));
-
-  const dirsKeys = Object.keys(mainContext.concave).filter(
-    (dir) => mainContext.concave[dir].length > 1
-  );
 
   const handleOnClickLegend = (item: number) => {
     if (mainContext.legendClicked === item) {

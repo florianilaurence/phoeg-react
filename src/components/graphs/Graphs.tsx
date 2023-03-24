@@ -167,7 +167,7 @@ export const Graphs = ({ invariants }: GraphsProps) => {
     <Box sx={{ justifyContent: "center", m: 1 }}>
       {mainContext.pointClicked && stateGraphs.list.length > 0 && (
         <>
-          <SubTitle subtitle="Graphs" />
+          <SubTitle>Graphs</SubTitle>
           <Inner align="center">
             There are {stateGraphs.list.length} graph
             {stateGraphs.list.length === 1 ? "" : "s"}. You can display up to{" "}

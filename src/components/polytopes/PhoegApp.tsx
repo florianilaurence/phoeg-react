@@ -12,6 +12,7 @@ import {
   Coordinate,
   initialMainState,
   MainReducer,
+  MinMax,
 } from "../../store/reducers/main_reducer";
 import {
   addPointClicked,
@@ -22,6 +23,7 @@ import {
   setConcaves,
   setConstraints,
   setData,
+  setEnvelopes,
   setError,
   setIsLoading,
   setIsSubmit,
@@ -29,6 +31,7 @@ import {
   setLabelX,
   setLabelY,
   setLegendClicked,
+  setMinMaxList,
   setOrder,
   setOrders,
   setPointClicked,
@@ -120,6 +123,10 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
             setOrders(orders, dispatchMainReducer),
           setConcaves: (concaves: Array<Concave>) =>
             setConcaves(concaves, dispatchMainReducer),
+          setEnvelopes: (envelopes: Array<Array<Coordinate>>) =>
+            setEnvelopes(envelopes, dispatchMainReducer),
+          setMinMaxList: (minMaxList: Array<MinMax>) =>
+            setMinMaxList(minMaxList, dispatchMainReducer),
 
           addPointClicked: (coordinate: Coordinate, index: number) =>
             addPointClicked(coordinate, index, dispatchMainReducer),

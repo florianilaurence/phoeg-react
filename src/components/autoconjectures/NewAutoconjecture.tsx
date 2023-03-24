@@ -98,7 +98,7 @@ const NewAutoconjecture = () =>
 
     return (
       <Box>
-        <SubTitle subtitle="Autoconjectures" />
+        <SubTitle> Autoconjectures </SubTitle>
         <Grid container spacing={1}>
           {Object.keys(stateAutoconjectureData).map((key) => {
             if (key !== "isLoading") {
