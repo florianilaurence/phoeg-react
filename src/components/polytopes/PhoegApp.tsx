@@ -10,14 +10,13 @@ import {
   ChartData,
   Concave,
   Coordinate,
+  CoordinateAutoconj,
   initialMainState,
   MainReducer,
   MinMax,
 } from "../../store/reducers/main_reducer";
 import {
-  addPointClicked,
-  MainAction,
-  removePointClicked,
+  initPointsClicked,
   reset,
   setAdvancedConstraints,
   setConcaves,
@@ -35,6 +34,7 @@ import {
   setOrder,
   setOrders,
   setPointClicked,
+  setPointsClicked,
 } from "../../store/actions/main_action";
 import Graphs from "../graphs/Graphs";
 import { Box } from "@mui/material";
@@ -121,6 +121,8 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
 
           setOrders: (orders: number[]) =>
             setOrders(orders, dispatchMainReducer),
+          initPointsClicked: (orders: number[]) =>
+            initPointsClicked(orders, dispatchMainReducer),
           setConcaves: (concaves: Array<Concave>) =>
             setConcaves(concaves, dispatchMainReducer),
           setEnvelopes: (envelopes: Array<Array<Coordinate>>) =>
@@ -128,10 +130,8 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           setMinMaxList: (minMaxList: Array<MinMax>) =>
             setMinMaxList(minMaxList, dispatchMainReducer),
 
-          addPointClicked: (coordinate: Coordinate, index: number) =>
-            addPointClicked(coordinate, index, dispatchMainReducer),
-          removePointClicked: (coordinate: Coordinate, index: number) =>
-            removePointClicked(coordinate, index, dispatchMainReducer),
+          setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
+            setPointsClicked(pointsClicked, dispatchMainReducer),
         }}
       >
         <Form invariants={invariants} withOrders={false} />

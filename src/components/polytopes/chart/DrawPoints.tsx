@@ -8,7 +8,6 @@ interface DrawPointsProps {
   xScale: any;
   yScale: any;
   colorScale: any;
-  tooltipData: any;
   setTooltipData: any;
 }
 
@@ -16,7 +15,6 @@ const DrawPoints = ({
   xScale,
   yScale,
   colorScale,
-  tooltipData,
   setTooltipData,
 }: DrawPointsProps) => {
   const mainContext = useContext(MainContext);

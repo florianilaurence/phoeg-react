@@ -1,6 +1,7 @@
 import { Group } from "@visx/group";
 import { Circle, LinePath } from "@visx/shape";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
+import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
 import MainContext from "../../../store/utils/main_context";
 
 // Couleur pour chaque direction
@@ -18,7 +19,6 @@ export enum DirectionColors {
 interface DrawConcaveProps {
   xScale: any;
   yScale: any;
-  tooltipData: string;
   setTooltipData: any;
   currentIndexOrder?: number;
 }
@@ -26,7 +26,6 @@ interface DrawConcaveProps {
 const DrawConcave = ({
   xScale,
   yScale,
-  tooltipData,
   setTooltipData,
   currentIndexOrder,
 }: DrawConcaveProps) => {
@@ -34,8 +33,33 @@ const DrawConcave = ({
 
   const keys = Object.keys(mainContext.concave);
 
-  const onClickCircle = (e: any) => {
-    // TODO
+  const onClickCircle = (point: CoordinateAutoconj) => {
+    if (currentIndexOrder !== undefined) {
+      // Useless because it's verify before call this function, TS ...
+      let newPointsClicked: Array<Array<CoordinateAutoconj>> = [];
+      if (point.clicked) {
+        // Previously clicked => Remove it from correct subarray in pointsClicked
+        for (let i = 0; i < mainContext.pointsClicked.length; i++) {
+          if (i === currentIndexOrder) {
+            const newSubList: Array<CoordinateAutoconj> = [];
+            for (const current of mainContext.pointsClicked[i]) {
+              if (!(current.x === point.x && current.y === point.y))
+                newSubList.push(current);
+            }
+            newPointsClicked.push(newSubList);
+          } else {
+            newPointsClicked.push(mainContext.pointsClicked[i]);
+          }
+        }
+      } else {
+        // Add point to correct subarray in pointsClicked
+        newPointsClicked = mainContext.pointsClicked;
+        newPointsClicked[currentIndexOrder].push(point);
+      }
+
+      point.clicked = !point.clicked;
+      mainContext.setPointsClicked(newPointsClicked);
+    }
   };
 
   return (
@@ -64,9 +88,10 @@ const DrawConcave = ({
                         className="circle"
                         cx={xScale(point.x)}
                         cy={yScale(point.y)}
-                        r={2}
+                        r={point.clicked ? 4 : 3}
+                        fill={point.clicked ? "red" : "black"}
                         fillOpacity={0.75}
-                        onClick={onClickCircle}
+                        onClick={() => onClickCircle(point)}
                         onMouseEnter={() => {
                           setTooltipData(
                             mainContext.labelX +

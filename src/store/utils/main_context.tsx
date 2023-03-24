@@ -3,6 +3,7 @@ import {
   ChartData,
   Concave,
   Coordinate,
+  CoordinateAutoconj,
   initialMainState,
   MinMax,
 } from "../reducers/main_reducer";
@@ -29,11 +30,11 @@ const MainContext = createContext({
 
   // For conjecture app
   setOrders: (orders: number[]) => {},
+  initPointsClicked: (orders: number[]) => {},
   setConcaves: (concaves: Concave[]) => {},
   setEnvelopes: (envelopes: Coordinate[][]) => {},
   setMinMaxList: (minMaxList: MinMax[]) => {},
-  addPointClicked: (coordinate: Coordinate, index: number) => {},
-  removePointClicked: (coordinate: Coordinate, index: number) => {},
+  setPointsClicked: (pointsClicked: CoordinateAutoconj[][]) => {},
 });
 
 export default MainContext;

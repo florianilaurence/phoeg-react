@@ -379,8 +379,11 @@ const Form = ({ invariants, withOrders }: FormProps) => {
       return;
     }
 
-    mainContext.setOrders(parseOrders(stateOrders.field));
-
+    if (withOrders) {
+      const orders = parseOrders(stateOrders.field);
+      mainContext.setOrders(orders);
+      mainContext.initPointsClicked(orders);
+    }
     setShowForm(false);
     let { encodedConstraints, encodedAdvanced } = encodeConstraints();
     mainContext.setConstraints(encodedConstraints);

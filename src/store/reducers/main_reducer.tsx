@@ -7,6 +7,11 @@ export interface Coordinate {
   mult: number;
 }
 
+export interface CoordinateAutoconj extends Coordinate {
+  order: number;
+  clicked: boolean;
+}
+
 export interface MinMax {
   minX: number;
   maxX: number;
@@ -91,7 +96,7 @@ export interface MainState {
   concaves: Array<Concave>;
   envelopes: Array<Array<Coordinate>>;
   minMaxList: Array<MinMax>;
-  pointsClicked: Array<Array<Coordinate>>;
+  pointsClicked: Array<Array<CoordinateAutoconj>>;
 }
 
 export const initialMainState: MainState = {
@@ -177,31 +182,23 @@ export const MainReducer = (state: MainState, action: any): MainState => {
     // Only for conjecture app
     case MainAction.ORDERS:
       return { ...state, orders: action.orders };
+    case MainAction.INIT_POINTS_CLICKED: {
+      const newPointsClicked: Array<Array<CoordinateAutoconj>> = [];
+      for (let i = 0; i < action.orders.length; i++) {
+        newPointsClicked.push([]);
+      }
+      return { ...state, pointsClicked: newPointsClicked };
+    }
     case MainAction.SET_CONCAVES:
       return { ...state, concaves: action.concaves };
     case MainAction.SET_ENVELOPES:
       return { ...state, envelopes: action.envelopes };
     case MainAction.SET_MIN_MAX_LIST:
       return { ...state, minMaxList: action.minMaxList };
-    case MainAction.ADD_POINT_CLICKED:
-      // action.pointClicked is a coordinate AND action.index is the index of the sublist
-      const newPointsClicked = state.pointsClicked;
-      newPointsClicked[action.index].push(action.pointClicked);
-      return {
-        ...state,
-        pointsClicked: newPointsClicked,
-      };
-    case MainAction.REMOVE_POINT_CLICKED:
-      // action.pointClicked is a coordinate AND action.index is the index of the sublist
-      const newPointsClicked2 = state.pointsClicked;
-      newPointsClicked2[action.index].filter(
-        (point) =>
-          point.x !== action.pointClicked.x || point.y !== action.pointClicked.y
-      );
-      return {
-        ...state,
-        pointsClicked: newPointsClicked2,
-      };
+    case MainAction.SET_POINTS_CLICKED: {
+      const newState = { ...state, pointsClicked: [...action.pointsClicked] };
+      return newState;
+    }
     default:
       return state;
   }

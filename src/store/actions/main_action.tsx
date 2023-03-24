@@ -2,6 +2,7 @@ import {
   ChartData,
   Concave,
   Coordinate,
+  CoordinateAutoconj,
   MinMax,
 } from "../reducers/main_reducer";
 
@@ -26,11 +27,11 @@ export enum MainAction {
 
   // Special actions for conjecture app
   ORDERS,
+  INIT_POINTS_CLICKED,
   SET_CONCAVES,
   SET_ENVELOPES,
   SET_MIN_MAX_LIST,
-  ADD_POINT_CLICKED,
-  REMOVE_POINT_CLICKED,
+  SET_POINTS_CLICKED,
 }
 
 // Common actions for phoeg app and conjecture app
@@ -142,6 +143,13 @@ export const setOrders = (orders: number[], dispatch: any) => {
   });
 };
 
+export const initPointsClicked = (orders: number[], dispatch: any) => {
+  dispatch({
+    type: MainAction.INIT_POINTS_CLICKED,
+    orders: orders,
+  });
+};
+
 export const setConcaves = (concaves: Array<Concave>, dispatch: any) => {
   dispatch({
     type: MainAction.SET_CONCAVES,
@@ -166,26 +174,12 @@ export const setMinMaxList = (minMaxList: Array<MinMax>, dispatch: any) => {
   });
 };
 
-export const addPointClicked = (
-  coordinate: Coordinate,
-  index: number,
+export const setPointsClicked = (
+  pointsClicked: Array<Array<CoordinateAutoconj>>,
   dispatch: any
 ) => {
   dispatch({
-    type: MainAction.ADD_POINT_CLICKED,
-    coordinate: coordinate,
-    index: index,
-  });
-};
-
-export const removePointClicked = (
-  coordinate: Coordinate,
-  index: number,
-  dispatch: any
-) => {
-  dispatch({
-    type: MainAction.REMOVE_POINT_CLICKED,
-    coordinate: coordinate,
-    index: index,
+    type: MainAction.SET_POINTS_CLICKED,
+    pointsClicked: pointsClicked,
   });
 };

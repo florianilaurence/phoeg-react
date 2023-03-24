@@ -144,7 +144,6 @@ const Chart = ({ width, currentIndexOrder }: ChartProps) => {
           <DrawConcave
             xScale={xScale}
             yScale={yScale}
-            tooltipData={tooltipData}
             setTooltipData={setTooltipData}
             currentIndexOrder={currentIndexOrder}
           />
@@ -154,7 +153,6 @@ const Chart = ({ width, currentIndexOrder }: ChartProps) => {
               xScale={xScale}
               yScale={yScale}
               colorScale={colorScale}
-              tooltipData={tooltipData}
               setTooltipData={setTooltipData}
             />
           )}
