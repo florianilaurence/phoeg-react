@@ -8,37 +8,31 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useContext } from "react";
-import { Coordinate } from "../../store/reducers/main_reducer";
+import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
+import MainContext from "../../store/utils/main_context";
 import Inner from "../styles_and_settings/Inner";
+import { useContext } from "react";
 
 export interface TableDirectionProps {
   title: string;
-  data: Array<Array<Coordinate>>;
+  data: Array<Array<CoordinateAutoconj>>;
 }
 
-const TableDirection: React.FC<TableDirectionProps> = ({
-  title,
-  data,
-}: TableDirectionProps) => {
+const MAXHEIGHT = 350;
+
+const TableDirection = ({ title, data }: TableDirectionProps) => {
+  const mainContext = useContext(MainContext);
+
   return (
     <Box>
       <Inner>{title}</Inner>
-      <TableContainer component={Paper} sx={{ maxHeight: 500 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: MAXHEIGHT }}>
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
               <TableCell>Order</TableCell>
-              <TableCell align="right">
-                {
-                  // requestChartContext.labelX
-                }
-              </TableCell>
-              <TableCell align="right">
-                {
-                  // requestChartContext.labelY
-                }
-              </TableCell>
+              <TableCell align="right">{mainContext.labelX}</TableCell>
+              <TableCell align="right">{mainContext.labelY}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -48,11 +42,25 @@ const TableDirection: React.FC<TableDirectionProps> = ({
                   key={`${index}-x-${coordinate.x}-y-${coordinate.y}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  <TableCell component="th" scope="row">
-                    {index + 1}
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{ color: coordinate.clicked ? "red" : "black" }}
+                  >
+                    {coordinate.order}
                   </TableCell>
-                  <TableCell align="right">{coordinate.x}</TableCell>
-                  <TableCell align="right">{coordinate.y}</TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ color: coordinate.clicked ? "red" : "black" }}
+                  >
+                    {coordinate.x}
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ color: coordinate.clicked ? "red" : "black" }}
+                  >
+                    {coordinate.y}
+                  </TableCell>
                 </TableRow>
               ))
             )}

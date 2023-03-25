@@ -70,6 +70,7 @@ export const fetchInvariants = async () => {
 // Main component of PHOEG application
 const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   const [invariants, setDataInvariants] = useState<Array<Invariant>>([]);
+  const [withConcave, setWithConcave] = useState<boolean>(false);
 
   const [stateMainReducer, dispatchMainReducer] = useReducer(
     MainReducer,
@@ -134,8 +135,13 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
             setPointsClicked(pointsClicked, dispatchMainReducer),
         }}
       >
-        <Form invariants={invariants} withOrders={false} />
-        <PolytopesSlider />
+        <Form
+          invariants={invariants}
+          withOrders={false}
+          withConcave={withConcave}
+          setWithConcave={setWithConcave}
+        />
+        <PolytopesSlider withConcave={withConcave} />
         {stateMainReducer.isSubmit &&
           !stateMainReducer.isLoading &&
           stateMainReducer.pointClicked && <Graphs invariants={invariants} />}

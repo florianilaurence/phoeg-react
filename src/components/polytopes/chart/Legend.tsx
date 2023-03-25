@@ -1,7 +1,6 @@
 import { Box, Button, Collapse, Divider } from "@mui/material";
 import { useContext, useState } from "react";
 import Inner from "../../styles_and_settings/Inner";
-import { ScalesProps } from "./Chart";
 import { DirectionColors } from "./DrawConcave";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -9,18 +8,21 @@ import MainContext from "../../../store/utils/main_context";
 
 interface LegendProps {
   colorScale: any;
+  withConcave: boolean;
   currentIndexOrder?: number;
 }
 
-const Legend = ({ colorScale, currentIndexOrder }: LegendProps) => {
+const Legend = ({
+  colorScale,
+  withConcave,
+  currentIndexOrder,
+}: LegendProps) => {
   const mainContext = useContext(MainContext);
-  const hasConcave = mainContext.concave !== undefined;
-
   const [showLegend, setShowLegend] = useState<boolean>(true);
 
   let dirsKeys: string[] = [];
 
-  if (hasConcave) {
+  if (withConcave) {
     dirsKeys =
       currentIndexOrder !== undefined
         ? Object.keys(mainContext.concaves[currentIndexOrder]).filter(
@@ -32,7 +34,7 @@ const Legend = ({ colorScale, currentIndexOrder }: LegendProps) => {
   }
 
   if (
-    !hasConcave &&
+    !withConcave &&
     currentIndexOrder === undefined &&
     mainContext.labelColor === ""
   )

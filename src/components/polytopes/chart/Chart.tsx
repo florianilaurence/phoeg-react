@@ -19,10 +19,11 @@ const margin = { top: 10, right: 0, bottom: 45, left: 70 };
 
 interface ChartProps {
   width: number;
+  withConcave: boolean; // Only for phoeg app
   currentIndexOrder?: number; // Only for autoconjectures app
 }
 
-const Chart = ({ width, currentIndexOrder }: ChartProps) => {
+const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
   const mainContext = useContext(MainContext);
   const [tooltipData, setTooltipData] = useState<string>("");
 
@@ -139,7 +140,7 @@ const Chart = ({ width, currentIndexOrder }: ChartProps) => {
             currentIndexOrder={currentIndexOrder}
           />
 
-          {mainContext.concave !== undefined && (
+          {withConcave && (
             <DrawConcave
               xScale={xScale}
               yScale={yScale}
@@ -158,7 +159,11 @@ const Chart = ({ width, currentIndexOrder }: ChartProps) => {
           )}
         </Group>
       </svg>
-      <Legend colorScale={colorScale} currentIndexOrder={currentIndexOrder} />
+      <Legend
+        colorScale={colorScale}
+        withConcave={withConcave}
+        currentIndexOrder={currentIndexOrder}
+      />
     </>
   );
 };

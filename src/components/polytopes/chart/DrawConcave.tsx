@@ -90,7 +90,6 @@ const DrawConcave = ({
                         cy={yScale(point.y)}
                         r={point.clicked ? 4 : 3}
                         fill={point.clicked ? "red" : "black"}
-                        fillOpacity={0.75}
                         onClick={() => onClickCircle(point)}
                         onMouseEnter={() => {
                           setTooltipData(

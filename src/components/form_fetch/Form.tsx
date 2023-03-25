@@ -46,6 +46,8 @@ export const getType = (id: number): string => {
 export interface FormProps {
   invariants: Array<Invariant>;
   withOrders: boolean;
+  withConcave?: boolean;
+  setWithConcave?: (value: boolean) => void;
 }
 
 enum ConstraintAction {
@@ -104,16 +106,21 @@ const initialOrders = {
   field: "",
 };
 
-const HEIGHTCARD = 100;
-const HEIGHTCARDCONSTRAINT = 200;
-
 const parseOrders = (orders: string): Array<number> => {
   const orders_array = orders.split(",");
   const orders_int = orders_array.map((order) => parseInt(order));
   return orders_int;
 };
 
-const Form = ({ invariants, withOrders }: FormProps) => {
+const Form = ({
+  invariants,
+  withOrders,
+  withConcave,
+  setWithConcave,
+}: FormProps) => {
+  const HEIGHTCARD = withOrders ? 125 : 100;
+  const HEIGHTCARDCONSTRAINT = 200;
+
   const mainContext = useContext(MainContext);
 
   const [openModal, setOpenModal] = useState(false);
@@ -124,7 +131,6 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   const [showForm, setShowForm] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
   const [showConstrSubForm, setShowConstrSubForm] = useState(false);
-  const [computeConcave, setComputeConcave] = useState(false);
 
   const constraintInvariant: Array<Invariant> = invariants.filter(
     (inv: Invariant) =>
@@ -358,9 +364,9 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     setShowColoration(value);
   };
 
-  const handleComputeConcave = (value: boolean) => {
+  const handleChangeWithConcave = (value: boolean) => {
     mainContext.reset();
-    setComputeConcave(value);
+    if (setWithConcave) setWithConcave(value);
   };
 
   // Submit controllers and annex functions
@@ -740,15 +746,15 @@ const Form = ({ invariants, withOrders }: FormProps) => {
           </Grid>
 
           {/* Concave hull option */}
-          {!withOrders && (
+          {withConcave !== undefined && setWithConcave !== undefined && (
             <Box sx={{ mt: 1, display: "flex", justifyContent: "center" }}>
               <Inner>
                 Do you want compute and show concave hull on your polytope ?
               </Inner>
               <Switch
-                checked={computeConcave}
+                checked={withConcave}
                 onChange={(event) => {
-                  handleComputeConcave(event.target.checked);
+                  handleChangeWithConcave(event.target.checked);
                 }}
                 color="success"
                 size="small"
@@ -1013,7 +1019,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
       {mainContext.isSubmit && (
         <Fetch
           invariants={invariants}
-          withConcave={withOrders ? true : computeConcave}
+          withConcave={withConcave}
           withOrders={withOrders}
         />
       )}

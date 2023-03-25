@@ -1,3 +1,4 @@
+import { Tabs } from "@mui/material";
 import { useState, useEffect, useReducer } from "react";
 import {
   setOrder,
@@ -35,6 +36,7 @@ import Form from "../form_fetch/Form";
 import { fetchInvariants, OpenProps } from "../polytopes/PhoegApp";
 import { Invariant } from "../polytopes/PolytopesSlider";
 import PolytopesContainer from "./PolytopesContainer";
+import MyTabs from "./Tabs";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
@@ -96,7 +98,7 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
         }}
       >
         <Form invariants={invariants} withOrders={true} />
-        <PolytopesContainer />
+        <MyTabs />
       </MainContext.Provider>
     </Frame>
   );

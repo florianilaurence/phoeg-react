@@ -18,7 +18,11 @@ export interface Invariant {
   description: string;
 }
 
-const PolytopesSlider = () => {
+interface PolytopesSliderProps {
+  withConcave: boolean;
+}
+
+const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
   const mainContext = useContext(MainContext);
 
   const nextOrder = () => {
@@ -122,7 +126,11 @@ const PolytopesSlider = () => {
               </Tooltip>
             </Grid>
             <Grid item xs={11}>
-              <ParentSize>{({ width }) => <Chart width={width} />}</ParentSize>
+              <ParentSize>
+                {({ width }) => (
+                  <Chart width={width} withConcave={withConcave} />
+                )}
+              </ParentSize>
             </Grid>
             <Grid item xs={0.5}>
               <Tooltip
