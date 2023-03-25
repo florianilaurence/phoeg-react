@@ -1,4 +1,5 @@
-import { Tabs } from "@mui/material";
+import { Box, Button } from "@mui/material";
+import SendTimeExtensionIcon from "@mui/icons-material/SendTimeExtension";
 import { useState, useEffect, useReducer } from "react";
 import {
   setOrder,
@@ -35,8 +36,8 @@ import Frame from "../annex_pages/Frame";
 import Form from "../form_fetch/Form";
 import { fetchInvariants, OpenProps } from "../polytopes/PhoegApp";
 import { Invariant } from "../polytopes/PolytopesSlider";
-import PolytopesContainer from "./PolytopesContainer";
-import MyTabs from "./Tabs";
+import MyTabs from "./MyTabs";
+import Loading from "../Loading";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
@@ -50,6 +51,11 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   useEffect(() => {
     fetchInvariants().then((inv) => setDataInvariants(inv));
   }, []);
+
+  const handleSubmit = () => {
+    console.log("Submit");
+    console.log(stateMainReducer.pointsClicked);
+  };
 
   return (
     <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
@@ -98,7 +104,28 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
         }}
       >
         <Form invariants={invariants} withOrders={true} />
-        <MyTabs />
+        {stateMainReducer.isSubmit && stateMainReducer.isLoading && (
+          <Loading height="1000px" />
+        )}
+        {stateMainReducer.isSubmit &&
+          !stateMainReducer.isLoading &&
+          stateMainReducer.concaves.length > 0 &&
+          stateMainReducer.minMaxList.length > 0 && (
+            <>
+              <MyTabs />
+
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  endIcon={<SendTimeExtensionIcon />}
+                  onClick={handleSubmit}
+                >
+                  Generate autoconojectures
+                </Button>
+              </Box>
+            </>
+          )}
       </MainContext.Provider>
     </Frame>
   );

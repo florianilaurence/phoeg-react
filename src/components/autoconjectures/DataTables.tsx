@@ -15,7 +15,7 @@ interface ConcaveRefactored {
   maxXminY: Array<Array<CoordinateAutoconj>>;
 }
 
-const DataTabs = () => {
+const DataTables = () => {
   const mainContext = useContext(MainContext);
   const initLists = mainContext.orders.map(
     () => new Array<CoordinateAutoconj>()
@@ -77,4 +77,4 @@ const DataTabs = () => {
   );
 };
 
-export default DataTabs;
+export default DataTables;

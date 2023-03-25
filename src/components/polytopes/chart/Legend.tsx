@@ -5,6 +5,7 @@ import { DirectionColors } from "./DrawConcave";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MainContext from "../../../store/utils/main_context";
+import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
 
 interface LegendProps {
   colorScale: any;
@@ -33,6 +34,21 @@ const Legend = ({
           );
   }
 
+  const onClickLegendConcave = (key: string) => {
+    const points = mainContext.concaves[currentIndexOrder!][key];
+    const newPointsClickedN: Array<CoordinateAutoconj> = [];
+    for (let point of points) {
+      if (!point.clicked) {
+        newPointsClickedN.push(point);
+        point.clicked = true;
+      }
+    }
+    const newPointsClicked = [...mainContext.pointsClicked];
+    newPointsClicked[currentIndexOrder!].push(...newPointsClickedN);
+
+    mainContext.setPointsClicked(newPointsClicked);
+  };
+
   if (
     !withConcave &&
     currentIndexOrder === undefined &&
@@ -54,9 +70,11 @@ const Legend = ({
               }}
               key={`leg-dir-${dir}`}
             >
-              <Inner size={10} color={DirectionColors[dir]} bold>
-                {dir}
-              </Inner>
+              <Button variant="text" onClick={() => onClickLegendConcave(dir)}>
+                <Inner size={10} color={DirectionColors[dir]} bold>
+                  {dir}
+                </Inner>
+              </Button>
               {i !== dirsKeys.length - 1 && (
                 <Divider
                   sx={{
