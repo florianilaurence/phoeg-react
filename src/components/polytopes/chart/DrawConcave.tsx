@@ -34,6 +34,7 @@ const DrawConcave = ({
   const keys = Object.keys(mainContext.concave);
 
   const onClickCircle = (point: CoordinateAutoconj) => {
+    mainContext.setSubmitAutoconj(false);
     if (currentIndexOrder !== undefined) {
       // Useless because it's verify before call this function, TS ...
       let newPointsClicked: Array<Array<CoordinateAutoconj>> = [];

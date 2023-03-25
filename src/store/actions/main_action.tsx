@@ -32,6 +32,7 @@ export enum MainAction {
   SET_ENVELOPES,
   SET_MIN_MAX_LIST,
   SET_POINTS_CLICKED,
+  SET_SUBMIT_AUTOCONJ,
 }
 
 // Common actions for phoeg app and conjecture app
@@ -181,5 +182,12 @@ export const setPointsClicked = (
   dispatch({
     type: MainAction.SET_POINTS_CLICKED,
     pointsClicked: pointsClicked,
+  });
+};
+
+export const setSubmitAutoconj = (submitAutoconj: boolean, dispatch: any) => {
+  dispatch({
+    submitAutoconj: submitAutoconj,
+    type: MainAction.SET_SUBMIT_AUTOCONJ,
   });
 };

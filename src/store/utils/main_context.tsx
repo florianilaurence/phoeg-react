@@ -35,6 +35,7 @@ const MainContext = createContext({
   setEnvelopes: (envelopes: Coordinate[][]) => {},
   setMinMaxList: (minMaxList: MinMax[]) => {},
   setPointsClicked: (pointsClicked: CoordinateAutoconj[][]) => {},
+  setSubmitAutoconj: (submitAutoconj: boolean) => {},
 });
 
 export default MainContext;

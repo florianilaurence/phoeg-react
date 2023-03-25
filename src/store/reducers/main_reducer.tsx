@@ -97,6 +97,7 @@ export interface MainState {
   envelopes: Array<Array<Coordinate>>;
   minMaxList: Array<MinMax>;
   pointsClicked: Array<Array<CoordinateAutoconj>>;
+  submitAutoconj: boolean;
 }
 
 export const initialMainState: MainState = {
@@ -130,6 +131,7 @@ export const initialMainState: MainState = {
   envelopes: [],
   minMaxList: [],
   pointsClicked: [],
+  submitAutoconj: false,
 };
 
 export const MainReducer = (state: MainState, action: any): MainState => {
@@ -177,6 +179,7 @@ export const MainReducer = (state: MainState, action: any): MainState => {
         isLoading: false,
         pointClicked: null,
         legendClicked: null,
+        submitAutoconj: false,
       };
 
     // Only for conjecture app
@@ -199,6 +202,8 @@ export const MainReducer = (state: MainState, action: any): MainState => {
       const newState = { ...state, pointsClicked: [...action.pointsClicked] };
       return newState;
     }
+    case MainAction.SET_SUBMIT_AUTOCONJ:
+      return { ...state, submitAutoconj: action.submitAutoconj };
     default:
       return state;
   }

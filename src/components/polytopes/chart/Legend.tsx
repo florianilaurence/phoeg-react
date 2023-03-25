@@ -1,4 +1,4 @@
-import { Box, Button, Collapse, Divider } from "@mui/material";
+import { Box, Button, Collapse, Divider, Tooltip } from "@mui/material";
 import { useContext, useState } from "react";
 import Inner from "../../styles_and_settings/Inner";
 import { DirectionColors } from "./DrawConcave";
@@ -45,7 +45,7 @@ const Legend = ({
     }
     const newPointsClicked = [...mainContext.pointsClicked];
     newPointsClicked[currentIndexOrder!].push(...newPointsClickedN);
-
+    mainContext.setSubmitAutoconj(false);
     mainContext.setPointsClicked(newPointsClicked);
   };
 
@@ -70,11 +70,16 @@ const Legend = ({
               }}
               key={`leg-dir-${dir}`}
             >
-              <Button variant="text" onClick={() => onClickLegendConcave(dir)}>
-                <Inner size={10} color={DirectionColors[dir]} bold>
-                  {dir}
-                </Inner>
-              </Button>
+              <Tooltip title="Click to select all points in this direction">
+                <Button
+                  variant="text"
+                  onClick={() => onClickLegendConcave(dir)}
+                >
+                  <Inner size={10} color={DirectionColors[dir]} bold>
+                    {dir}
+                  </Inner>
+                </Button>
+              </Tooltip>
               {i !== dirsKeys.length - 1 && (
                 <Divider
                   sx={{

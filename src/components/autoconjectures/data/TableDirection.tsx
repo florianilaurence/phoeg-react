@@ -8,9 +8,9 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
-import MainContext from "../../store/utils/main_context";
-import Inner from "../styles_and_settings/Inner";
+import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
+import MainContext from "../../../store/utils/main_context";
+import Inner from "../../styles_and_settings/Inner";
 import { useContext } from "react";
 
 export interface TableDirectionProps {

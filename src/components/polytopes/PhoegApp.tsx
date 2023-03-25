@@ -35,6 +35,7 @@ import {
   setOrders,
   setPointClicked,
   setPointsClicked,
+  setSubmitAutoconj,
 } from "../../store/actions/main_action";
 import Graphs from "../graphs/Graphs";
 import { Box } from "@mui/material";
@@ -133,6 +134,8 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
 
           setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
             setPointsClicked(pointsClicked, dispatchMainReducer),
+          setSubmitAutoconj: (submitAutoconj: boolean) =>
+            setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
         }}
       >
         <Form

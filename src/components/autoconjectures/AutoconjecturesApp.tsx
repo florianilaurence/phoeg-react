@@ -21,6 +21,7 @@ import {
   setEnvelopes,
   initPointsClicked,
   setPointsClicked,
+  setSubmitAutoconj,
 } from "../../store/actions/main_action";
 import {
   ChartData,
@@ -36,8 +37,9 @@ import Frame from "../annex_pages/Frame";
 import Form from "../form_fetch/Form";
 import { fetchInvariants, OpenProps } from "../polytopes/PhoegApp";
 import { Invariant } from "../polytopes/PolytopesSlider";
-import MyTabs from "./MyTabs";
+import MyTabs from "./data/MyTabs";
 import Loading from "../Loading";
+import FetchConjecture from "./result/FetchConjecture";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
@@ -53,6 +55,7 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   }, []);
 
   const handleSubmit = () => {
+    setSubmitAutoconj(true, dispatchMainReducer);
     console.log("Submit");
     console.log(stateMainReducer.pointsClicked);
   };
@@ -101,6 +104,8 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
 
           setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
             setPointsClicked(pointsClicked, dispatchMainReducer),
+          setSubmitAutoconj: (submitAutoconj: boolean) =>
+            setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
         }}
       >
         <Form invariants={invariants} withOrders={true} />
@@ -126,6 +131,7 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
               </Box>
             </>
           )}
+        {stateMainReducer.submitAutoconj && <FetchConjecture />}
       </MainContext.Provider>
     </Frame>
   );

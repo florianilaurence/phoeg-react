@@ -1,10 +1,10 @@
 import { Grid } from "@mui/material";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 import { useContext } from "react";
-import { Concave } from "../../store/reducers/main_reducer";
-import MainContext from "../../store/utils/main_context";
-import Chart from "../polytopes/chart/Chart";
-import SubTitle from "../styles_and_settings/SubTitle";
+import { Concave } from "../../../store/reducers/main_reducer";
+import MainContext from "../../../store/utils/main_context";
+import Chart from "../../polytopes/chart/Chart";
+import SubTitle from "../../styles_and_settings/SubTitle";
 
 const PolytopesContainer = () => {
   const mainContext = useContext(MainContext);

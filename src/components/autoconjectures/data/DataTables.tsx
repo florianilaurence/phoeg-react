@@ -1,8 +1,11 @@
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../../store/utils/main_context";
 import { useContext, useEffect, useState } from "react";
 import { Grid } from "@mui/material";
 import TableDirection from "./TableDirection";
-import { Concave, CoordinateAutoconj } from "../../store/reducers/main_reducer";
+import {
+  Concave,
+  CoordinateAutoconj,
+} from "../../../store/reducers/main_reducer";
 
 interface ConcaveRefactored {
   minY: Array<Array<CoordinateAutoconj>>;
