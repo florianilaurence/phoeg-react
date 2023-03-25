@@ -104,7 +104,7 @@ const initialOrders = {
   field: "",
 };
 
-const HEIGHTCARD = 125;
+const HEIGHTCARD = 100;
 const HEIGHTCARDCONSTRAINT = 200;
 
 const parseOrders = (orders: string): Array<number> => {
@@ -124,6 +124,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   const [showForm, setShowForm] = useState(true);
   const [showColoration, setShowColoration] = useState(false);
   const [showConstrSubForm, setShowConstrSubForm] = useState(false);
+  const [computeConcave, setComputeConcave] = useState(false);
 
   const constraintInvariant: Array<Invariant> = invariants.filter(
     (inv: Invariant) =>
@@ -329,7 +330,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
     });
   };
 
-  // Axis and coloration controllers
+  // Main controllers (axis, coloration and concave hull)
   const handleChangeX = (value: string) => {
     mainContext.reset();
     mainContext.setLabelX(value);
@@ -355,6 +356,11 @@ const Form = ({ invariants, withOrders }: FormProps) => {
   const handleShowColoration = (value: boolean) => {
     mainContext.reset();
     setShowColoration(value);
+  };
+
+  const handleComputeConcave = (value: boolean) => {
+    mainContext.reset();
+    setComputeConcave(value);
   };
 
   // Submit controllers and annex functions
@@ -486,6 +492,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
         </Stack>
         <Collapse in={showForm} sx={{ mb: 2 }}>
           <Grid container spacing={2}>
+            {/* X CARD */}
             <Grid item xs={3.9}>
               <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
                 <Box sx={{ height: 40 }}>
@@ -522,6 +529,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                 <SyncAltIcon />
               </Box>
             </Grid>
+            {/* Y CARD */}
             <Grid item xs={3.9}>
               <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
                 <Box sx={{ height: 40 }}>
@@ -547,6 +555,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                 />
               </Paper>
             </Grid>
+            {/* COLOR CARD (phoeg app) OR ORDERS CARD (autoconjecture app) */}
             <Grid item xs={3.9}>
               {withOrders ? (
                 <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
@@ -730,6 +739,25 @@ const Form = ({ invariants, withOrders }: FormProps) => {
             </Grid>
           </Grid>
 
+          {/* Concave hull option */}
+          {!withOrders && (
+            <Box sx={{ mt: 1, display: "flex", justifyContent: "center" }}>
+              <Inner>
+                Do you want compute and show concave hull on your polytope ?
+              </Inner>
+              <Switch
+                checked={computeConcave}
+                onChange={(event) => {
+                  handleComputeConcave(event.target.checked);
+                }}
+                color="success"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Box>
+          )}
+
+          {/* CONSTRAINTS SUB FORM */}
           {showConstrSubForm ? (
             <Box>
               <Divider sx={{ mt: 2, mb: 2 }} />
@@ -822,6 +850,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                         </Button>
                       </Box>
                       {constraint.advancedMode ? (
+                        // Advanced mode
                         <Box>
                           <TextField
                             sx={{ ml: 1, mr: 1, mt: 1, width: "95%" }}
@@ -838,6 +867,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                           />
                         </Box>
                       ) : (
+                        // Simple mode
                         <Box>
                           <Autocomplete
                             disablePortal
@@ -858,6 +888,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                           />
                           {constraint.type !== ConstraintTypes.NONE ? (
                             constraint.type === ConstraintTypes.BOOL ? (
+                              // Bool constraint
                               <Box
                                 sx={{
                                   mt: 2,
@@ -878,6 +909,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
                                 />
                               </Box>
                             ) : (
+                              // Number constraint
                               <Box
                                 sx={{
                                   m: 1,
@@ -941,6 +973,7 @@ const Form = ({ invariants, withOrders }: FormProps) => {
               </Box>
             </Box>
           ) : (
+            // Submit mode
             <Box>
               <Divider sx={{ mt: 2, mb: 2 }} />
               <Box
@@ -978,7 +1011,11 @@ const Form = ({ invariants, withOrders }: FormProps) => {
         </Collapse>
       </form>
       {mainContext.isSubmit && (
-        <Fetch invariants={invariants} withOrders={withOrders} />
+        <Fetch
+          invariants={invariants}
+          withConcave={withOrders ? true : computeConcave}
+          withOrders={withOrders}
+        />
       )}
     </>
   );

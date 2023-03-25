@@ -4,7 +4,6 @@ import { stringify } from "qs";
 import axios from "axios";
 import { Invariant } from "../polytopes/PolytopesSlider";
 import MainContext from "../../store/utils/main_context";
-import { Concave } from "../../store/reducers/main_reducer";
 
 interface PostConstraint {
   name: string;
@@ -47,10 +46,11 @@ export const decodeConstraints = (
 
 interface FetchProps {
   invariants: Array<Invariant>;
+  withConcave?: boolean;
   withOrders?: boolean;
 }
 
-const Fetch = ({ invariants, withOrders }: FetchProps) => {
+const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
   const mainContext = useContext(MainContext);
 
   useEffect(() => {
@@ -99,40 +99,65 @@ const Fetch = ({ invariants, withOrders }: FetchProps) => {
     const concave_request = new URL(
       `${API_URL}/graphs/concave` + "?" + part_request
     );
-    phoegFetchData(
-      envelope_request,
-      points_request,
-      concave_request,
-      advanced_constraints
-    )
-      .then((data) => {
-        if (data.coordinates.length === 0 || data.envelope.length === 0) {
-          mainContext.setError(
-            "No data found, invariants are too restrictive."
-          );
-          mainContext.setIsLoading(false);
-          return;
-        }
-        mainContext.setData(data);
-        mainContext.setIsLoading(false);
-      })
-      .catch((error) => {
-        mainContext.setError(error);
-        mainContext.setIsLoading(false);
-      });
+
+    withConcave
+      ? phoegFetchData(
+          envelope_request,
+          points_request,
+          advanced_constraints,
+          concave_request
+        )
+          .then((data) => {
+            if (data.coordinates.length === 0 || data.envelope.length === 0) {
+              mainContext.setError(
+                "No data found, invariants are too restrictive."
+              );
+              mainContext.setIsLoading(false);
+              return;
+            }
+            mainContext.setData(data);
+            mainContext.setIsLoading(false);
+          })
+          .catch((error) => {
+            mainContext.setError(error);
+            mainContext.setIsLoading(false);
+          })
+      : phoegFetchData(envelope_request, points_request, advanced_constraints)
+          .then((data) => {
+            if (data.coordinates.length === 0 || data.envelope.length === 0) {
+              mainContext.setError(
+                "No data found, invariants are too restrictive."
+              );
+              mainContext.setIsLoading(false);
+              return;
+            }
+            mainContext.setData(data);
+            mainContext.setIsLoading(false);
+          })
+          .catch((error) => {
+            mainContext.setError(error);
+            mainContext.setIsLoading(false);
+          });
   };
 
   const phoegFetchData = (
     requestEnvelope: URL,
     requestPoints: URL,
-    requestConcave: URL,
-    body: { query: string }
+    body: { query: string },
+    requestConcave?: URL
   ) => {
+    const requests = [requestEnvelope.toString(), requestPoints.toString()];
+    if (requestConcave) requests.push(requestConcave.toString());
     return axios
       .all([
         axios.post(requestEnvelope.toString(), body),
         axios.post(requestPoints.toString(), body),
-        axios.post(requestConcave.toString(), body),
+        axios.post(
+          requestConcave
+            ? requestConcave.toString()
+            : requestEnvelope.toString(),
+          body
+        ),
       ])
       .then(
         axios.spread((envelope, points, concave) => {

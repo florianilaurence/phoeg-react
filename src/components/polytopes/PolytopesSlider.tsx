@@ -18,7 +18,7 @@ export interface Invariant {
   description: string;
 }
 
-const Polytopes = () => {
+const PolytopesSlider = () => {
   const mainContext = useContext(MainContext);
 
   const nextOrder = () => {
@@ -151,4 +151,4 @@ const Polytopes = () => {
   );
 };
 
-export default Polytopes;
+export default PolytopesSlider;

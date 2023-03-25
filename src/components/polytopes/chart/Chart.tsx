@@ -1,13 +1,11 @@
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useMemo, useRef, useState } from "react";
 import { Group } from "@visx/group";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 import { GridColumns, GridRows } from "@visx/grid";
-import { Circle, LinePath } from "@visx/shape";
 import { scaleLinear } from "@visx/scale";
 import DrawConcave from "./DrawConcave";
 import Legend from "./Legend";
 import MainContext from "../../../store/utils/main_context";
-import { Coordinate } from "../../../store/reducers/main_reducer";
 import "./Chart.css";
 import Inner from "../../styles_and_settings/Inner";
 import { Box } from "@mui/system";
@@ -141,12 +139,14 @@ const Chart = ({ width, currentIndexOrder }: ChartProps) => {
             currentIndexOrder={currentIndexOrder}
           />
 
-          <DrawConcave
-            xScale={xScale}
-            yScale={yScale}
-            setTooltipData={setTooltipData}
-            currentIndexOrder={currentIndexOrder}
-          />
+          {mainContext.concave !== undefined && (
+            <DrawConcave
+              xScale={xScale}
+              yScale={yScale}
+              setTooltipData={setTooltipData}
+              currentIndexOrder={currentIndexOrder}
+            />
+          )}
 
           {currentIndexOrder === undefined && (
             <DrawPoints

@@ -14,19 +14,32 @@ interface LegendProps {
 
 const Legend = ({ colorScale, currentIndexOrder }: LegendProps) => {
   const mainContext = useContext(MainContext);
+  const hasConcave = mainContext.concave !== undefined;
 
   const [showLegend, setShowLegend] = useState<boolean>(true);
 
-  const dirsKeys =
-    currentIndexOrder !== undefined
-      ? Object.keys(mainContext.concaves[currentIndexOrder]).filter(
-          (dir) => mainContext.concaves[currentIndexOrder][dir].length > 1
-        )
-      : Object.keys(mainContext.concave).filter(
-          (dir) => mainContext.concave[dir].length > 1
-        );
+  let dirsKeys: string[] = [];
+
+  if (hasConcave) {
+    dirsKeys =
+      currentIndexOrder !== undefined
+        ? Object.keys(mainContext.concaves[currentIndexOrder]).filter(
+            (dir) => mainContext.concaves[currentIndexOrder][dir].length > 1
+          )
+        : Object.keys(mainContext.concave).filter(
+            (dir) => mainContext.concave[dir].length > 1
+          );
+  }
+
+  if (
+    !hasConcave &&
+    currentIndexOrder === undefined &&
+    mainContext.labelColor === ""
+  )
+    return null;
 
   if (currentIndexOrder !== undefined) {
+    // Autoconjecture app
     return (
       <Box sx={{ display: "flex", alignItems: "center" }}>
         {dirsKeys.map((dir, i) => {
@@ -72,6 +85,7 @@ const Legend = ({ colorScale, currentIndexOrder }: LegendProps) => {
   };
 
   return (
+    // Phoeg app
     <>
       <Box
         sx={{

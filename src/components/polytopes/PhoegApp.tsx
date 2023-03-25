@@ -1,4 +1,4 @@
-import Polytopes, { Invariant } from "./PolytopesSlider";
+import PolytopesSlider, { Invariant } from "./PolytopesSlider";
 import "react-banner/dist/style.css";
 import Form from "../form_fetch/Form";
 import axios from "axios";
@@ -135,7 +135,7 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
         }}
       >
         <Form invariants={invariants} withOrders={false} />
-        <Polytopes />
+        <PolytopesSlider />
         {stateMainReducer.isSubmit &&
           !stateMainReducer.isLoading &&
           stateMainReducer.pointClicked && <Graphs invariants={invariants} />}
