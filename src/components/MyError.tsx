@@ -1,6 +1,4 @@
-import { Stack } from "@mui/material";
-import { LEFT, RIGHT } from "../designVars";
-import Inner from "./styles_and_settings/Inner";
+import { Box, Stack, Typography } from "@mui/material";
 
 interface ErrorProps {
   message: string;
@@ -8,20 +6,26 @@ interface ErrorProps {
 
 const MyError: React.FC<ErrorProps> = ({ message }: ErrorProps) => {
   return (
-    <Stack
-      sx={{ ml: LEFT, mr: RIGHT, height: "300px" }}
+    <Box
+      sx={{ m: 3, height: "300px" }}
       display="flex"
+      flexDirection="column"
       alignItems="center"
       justifyContent="center"
     >
-      <Inner size={50} bold italic>
+      <Typography
+        variant="body1"
+        fontSize={50}
+        fontWeight="bold"
+        fontStyle="italic"
+      >
         Error
-      </Inner>
+      </Typography>
       <br />
-      <Inner>
+      <Typography variant="body1">
         Something went wrong with {message}. Please try again later.
-      </Inner>
-    </Stack>
+      </Typography>
+    </Box>
   );
 };
 

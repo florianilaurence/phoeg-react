@@ -4,6 +4,7 @@ import { stringify } from "qs";
 import axios from "axios";
 import { Invariant } from "../polytopes/PolytopesSlider";
 import MainContext from "../../store/utils/main_context";
+import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
 
 interface PostConstraint {
   name: string;
@@ -54,6 +55,7 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
   const mainContext = useContext(MainContext);
 
   useEffect(() => {
+    mainContext.clearData();
     mainContext.setIsLoading(true);
     if (withOrders) {
       autoconjUseEffect();
@@ -108,13 +110,6 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
           concave_request
         )
           .then((data) => {
-            if (data.coordinates.length === 0 || data.envelope.length === 0) {
-              mainContext.setError(
-                "No data found, invariants are too restrictive."
-              );
-              mainContext.setIsLoading(false);
-              return;
-            }
             mainContext.setData(data);
             mainContext.setIsLoading(false);
           })
@@ -124,13 +119,6 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
           })
       : phoegFetchData(envelope_request, points_request, advanced_constraints)
           .then((data) => {
-            if (data.coordinates.length === 0 || data.envelope.length === 0) {
-              mainContext.setError(
-                "No data found, invariants are too restrictive."
-              );
-              mainContext.setIsLoading(false);
-              return;
-            }
             mainContext.setData(data);
             mainContext.setIsLoading(false);
           })
@@ -175,6 +163,20 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
       );
   };
 
+  const containsCoordinate = (
+    array: Array<CoordinateAutoconj>,
+    coord: CoordinateAutoconj
+  ) => {
+    let res = false;
+    for (let c of array) {
+      if (c.x === coord.x && c.y === coord.y) {
+        res = true;
+        break;
+      }
+    }
+    return res;
+  };
+
   const autoconjUseEffect = () => {
     const constraints = decodeConstraints(mainContext.constraints);
     const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
@@ -200,17 +202,26 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
 
     autoconjFetchData(concave_request, envelopes_request, advanced_constraints)
       .then((data) => {
-        if (data.concaves.length === 0) {
-          mainContext.setError(
-            "No data found, invariants are too restrictive."
-          );
-          mainContext.setIsLoading(false);
-          return;
-        }
         mainContext.setIsLoading(false);
-        mainContext.setConcaves(data.concaves);
-        mainContext.setMinMaxList(data.minMax);
-        mainContext.setEnvelopes(data.envelopes);
+        const tempPoints: Array<Array<CoordinateAutoconj>> = [];
+        const keys = Object.keys(data.concaves[0]);
+        for (let concave of data.concaves) {
+          const tempSublist: Array<CoordinateAutoconj> = [];
+          for (let key of keys) {
+            for (let coordinate of concave[key]) {
+              if (!containsCoordinate(tempSublist, coordinate)) {
+                tempSublist.push(coordinate);
+              }
+            }
+          }
+          tempPoints.push([...tempSublist]);
+        }
+        mainContext.setDataAutoconj(
+          data.concaves,
+          data.envelopes,
+          tempPoints,
+          data.minMax
+        );
       })
       .catch((error) => {
         mainContext.setError(error);

@@ -5,7 +5,6 @@ import cola from "cytoscape-cola";
 import dagre from "cytoscape-dagre";
 import Cytoscape from "cytoscape";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Inner from "../styles_and_settings/Inner";
 import {
   Autocomplete,
   Box,
@@ -13,6 +12,7 @@ import {
   Switch,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import { blueGrey, green } from "@mui/material/colors";
 import {
@@ -192,9 +192,9 @@ const NewGraph = ({ sign, width }: NewGraphProps) => {
           justifyContent="center"
           alignContent="center"
         >
-          <Inner align="center" size={13}>
+          <Typography variant="body1" align="center" fontSize={13}>
             Complement?
-          </Inner>
+          </Typography>
         </Grid>
         <Grid item xs={3}>
           <Tooltip
@@ -235,16 +235,26 @@ const NewGraph = ({ sign, width }: NewGraphProps) => {
       {isComplement ? (
         <Box sx={{ mt: 1 }}>
           {renderCytoscape([...nodes, ...edgesComplement], colorComplement)}
-          <Inner align="center" size={13} color={colorComplement}>
+          <Typography
+            variant="body1"
+            align="center"
+            fontSize={13}
+            color={colorComplement}
+          >
             Complement
-          </Inner>
+          </Typography>
         </Box>
       ) : (
         <Box sx={{ mt: 1 }}>
           {renderCytoscape([...nodes, ...edges], colorGraph)}
-          <Inner align="center" size={13} color={colorGraph}>
+          <Typography
+            variant="body1"
+            align="center"
+            fontSize={13}
+            color={colorGraph}
+          >
             Original
-          </Inner>
+          </Typography>
         </Box>
       )}
     </Box>

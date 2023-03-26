@@ -16,13 +16,12 @@ import {
   MinMax,
 } from "../../store/reducers/main_reducer";
 import {
-  initPointsClicked,
+  clearData,
   reset,
   setAdvancedConstraints,
-  setConcaves,
   setConstraints,
   setData,
-  setEnvelopes,
+  setDataAutoconj,
   setError,
   setIsLoading,
   setIsSubmit,
@@ -30,7 +29,6 @@ import {
   setLabelX,
   setLabelY,
   setLegendClicked,
-  setMinMaxList,
   setOrder,
   setOrders,
   setPointClicked,
@@ -38,8 +36,8 @@ import {
   setSubmitAutoconj,
 } from "../../store/actions/main_action";
 import Graphs from "../graphs/Graphs";
-import { Box } from "@mui/material";
-import Inner from "../styles_and_settings/Inner";
+import { Box, Typography } from "@mui/material";
+import Fetch from "../form_fetch/Fetch";
 
 export interface OpenProps {
   isOpenMenu: boolean;
@@ -85,18 +83,24 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   return (
     <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
       <Box sx={{ mt: 2 }}>
-        <Inner align="center">
+        <Typography variant="body1" align="center">
           Welcome to the new user interface. Start using it by filling in the
           following form to view your first polytope.
           <br />
           And enjoy!
-        </Inner>
+        </Typography>
       </Box>
       <MainContext.Provider
         value={{
           ...stateMainReducer,
 
           setOrder: (order: number) => setOrder(order, dispatchMainReducer),
+          setData: (data: ChartData) => setData(data, dispatchMainReducer),
+          setPointClicked: (coordinate: Coordinate | null) =>
+            setPointClicked(coordinate, dispatchMainReducer),
+          setLegendClicked: (legendClicked: number | null) =>
+            setLegendClicked(legendClicked, dispatchMainReducer),
+
           setLabelX: (labelX: string) => setLabelX(labelX, dispatchMainReducer),
           setLabelY: (labelY: string) => setLabelY(labelY, dispatchMainReducer),
           setLabelColor: (labelColor: string) =>
@@ -109,33 +113,31 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
             setIsSubmit(isSubmit, dispatchMainReducer),
           setIsLoading: (isLoading: boolean) =>
             setIsLoading(isLoading, dispatchMainReducer),
-
-          setData: (data: ChartData) => setData(data, dispatchMainReducer),
-
-          setPointClicked: (coordinate: Coordinate | null) =>
-            setPointClicked(coordinate, dispatchMainReducer),
-          setLegendClicked: (legendClicked: number | null) =>
-            setLegendClicked(legendClicked, dispatchMainReducer),
-
           setError: (message: string) => setError(message, dispatchMainReducer),
-
-          reset: () => reset(dispatchMainReducer),
 
           setOrders: (orders: number[]) =>
             setOrders(orders, dispatchMainReducer),
-          initPointsClicked: (orders: number[]) =>
-            initPointsClicked(orders, dispatchMainReducer),
-          setConcaves: (concaves: Array<Concave>) =>
-            setConcaves(concaves, dispatchMainReducer),
-          setEnvelopes: (envelopes: Array<Array<Coordinate>>) =>
-            setEnvelopes(envelopes, dispatchMainReducer),
-          setMinMaxList: (minMaxList: Array<MinMax>) =>
-            setMinMaxList(minMaxList, dispatchMainReducer),
+          setDataAutoconj: (
+            concaves: Array<Concave>,
+            enveloppes: Array<Concave>,
+            simplifiedPoints: Array<Array<CoordinateAutoconj>>,
+            minMaxList: Array<MinMax>
+          ) =>
+            setDataAutoconj(
+              concaves,
+              enveloppes,
+              simplifiedPoints,
+              minMaxList,
+              dispatchMainReducer
+            ),
 
           setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
             setPointsClicked(pointsClicked, dispatchMainReducer),
           setSubmitAutoconj: (submitAutoconj: boolean) =>
             setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
+
+          clearData: () => clearData(dispatchMainReducer),
+          reset: () => reset(dispatchMainReducer),
         }}
       >
         <Form
@@ -144,6 +146,13 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           withConcave={withConcave}
           setWithConcave={setWithConcave}
         />
+        {stateMainReducer.isSubmit && (
+          <Fetch
+            invariants={invariants}
+            withConcave={withConcave}
+            withOrders={false}
+          />
+        )}
         <PolytopesSlider withConcave={withConcave} />
         {stateMainReducer.isSubmit &&
           !stateMainReducer.isLoading &&

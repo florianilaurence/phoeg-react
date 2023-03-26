@@ -7,8 +7,13 @@ import {
 } from "../reducers/main_reducer";
 
 export enum MainAction {
-  // Common actions for phoeg app and conjecture app
+  // Actions for phoeg app
   ORDER,
+  SET_DATA,
+  SET_POINT_CLICKED,
+  SET_LEGEND_CLICKED,
+
+  // Common actions for phoeg app and conjecture app
   LABEL_X,
   LABEL_Y,
   LABEL_COLOR,
@@ -16,32 +21,55 @@ export enum MainAction {
   ADVANCED_CONSTRAINTS,
   IS_SUBMIT,
   IS_LOADING,
-
-  SET_DATA,
-
-  SET_POINT_CLICKED,
-  SET_LEGEND_CLICKED,
-
   SET_ERROR,
-  RESET,
 
-  // Special actions for conjecture app
+  // Actions for conjecture app
   ORDERS,
-  INIT_POINTS_CLICKED,
-  SET_CONCAVES,
-  SET_ENVELOPES,
-  SET_MIN_MAX_LIST,
+  SET_DATA_AUTOCONJ, // set concaves, enveloppes, simplified points and minMax (init points clicked)
   SET_POINTS_CLICKED,
   SET_SUBMIT_AUTOCONJ,
+
+  // Common actions for phoeg app and conjecture app --> Clear data (change order) and reset (change field in form)
+  CLEAR_DATA,
+  RESET,
 }
 
-// Common actions for phoeg app and conjecture app
+// Functions for phoeg app
 export const setOrder = (order: number, dispatch: any) => {
   dispatch({
     type: MainAction.ORDER,
     order: order,
   });
 };
+
+export const setData = (data: ChartData, dispatch: any) => {
+  dispatch({
+    type: MainAction.SET_DATA,
+    data: data,
+  });
+};
+
+export const setPointClicked = (
+  coordinate: Coordinate | null,
+  dispatch: any
+) => {
+  dispatch({
+    type: MainAction.SET_POINT_CLICKED,
+    coordinate: coordinate,
+  });
+};
+
+export const setLegendClicked = (
+  legendClicked: number | null,
+  dispatch: any
+) => {
+  dispatch({
+    type: MainAction.SET_LEGEND_CLICKED,
+    legendClicked: legendClicked,
+  });
+};
+
+// Common functions for phoeg app and conjecture app
 
 export const setLabelX = (labelX: string, dispatch: any) => {
   dispatch({
@@ -95,33 +123,6 @@ export const setIsLoading = (isLoading: boolean, dispatch: any) => {
   });
 };
 
-export const setData = (data: ChartData, dispatch: any) => {
-  dispatch({
-    type: MainAction.SET_DATA,
-    data: data,
-  });
-};
-
-export const setPointClicked = (
-  coordinate: Coordinate | null,
-  dispatch: any
-) => {
-  dispatch({
-    type: MainAction.SET_POINT_CLICKED,
-    coordinate: coordinate,
-  });
-};
-
-export const setLegendClicked = (
-  legendClicked: number | null,
-  dispatch: any
-) => {
-  dispatch({
-    type: MainAction.SET_LEGEND_CLICKED,
-    legendClicked: legendClicked,
-  });
-};
-
 export const setError = (message: string, dispatch: any) => {
   dispatch({
     type: MainAction.SET_ERROR,
@@ -129,13 +130,7 @@ export const setError = (message: string, dispatch: any) => {
   });
 };
 
-export const reset = (dispatch: any) => {
-  dispatch({
-    type: MainAction.RESET,
-  });
-};
-
-// Special actions for conjecture app
+// Functions for conjecture app
 
 export const setOrders = (orders: number[], dispatch: any) => {
   dispatch({
@@ -144,33 +139,18 @@ export const setOrders = (orders: number[], dispatch: any) => {
   });
 };
 
-export const initPointsClicked = (orders: number[], dispatch: any) => {
-  dispatch({
-    type: MainAction.INIT_POINTS_CLICKED,
-    orders: orders,
-  });
-};
-
-export const setConcaves = (concaves: Array<Concave>, dispatch: any) => {
-  dispatch({
-    type: MainAction.SET_CONCAVES,
-    concaves: concaves,
-  });
-};
-
-export const setEnvelopes = (
-  envelopes: Array<Array<Coordinate>>,
+export const setDataAutoconj = (
+  concaves: Array<Concave>,
+  envelopes: Array<Concave>,
+  simplifiedPoints: Array<Array<CoordinateAutoconj>>,
+  minMaxList: Array<MinMax>,
   dispatch: any
 ) => {
   dispatch({
-    type: MainAction.SET_ENVELOPES,
+    type: MainAction.SET_DATA_AUTOCONJ,
+    concaves: concaves,
     envelopes: envelopes,
-  });
-};
-
-export const setMinMaxList = (minMaxList: Array<MinMax>, dispatch: any) => {
-  dispatch({
-    type: MainAction.SET_MIN_MAX_LIST,
+    simplifiedPoints: simplifiedPoints,
     minMaxList: minMaxList,
   });
 };
@@ -189,5 +169,19 @@ export const setSubmitAutoconj = (submitAutoconj: boolean, dispatch: any) => {
   dispatch({
     submitAutoconj: submitAutoconj,
     type: MainAction.SET_SUBMIT_AUTOCONJ,
+  });
+};
+
+// Common functions for phoeg app and conjecture app --> Clear data (change order) and reset (change field in form)
+
+export const reset = (dispatch: any) => {
+  dispatch({
+    type: MainAction.RESET,
+  });
+};
+
+export const clearData = (dispatch: any) => {
+  dispatch({
+    type: MainAction.CLEAR_DATA,
   });
 };

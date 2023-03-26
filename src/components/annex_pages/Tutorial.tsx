@@ -1,7 +1,6 @@
 import YouTube from "react-youtube";
 import Title from "../styles_and_settings/Title";
-import Inner from "../styles_and_settings/Inner";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Frame from "./Frame";
 import { OpenProps } from "../polytopes/PhoegApp";
 
@@ -15,9 +14,14 @@ export default function Tutorial({ isOpenMenu, setIsOpenMenu }: OpenProps) {
   return (
     <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
       <Title title="Tutorial" />
-      <Inner bold italic align="center">
+      <Typography
+        variant="body1"
+        fontWeight="bold"
+        fontStyle="italic"
+        align="center"
+      >
         This is a demo video for interface.
-      </Inner>
+      </Typography>
       <br />
       <Box display="flex" justifyContent="center" sx={{ mb: 5 }}>
         <YouTube videoId="5D5k5Z5iyL0" opts={opts} />

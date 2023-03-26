@@ -1,6 +1,12 @@
-import { Box, Button, Collapse, Divider, Tooltip } from "@mui/material";
+import {
+  Box,
+  Button,
+  Collapse,
+  Divider,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useContext, useState } from "react";
-import Inner from "../../styles_and_settings/Inner";
 import { DirectionColors } from "./DrawConcave";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -29,15 +35,19 @@ const Legend = ({
         ? Object.keys(mainContext.concaves[currentIndexOrder]).filter(
             (dir) => mainContext.concaves[currentIndexOrder][dir].length > 1
           )
-        : Object.keys(mainContext.concave).filter(
-            (dir) => mainContext.concave[dir].length > 1
+        : Object.keys(mainContext.concave!).filter(
+            (dir) => mainContext.concave![dir].length > 1
           );
   }
 
   const onClickLegendConcave = (key: string) => {
-    const points = mainContext.concaves[currentIndexOrder!][key];
-    const newPointsClickedN: Array<CoordinateAutoconj> = [];
-    for (let point of points) {
+    //TODO: FIX THIS :'(
+    const points = mainContext.simplifiedPoints[currentIndexOrder!][key];
+    const selectedDir = mainContext.concaves[currentIndexOrder!][key];
+    const newPointsClickedN: Array<CoordinateAutoconj> = [
+      ...mainContext.pointsClicked[currentIndexOrder!],
+    ];
+    for (let point of selectedDir) {
       if (!point.clicked) {
         newPointsClickedN.push(point);
         point.clicked = true;
@@ -75,9 +85,14 @@ const Legend = ({
                   variant="text"
                   onClick={() => onClickLegendConcave(dir)}
                 >
-                  <Inner size={10} color={DirectionColors[dir]} bold>
+                  <Typography
+                    variant="body1"
+                    fontSize={10}
+                    color={DirectionColors[dir]}
+                    fontWeight="bold"
+                  >
                     {dir}
-                  </Inner>
+                  </Typography>
                 </Button>
               </Tooltip>
               {i !== dirsKeys.length - 1 && (
@@ -126,7 +141,9 @@ const Legend = ({
         >
           {showLegend ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </Button>
-        <Inner size={12}>{showLegend ? "Hide legend" : "Show legend"}</Inner>
+        <Typography variant="body1" fontSize={12}>
+          {showLegend ? "Hide legend" : "Show legend"}
+        </Typography>
       </Box>
       <Collapse in={showLegend}>
         {mainContext.labelColor !== "" && (
@@ -150,16 +167,19 @@ const Legend = ({
                     sx={{ ml: 1, cursor: "pointer" }}
                     onClick={() => handleOnClickLegend(color)}
                   >
-                    <Inner
-                      size={14}
+                    <Typography
+                      variant="body1"
+                      fontSize={14}
                       color={colorScale(color)}
-                      italic={
+                      fontStyle={
                         mainContext.legendClicked !== null &&
                         mainContext.legendClicked === color
+                          ? "italic"
+                          : "normal"
                       }
                     >
                       {color}
-                    </Inner>
+                    </Typography>
                   </Box>
                   {i !== colorsKeys.length - 1 && (
                     <Divider
@@ -192,9 +212,14 @@ const Legend = ({
                 }}
                 key={`leg-dir-${dir}`}
               >
-                <Inner size={14} color={DirectionColors[dir]} bold>
+                <Typography
+                  variant="body1"
+                  fontSize={14}
+                  color={DirectionColors[dir]}
+                  fontWeight="bold"
+                >
                   {dir}
-                </Inner>
+                </Typography>
                 {i !== dirsKeys.length - 1 && (
                   <Divider
                     sx={{

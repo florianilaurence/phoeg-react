@@ -1,5 +1,3 @@
-import { Box, Button } from "@mui/material";
-import SendTimeExtensionIcon from "@mui/icons-material/SendTimeExtension";
 import { useState, useEffect, useReducer } from "react";
 import {
   setOrder,
@@ -15,13 +13,11 @@ import {
   setLegendClicked,
   setError,
   reset,
-  setConcaves,
   setOrders,
-  setMinMaxList,
-  setEnvelopes,
-  initPointsClicked,
   setPointsClicked,
   setSubmitAutoconj,
+  setDataAutoconj,
+  clearData,
 } from "../../store/actions/main_action";
 import {
   ChartData,
@@ -39,7 +35,8 @@ import { fetchInvariants, OpenProps } from "../polytopes/PhoegApp";
 import { Invariant } from "../polytopes/PolytopesSlider";
 import MyTabs from "./data/MyTabs";
 import Loading from "../Loading";
-import FetchConjecture from "./result/FetchConjecture";
+import ConjectureResults from "./result/ConjectureResults";
+import Fetch from "../form_fetch/Fetch";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
@@ -54,12 +51,6 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
     fetchInvariants().then((inv) => setDataInvariants(inv));
   }, []);
 
-  const handleSubmit = () => {
-    setSubmitAutoconj(true, dispatchMainReducer);
-    console.log("Submit");
-    console.log(stateMainReducer.pointsClicked);
-  };
-
   return (
     <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
       <MainContext.Provider
@@ -67,6 +58,12 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           ...stateMainReducer,
 
           setOrder: (order: number) => setOrder(order, dispatchMainReducer),
+          setData: (data: ChartData) => setData(data, dispatchMainReducer),
+          setPointClicked: (coordinate: Coordinate | null) =>
+            setPointClicked(coordinate, dispatchMainReducer),
+          setLegendClicked: (legendClicked: number | null) =>
+            setLegendClicked(legendClicked, dispatchMainReducer),
+
           setLabelX: (labelX: string) => setLabelX(labelX, dispatchMainReducer),
           setLabelY: (labelY: string) => setLabelY(labelY, dispatchMainReducer),
           setLabelColor: (labelColor: string) =>
@@ -79,59 +76,49 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
             setIsSubmit(isSubmit, dispatchMainReducer),
           setIsLoading: (isLoading: boolean) =>
             setIsLoading(isLoading, dispatchMainReducer),
-
-          setData: (data: ChartData) => setData(data, dispatchMainReducer),
-
-          setPointClicked: (coordinate: Coordinate | null) =>
-            setPointClicked(coordinate, dispatchMainReducer),
-          setLegendClicked: (legendClicked: number | null) =>
-            setLegendClicked(legendClicked, dispatchMainReducer),
-
           setError: (message: string) => setError(message, dispatchMainReducer),
-
-          reset: () => reset(dispatchMainReducer),
 
           setOrders: (orders: number[]) =>
             setOrders(orders, dispatchMainReducer),
-          initPointsClicked: (orders: number[]) =>
-            initPointsClicked(orders, dispatchMainReducer),
-          setConcaves: (concaves: Array<Concave>) =>
-            setConcaves(concaves, dispatchMainReducer),
-          setEnvelopes: (envelopes: Array<Array<Coordinate>>) =>
-            setEnvelopes(envelopes, dispatchMainReducer),
-          setMinMaxList: (minMaxList: Array<MinMax>) =>
-            setMinMaxList(minMaxList, dispatchMainReducer),
+          setDataAutoconj: (
+            concaves: Array<Concave>,
+            enveloppes: Array<Concave>,
+            simplifiedPoints: Array<Array<CoordinateAutoconj>>,
+            minMaxList: Array<MinMax>
+          ) =>
+            setDataAutoconj(
+              concaves,
+              enveloppes,
+              simplifiedPoints,
+              minMaxList,
+              dispatchMainReducer
+            ),
 
           setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
             setPointsClicked(pointsClicked, dispatchMainReducer),
           setSubmitAutoconj: (submitAutoconj: boolean) =>
             setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
+
+          clearData: () => clearData(dispatchMainReducer),
+          reset: () => reset(dispatchMainReducer),
         }}
       >
         <Form invariants={invariants} withOrders={true} />
+
+        {stateMainReducer.isSubmit && (
+          <Fetch invariants={invariants} withOrders={true} />
+        )}
+
         {stateMainReducer.isSubmit && stateMainReducer.isLoading && (
           <Loading height="1000px" />
         )}
+
         {stateMainReducer.isSubmit &&
           !stateMainReducer.isLoading &&
           stateMainReducer.concaves.length > 0 &&
-          stateMainReducer.minMaxList.length > 0 && (
-            <>
-              <MyTabs />
+          stateMainReducer.minMaxList.length > 0 && <MyTabs />}
 
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  endIcon={<SendTimeExtensionIcon />}
-                  onClick={handleSubmit}
-                >
-                  Generate autoconojectures
-                </Button>
-              </Box>
-            </>
-          )}
-        {stateMainReducer.submitAutoconj && <FetchConjecture />}
+        {stateMainReducer.submitAutoconj && <ConjectureResults />}
       </MainContext.Provider>
     </Frame>
   );

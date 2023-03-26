@@ -1,11 +1,10 @@
-import { Box, Grid, Slider } from "@mui/material";
+import { Box, Grid, Slider, Typography } from "@mui/material";
 import axios from "axios";
 import { useContext, useEffect, useReducer } from "react";
 import { API_URL } from "../../.env";
 import MainContext from "../../store/utils/main_context";
 import { decodeConstraints, getTablenameFromName } from "../form_fetch/Fetch";
 import { Invariant } from "../polytopes/PolytopesSlider";
-import Inner from "../styles_and_settings/Inner";
 import SubTitle from "../styles_and_settings/SubTitle";
 import GraphSlider from "./GraphSlider";
 
@@ -168,11 +167,11 @@ export const Graphs = ({ invariants }: GraphsProps) => {
       {mainContext.pointClicked && stateGraphs.list.length > 0 && (
         <>
           <SubTitle>Graphs</SubTitle>
-          <Inner align="center">
+          <Typography variant="body1" align="center">
             There are {stateGraphs.list.length} graph
             {stateGraphs.list.length === 1 ? "" : "s"}. You can display up to{" "}
             {stateGraphs.list.length * 2} sliders in same the time:
-          </Inner>
+          </Typography>
           <Box sx={{ display: "flex", justifyContent: "center", m: 1 }}>
             <Slider
               aria-label="nb_of_sliders"

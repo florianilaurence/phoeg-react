@@ -1,4 +1,4 @@
-const FetchConjecture = () => {
+const ConjectureResults = () => {
   // TODO: Fetch conjecture from server (args = pointsClicked, orders) => get result and display it with Xcas ?
 
   return (
@@ -8,4 +8,4 @@ const FetchConjecture = () => {
   );
 };
 
-export default FetchConjecture;
+export default ConjectureResults;

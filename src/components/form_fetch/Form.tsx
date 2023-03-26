@@ -23,7 +23,6 @@ import SendIcon from "@mui/icons-material/Send";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/system";
-import Inner from "../styles_and_settings/Inner";
 import Title from "../styles_and_settings/Title";
 import Fetch from "./Fetch";
 import MainContext from "../../store/utils/main_context";
@@ -394,7 +393,6 @@ const Form = ({
     if (withOrders) {
       const orders = parseOrders(stateOrders.field);
       mainContext.setOrders(orders);
-      mainContext.initPointsClicked(orders);
     }
     setShowForm(false);
     let { encodedConstraints, encodedAdvanced } = encodeConstraints();
@@ -485,14 +483,14 @@ const Form = ({
           >
             {showForm ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </Button>
-          <Inner>
+          <Typography variant="body1">
             {showForm ? "Hide problem definition" : "Show problem definition"}
-          </Inner>
+          </Typography>
           {mainContext.isSubmit && !showForm && (
             <Box sx={{ ml: 2 }}>
-              <Inner italic size={12}>
+              <Typography variant="body1" fontStyle="italic" fontSize={12}>
                 {constructProblemDefinition()}
-              </Inner>
+              </Typography>
             </Box>
           )}
         </Stack>
@@ -594,7 +592,9 @@ const Form = ({
                     }}
                   >
                     <Button onClick={handleOpen}>
-                      <Inner size={10}>Generate automatically</Inner>
+                      <Typography variant="body1" fontSize={10}>
+                        Generate automatically
+                      </Typography>
                     </Button>
                   </Box>
                   <Modal
@@ -748,9 +748,9 @@ const Form = ({
           {/* Concave hull option */}
           {withConcave !== undefined && setWithConcave !== undefined && (
             <Box sx={{ mt: 1, display: "flex", justifyContent: "center" }}>
-              <Inner>
+              <Typography variant="body1">
                 Do you want compute and show concave hull on your polytope ?
-              </Inner>
+              </Typography>
               <Switch
                 checked={withConcave}
                 onChange={(event) => {
@@ -849,10 +849,10 @@ const Form = ({
                             )
                           }
                         >
-                          <Inner size={10}>
+                          <Typography variant="body1" fontSize={10}>
                             Change to{" "}
                             {constraint.advancedMode ? "simple " : "advanced "}
-                          </Inner>
+                          </Typography>
                         </Button>
                       </Box>
                       {constraint.advancedMode ? (
@@ -1016,13 +1016,6 @@ const Form = ({
           )}
         </Collapse>
       </form>
-      {mainContext.isSubmit && (
-        <Fetch
-          invariants={invariants}
-          withConcave={withConcave}
-          withOrders={withOrders}
-        />
-      )}
     </>
   );
 };

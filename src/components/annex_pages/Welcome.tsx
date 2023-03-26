@@ -1,7 +1,6 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import AppRoutes from "../../routes";
-import Inner from "../styles_and_settings/Inner";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -20,9 +19,14 @@ const Welcome = () => {
     >
       <img src={"big.png"} className="logo" alt="logo" />
       <br />
-      <Inner bold size={75} align="center">
+      <Typography
+        variant="body1"
+        fontWeight="bold"
+        fontSize={75}
+        align="center"
+      >
         Welcome in the new user interface for PHOEG
-      </Inner>
+      </Typography>
     </Box>
   );
 };

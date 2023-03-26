@@ -5,7 +5,6 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import SubSubTitle from "../styles_and_settings/SubSubTitle";
 import NewGraph from "./NewGraph";
-import Inner from "../styles_and_settings/Inner";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 
 interface GraphSliderProps {

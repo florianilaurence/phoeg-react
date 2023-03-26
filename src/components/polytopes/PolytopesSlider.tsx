@@ -1,12 +1,18 @@
 import { useContext } from "react";
-import { Grid, Slider, Tooltip } from "@mui/material";
+import { Grid, Slider, Tooltip, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Loading from "../Loading";
 import Chart from "./chart/Chart";
 import Title from "../styles_and_settings/Title";
-import { deepOrange, green, grey, orange } from "@mui/material/colors";
+import {
+  blueGrey,
+  deepOrange,
+  green,
+  grey,
+  orange,
+} from "@mui/material/colors";
 import SubTitle from "../styles_and_settings/SubTitle";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 import MainContext from "../../store/utils/main_context";
@@ -28,27 +34,17 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
   const nextOrder = () => {
     if (mainContext.order < 10) {
       mainContext.setOrder(mainContext.order + 1);
-      mainContext.setIsLoading(false);
-      mainContext.setLegendClicked(null);
-      mainContext.setPointClicked(null);
     }
   };
 
   const prevOrder = () => {
     if (mainContext.order > 1) {
-      const newOrder = mainContext.order - 1;
-      mainContext.setOrder(newOrder);
-      mainContext.setIsLoading(false);
-      mainContext.setLegendClicked(null);
-      mainContext.setPointClicked(null);
+      mainContext.setOrder(mainContext.order - 1);
     }
   };
 
   const onChangeOrder = (event: any) => {
     mainContext.setOrder(event.target.value);
-    mainContext.setIsLoading(false);
-    mainContext.setLegendClicked(null);
-    mainContext.setPointClicked(null);
   };
 
   const colorNext = () => {
@@ -88,6 +84,7 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
       {mainContext.isSubmit && !mainContext.isLoading && (
         <Box sx={{ ml: 1, mr: 1 }}>
           <SubTitle>{`Chart for order ${mainContext.order}`}</SubTitle>
+
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Slider
               value={mainContext.order}
@@ -126,11 +123,37 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
               </Tooltip>
             </Grid>
             <Grid item xs={11}>
-              <ParentSize>
-                {({ width }) => (
-                  <Chart width={width} withConcave={withConcave} />
-                )}
-              </ParentSize>
+              {mainContext.minMax === undefined ||
+              mainContext.coordinates.length === 0 ? (
+                <Box
+                  sx={{
+                    height: "300px",
+                    backgroundColor: "#fafafa",
+                    borderRadius: 5,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    gutterBottom
+                    align="center"
+                    color={green["A700"]}
+                    fontWeight="bold"
+                    fontSize={27}
+                  >
+                    Sorry, there is not data to show for this polytope (maybe
+                    constraints are too strong or order is too small).
+                  </Typography>
+                </Box>
+              ) : (
+                <ParentSize>
+                  {({ width }) => (
+                    <Chart width={width} withConcave={withConcave} />
+                  )}
+                </ParentSize>
+              )}
             </Grid>
             <Grid item xs={0.5}>
               <Tooltip

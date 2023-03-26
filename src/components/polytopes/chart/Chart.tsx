@@ -7,14 +7,13 @@ import DrawConcave from "./DrawConcave";
 import Legend from "./Legend";
 import MainContext from "../../../store/utils/main_context";
 import "./Chart.css";
-import Inner from "../../styles_and_settings/Inner";
 import { Box } from "@mui/system";
 import DrawEnvelope from "./DrawEnvelope";
 import DrawPoints from "./DrawPoints";
+import { Typography } from "@mui/material";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
-const background_mini_map = "rgba(197,197,197,0.9)";
 const margin = { top: 10, right: 0, bottom: 45, left: 70 };
 
 interface ChartProps {
@@ -47,20 +46,15 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
         domain: [
           currentIndexOrder !== undefined
             ? mainContext.minMaxList[currentIndexOrder].minX
-            : mainContext.minMax.minX,
+            : mainContext.minMax!.minX,
           currentIndexOrder !== undefined
             ? mainContext.minMaxList[currentIndexOrder].maxX
-            : mainContext.minMax.maxX,
+            : mainContext.minMax!.maxX,
         ],
         range: [margin.left, innerWidth],
         clamp: true,
       }),
-    [
-      innerWidth,
-      mainContext.minMax.maxX,
-      mainContext.minMax.minX,
-      mainContext.minMaxList,
-    ]
+    [innerWidth, mainContext.minMax, mainContext.minMaxList]
   );
 
   const yScale = useMemo(
@@ -69,20 +63,15 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
         domain: [
           currentIndexOrder !== undefined
             ? mainContext.minMaxList[currentIndexOrder].minY
-            : mainContext.minMax.minY,
+            : mainContext.minMax!.minY,
           currentIndexOrder !== undefined
             ? mainContext.minMaxList[currentIndexOrder].maxY
-            : mainContext.minMax.maxY,
+            : mainContext.minMax!.maxY,
         ],
         range: [innerHeight, margin.top],
         clamp: true,
       }),
-    [
-      innerHeight,
-      mainContext.minMax.maxY,
-      mainContext.minMax.minY,
-      mainContext.minMaxList,
-    ]
+    [innerHeight, mainContext.minMax, mainContext.minMaxList]
   );
 
   const colorScale = scaleLinear<string>({
@@ -90,7 +79,7 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
     domain:
       currentIndexOrder !== undefined
         ? [0, 0]
-        : [mainContext.minMax.minColor, mainContext.minMax.maxColor],
+        : [mainContext.minMax!.minColor, mainContext.minMax!.maxColor],
     range: ["#000000", "#00ff00"],
     clamp: true,
   });
@@ -98,9 +87,9 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
   return (
     <>
       <Box sx={{ height: "17px", width: "100%" }}>
-        <Inner size={12} align="right">
+        <Typography fontSize={12} align="right">
           {tooltipData}
-        </Inner>
+        </Typography>
       </Box>
       <svg width={width} height={height} ref={svgRef}>
         <rect width={width} height={height} rx={14} fill={background} />

@@ -1,5 +1,4 @@
 import { Box, CircularProgress } from "@mui/material";
-import { LEFT, RIGHT } from "../designVars";
 
 interface LoadingProps {
   height: string;
@@ -8,7 +7,7 @@ interface LoadingProps {
 const loading = ({ height }: LoadingProps) => {
   return (
     <Box
-      sx={{ ml: LEFT, mr: RIGHT, height: height }}
+      sx={{ m: 3, height: height }}
       display="flex"
       alignItems="center"
       justifyContent="center"

@@ -72,6 +72,11 @@ export interface MainState {
 
   coordinates: Array<Coordinate>;
   sorted: { [key: number]: Array<Coordinate> };
+  envelope: Array<Coordinate>;
+  minMax: MinMax | undefined;
+  concave: Concave | undefined;
+  pointClicked: Coordinate | null; // point clicked => graphs request
+  legendClicked: number | null; // color clicked => bigger point
 
   // For both apps
   labelX: string;
@@ -79,23 +84,17 @@ export interface MainState {
   labelColor: string;
   constraints: string;
   advancedConstraints: string;
-  isSubmit: boolean;
+  isSubmit: boolean; // Submit of form => chart request for phoeg app or charts request for autoconjecture app
   isLoading: boolean;
-
-  envelope: Array<Coordinate>;
-  minMax: MinMax;
-  concave: Concave;
-
-  pointClicked: Coordinate | null; // point clicked => graphs request
-  legendClicked: number | null; // color clicked => bigger point
-
   error: string;
 
   // Only for conjecture app
   orders: Array<number>;
+
   concaves: Array<Concave>;
   envelopes: Array<Array<Coordinate>>;
   minMaxList: Array<MinMax>;
+  simplifiedPoints: Array<Array<CoordinateAutoconj>>;
   pointsClicked: Array<Array<CoordinateAutoconj>>;
   submitAutoconj: boolean;
 }
@@ -106,6 +105,11 @@ export const initialMainState: MainState = {
 
   coordinates: [],
   sorted: {},
+  envelope: [],
+  minMax: undefined,
+  concave: undefined,
+  pointClicked: null,
+  legendClicked: null,
 
   // For both apps
   labelX: "",
@@ -115,29 +119,39 @@ export const initialMainState: MainState = {
   advancedConstraints: "",
   isSubmit: false,
   isLoading: false,
-
-  envelope: [],
-  minMax: defaultMinMax,
-  concave: defaultConcave,
-
-  pointClicked: null,
-  legendClicked: null,
-
   error: "",
 
   // Only for conjecture app
   orders: [],
+
   concaves: [],
   envelopes: [],
   minMaxList: [],
+  simplifiedPoints: [],
   pointsClicked: [],
   submitAutoconj: false,
 };
 
 export const MainReducer = (state: MainState, action: any): MainState => {
   switch (action.type) {
+    // Only for phoeg app
     case MainAction.ORDER:
       return { ...state, order: action.order };
+    case MainAction.SET_DATA:
+      return {
+        ...state,
+        envelope: action.data.envelope,
+        minMax: action.data.minMax,
+        coordinates: action.data.coordinates,
+        sorted: action.data.sorted,
+        concave: action.data.concave,
+      };
+    case MainAction.SET_POINT_CLICKED:
+      return { ...state, pointClicked: action.coordinate };
+    case MainAction.SET_LEGEND_CLICKED:
+      return { ...state, legendClicked: action.legendClicked };
+
+    // For both apps
     case MainAction.LABEL_X:
       return { ...state, labelX: action.labelX };
     case MainAction.LABEL_Y:
@@ -152,58 +166,62 @@ export const MainReducer = (state: MainState, action: any): MainState => {
       return { ...state, isSubmit: action.isSubmit };
     case MainAction.IS_LOADING:
       return { ...state, isLoading: action.isLoading };
-
-    case MainAction.SET_DATA:
-      return {
-        ...state,
-        envelope: action.data.envelope,
-        minMax: action.data.minMax,
-        coordinates: action.data.coordinates,
-        sorted: action.data.sorted,
-        concave: action.data.concave,
-      };
-
-    case MainAction.SET_POINT_CLICKED:
-      return { ...state, pointClicked: action.coordinate };
-    case MainAction.SET_LEGEND_CLICKED:
-      return { ...state, legendClicked: action.legendClicked };
-
     case MainAction.SET_ERROR:
       return { ...state, error: action.message };
-
-    case MainAction.RESET:
-      return {
-        ...state,
-        order: 7,
-        isSubmit: false,
-        isLoading: false,
-        pointClicked: null,
-        legendClicked: null,
-        submitAutoconj: false,
-      };
 
     // Only for conjecture app
     case MainAction.ORDERS:
       return { ...state, orders: action.orders };
-    case MainAction.INIT_POINTS_CLICKED: {
+    case MainAction.SET_DATA_AUTOCONJ: {
       const newPointsClicked: Array<Array<CoordinateAutoconj>> = [];
-      for (let i = 0; i < action.orders.length; i++) {
+      for (let i = 0; i < state.orders.length; i++) {
         newPointsClicked.push([]);
       }
-      return { ...state, pointsClicked: newPointsClicked };
+      const newState = {
+        ...state,
+        concaves: action.concaves,
+        envelopes: action.envelopes,
+        simplifiedPoints: action.simplifiedPoints,
+        minMaxList: action.minMaxList,
+        pointsClicked: newPointsClicked,
+      };
+      return newState;
     }
-    case MainAction.SET_CONCAVES:
-      return { ...state, concaves: action.concaves };
-    case MainAction.SET_ENVELOPES:
-      return { ...state, envelopes: action.envelopes };
-    case MainAction.SET_MIN_MAX_LIST:
-      return { ...state, minMaxList: action.minMaxList };
     case MainAction.SET_POINTS_CLICKED: {
       const newState = { ...state, pointsClicked: [...action.pointsClicked] };
       return newState;
     }
     case MainAction.SET_SUBMIT_AUTOCONJ:
       return { ...state, submitAutoconj: action.submitAutoconj };
+
+    // Clear data (change order) and reset (change field in form)
+    case MainAction.CLEAR_DATA:
+      return {
+        ...state,
+        coordinates: [],
+        sorted: {},
+        envelope: [],
+        minMax: undefined,
+        concave: undefined,
+        pointClicked: null,
+        legendClicked: null,
+      };
+    case MainAction.RESET:
+      return {
+        ...state,
+        order: 7,
+        coordinates: [],
+        sorted: {},
+        envelope: [],
+        minMax: undefined,
+        concave: undefined,
+        pointClicked: null,
+        legendClicked: null,
+        isSubmit: false,
+        isLoading: false,
+        submitAutoconj: false,
+      };
+
     default:
       return state;
   }

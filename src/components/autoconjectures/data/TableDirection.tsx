@@ -7,10 +7,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
 import MainContext from "../../../store/utils/main_context";
-import Inner from "../../styles_and_settings/Inner";
 import { useContext } from "react";
 
 export interface TableDirectionProps {
@@ -25,7 +25,7 @@ const TableDirection = ({ title, data }: TableDirectionProps) => {
 
   return (
     <Box>
-      <Inner>{title}</Inner>
+      <Typography variant="body1">{title}</Typography>
       <TableContainer component={Paper} sx={{ maxHeight: MAXHEIGHT }}>
         <Table aria-label="simple table">
           <TableHead>
@@ -39,7 +39,7 @@ const TableDirection = ({ title, data }: TableDirectionProps) => {
             {data.map((row, index) =>
               row.map((coordinate) => (
                 <TableRow
-                  key={`${index}-x-${coordinate.x}-y-${coordinate.y}`}
+                  key={`data-${title}-n-${index}-x-${coordinate.x}-y-${coordinate.y}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell
