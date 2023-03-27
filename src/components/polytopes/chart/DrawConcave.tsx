@@ -92,7 +92,6 @@ const DrawConcave = ({
         })}
         {currentIndexOrder !== undefined && (
           <Group>
-            <>{console.log(mainContext.simplifiedPoints)}</>
             {mainContext.simplifiedPoints[currentIndexOrder].map(
               (point: CoordinateAutoconj, i: number) => {
                 return (

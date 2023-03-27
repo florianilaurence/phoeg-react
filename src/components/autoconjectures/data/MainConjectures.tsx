@@ -1,5 +1,11 @@
 import MainContext from "../../../store/utils/main_context";
-import { useContext, useEffect, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import {
   inequality,
   main_func,
@@ -8,6 +14,7 @@ import {
 import { ConcavesRefactoredProps } from "./MyTabs";
 import { Grid, Paper, Typography } from "@mui/material";
 import SubSubTitle from "../../styles_and_settings/SubSubTitle";
+import Loading from "../../Loading";
 
 const allParams = {
   minY: [{ f: searched_f.FX, ineq: inequality.MORE }],
@@ -54,15 +61,31 @@ const initialResultConjectures: ResultConjectures = {
   minXmaxY: "",
 };
 
+enum ConjAction {
+  SET_DATA,
+}
+
 const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
   const mainContext = useContext(MainContext);
-  const [resultConjectures, setResultConjectures] = useState<ResultConjectures>(
+  const [isLoading, setIsLoading] = useState(true);
+
+  const conjReducer = (state: ResultConjectures, action: any) => {
+    switch (action.type) {
+      case ConjAction.SET_DATA:
+        return action.payload;
+      default:
+        return state;
+    }
+  };
+
+  const [stateConj, dispatchConj] = useReducer(
+    conjReducer,
     initialResultConjectures
   );
 
   const keys = Object.keys(initialResultConjectures);
 
-  useEffect(() => {
+  const computeConjectures = async () => {
     const tempResultConjectures: ResultConjectures = {
       ...initialResultConjectures,
     };
@@ -93,8 +116,23 @@ const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
           );
       }
     }
-    setResultConjectures(tempResultConjectures);
-  }, [mainContext.concaves]);
+
+    return tempResultConjectures;
+  };
+
+  useEffect(() => {
+    computeConjectures().then((res) => {
+      dispatchConj({
+        type: ConjAction.SET_DATA,
+        payload: res,
+      });
+      setIsLoading(false);
+    });
+  }, [mainContext.concaves, isLoading]);
+
+  if (isLoading) {
+    return <Loading height={"250px"} />;
+  }
 
   return (
     <Grid container spacing={2}>
@@ -104,7 +142,7 @@ const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
             <Paper>
               <SubSubTitle annex={""}>{key}</SubSubTitle>
               <Typography variant="body1" fontSize={14}>
-                {resultConjectures[key as keyof ResultConjectures]}
+                {stateConj[key as keyof ResultConjectures]}
               </Typography>
             </Paper>
           </Grid>

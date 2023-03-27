@@ -24,9 +24,9 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/system";
 import Title from "../styles_and_settings/Title";
-import Fetch from "./Fetch";
 import MainContext from "../../store/utils/main_context";
 import CalculateIcon from "@mui/icons-material/Calculate";
+import { blueGrey } from "@mui/material/colors";
 
 enum ConstraintTypes {
   NUMBER = "number",
@@ -592,7 +592,11 @@ const Form = ({
                     }}
                   >
                     <Button onClick={handleOpen}>
-                      <Typography variant="body1" fontSize={10}>
+                      <Typography
+                        variant="body1"
+                        fontSize={10}
+                        color={blueGrey[800]}
+                      >
                         Generate automatically
                       </Typography>
                     </Button>
