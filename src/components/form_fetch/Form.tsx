@@ -27,6 +27,8 @@ import Title from "../styles_and_settings/Title";
 import MainContext from "../../store/utils/main_context";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import { blueGrey } from "@mui/material/colors";
+import DoneIcon from "@mui/icons-material/Done";
+import CloseIcon from "@mui/icons-material/Close";
 
 enum ConstraintTypes {
   NUMBER = "number",
@@ -123,8 +125,22 @@ const Form = ({
   const mainContext = useContext(MainContext);
 
   const [openModal, setOpenModal] = useState(false);
-  const handleOpen = () => setOpenModal(true);
-  const handleClose = () => setOpenModal(false);
+  const [previousOrders, setPreviousOrders] = useState(""); // To save previous orders if user cancel
+
+  const handleOpen = () => {
+    setPreviousOrders(stateOrders.field);
+    setOpenModal(true);
+  };
+
+  const handleClose = (isCancel: boolean) => {
+    if (isCancel) {
+      dispatchOrders({
+        type: OrdersAction.FIELD,
+        field: previousOrders,
+      });
+    }
+    setOpenModal(false);
+  };
 
   const [currentId, setCurrentId] = useState(1); // Unique id for each item (not change if add or remove item)
   const [showForm, setShowForm] = useState(true);
@@ -521,6 +537,7 @@ const Form = ({
                 />
               </Paper>
             </Grid>
+            {/* EXCHANGE BUTTON */}
             <Grid item xs={0.3}>
               <Box
                 display="flex"
@@ -603,7 +620,7 @@ const Form = ({
                   </Box>
                   <Modal
                     open={openModal}
-                    onClose={handleClose}
+                    onClose={() => handleClose(true)}
                     aria-labelledby="modal-modal-title"
                     aria-describedby="modal-modal-description"
                   >
@@ -696,6 +713,50 @@ const Form = ({
                           value={stateOrders.field}
                           onChange={handleOrdersField}
                         />
+                      </Box>
+                      <Box
+                        sx={{
+                          m: 1,
+                          display: "flex",
+                          justifyContent: "space-around",
+                        }}
+                      >
+                        <Button
+                          sx={{ m: 1 }}
+                          variant="outlined"
+                          onClick={() => {
+                            handleClose(true);
+                          }}
+                          size="small"
+                          color="warning"
+                          startIcon={<CloseIcon />}
+                        >
+                          <Typography
+                            variant="body1"
+                            fontSize={10}
+                            color={blueGrey[800]}
+                          >
+                            Cancel
+                          </Typography>
+                        </Button>
+                        <Button
+                          sx={{ m: 1 }}
+                          variant="outlined"
+                          onClick={() => {
+                            handleClose(false);
+                          }}
+                          size="small"
+                          color="success"
+                          endIcon={<DoneIcon />}
+                        >
+                          <Typography
+                            variant="body1"
+                            fontSize={10}
+                            color={blueGrey[800]}
+                          >
+                            Valid
+                          </Typography>
+                        </Button>
                       </Box>
                     </Box>
                   </Modal>

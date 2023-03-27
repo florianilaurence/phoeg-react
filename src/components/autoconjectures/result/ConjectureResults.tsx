@@ -1,5 +1,9 @@
+import { useEffect } from "react";
+
 const ConjectureResults = () => {
-  // TODO: Fetch conjecture from server (args = pointsClicked, orders) => get result and display it with Xcas ?
+  useEffect(() => {
+    console.log("ConjectureResults");
+  }, []);
 
   return (
     <div>
