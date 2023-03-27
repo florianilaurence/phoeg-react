@@ -34,6 +34,7 @@ import {
   setPointClicked,
   setPointsClicked,
   setSubmitAutoconj,
+  updateSimplifiedPoints,
 } from "../../store/actions/main_action";
 import Graphs from "../graphs/Graphs";
 import { Box, Typography } from "@mui/material";
@@ -135,6 +136,9 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
             setPointsClicked(pointsClicked, dispatchMainReducer),
           setSubmitAutoconj: (submitAutoconj: boolean) =>
             setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
+          updateSimplifiedPoints: (
+            simplifiedPoints: Array<Array<CoordinateAutoconj>>
+          ) => updateSimplifiedPoints(simplifiedPoints, dispatchMainReducer),
 
           clearData: () => clearData(dispatchMainReducer),
           reset: () => reset(dispatchMainReducer),

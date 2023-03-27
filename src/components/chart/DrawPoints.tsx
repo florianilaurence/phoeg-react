@@ -1,8 +1,8 @@
 import { Group } from "@visx/group";
 import { Circle } from "@visx/shape";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../store/utils/main_context";
 import { useContext } from "react";
-import { Coordinate } from "../../../store/reducers/main_reducer";
+import { Coordinate } from "../../store/reducers/main_reducer";
 
 interface DrawPointsProps {
   xScale: any;

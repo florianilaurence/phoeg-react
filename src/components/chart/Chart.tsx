@@ -5,7 +5,7 @@ import { GridColumns, GridRows } from "@visx/grid";
 import { scaleLinear } from "@visx/scale";
 import DrawConcave from "./DrawConcave";
 import Legend from "./Legend";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../store/utils/main_context";
 import "./Chart.css";
 import { Box } from "@mui/system";
 import DrawEnvelope from "./DrawEnvelope";

@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import { API_URL } from "../../.env";
 import { stringify } from "qs";
 import axios from "axios";
-import { Invariant } from "../polytopes/PolytopesSlider";
+import { Invariant } from "../phoeg_app/PolytopesSlider";
 import MainContext from "../../store/utils/main_context";
 import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
 
@@ -50,6 +50,20 @@ interface FetchProps {
   withConcave?: boolean;
   withOrders?: boolean;
 }
+
+export const containsCoordinate = (
+  array: Array<CoordinateAutoconj>,
+  coord: CoordinateAutoconj
+) => {
+  let res = false;
+  for (let c of array) {
+    if (c.x === coord.x && c.y === coord.y) {
+      res = true;
+      break;
+    }
+  }
+  return res;
+};
 
 const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
   const mainContext = useContext(MainContext);
@@ -161,20 +175,6 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
           };
         })
       );
-  };
-
-  const containsCoordinate = (
-    array: Array<CoordinateAutoconj>,
-    coord: CoordinateAutoconj
-  ) => {
-    let res = false;
-    for (let c of array) {
-      if (c.x === coord.x && c.y === coord.y) {
-        res = true;
-        break;
-      }
-    }
-    return res;
   };
 
   const autoconjUseEffect = () => {

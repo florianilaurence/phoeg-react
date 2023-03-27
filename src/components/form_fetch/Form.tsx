@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useContext, useReducer, useState } from "react";
-import { Invariant } from "../polytopes/PolytopesSlider";
+import { Invariant } from "../phoeg_app/PolytopesSlider";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";

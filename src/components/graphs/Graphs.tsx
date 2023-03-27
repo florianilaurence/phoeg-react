@@ -4,7 +4,7 @@ import { useContext, useEffect, useReducer } from "react";
 import { API_URL } from "../../.env";
 import MainContext from "../../store/utils/main_context";
 import { decodeConstraints, getTablenameFromName } from "../form_fetch/Fetch";
-import { Invariant } from "../polytopes/PolytopesSlider";
+import { Invariant } from "../phoeg_app/PolytopesSlider";
 import SubTitle from "../styles_and_settings/SubTitle";
 import GraphSlider from "./GraphSlider";
 

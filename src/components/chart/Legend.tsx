@@ -10,8 +10,9 @@ import { useContext, useState } from "react";
 import { DirectionColors } from "./DrawConcave";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import MainContext from "../../../store/utils/main_context";
-import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
+import MainContext from "../../store/utils/main_context";
+import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
+import { containsCoordinate } from "../form_fetch/Fetch";
 
 interface LegendProps {
   colorScale: any;
@@ -41,22 +42,32 @@ const Legend = ({
   }
 
   const onClickLegendConcave = (key: string) => {
-    //TODO: FIX THIS :'(
-    const points = mainContext.simplifiedPoints[currentIndexOrder!][key];
-    const selectedDir = mainContext.concaves[currentIndexOrder!][key];
-    const newPointsClickedN: Array<CoordinateAutoconj> = [
-      ...mainContext.pointsClicked[currentIndexOrder!],
-    ];
-    for (let point of selectedDir) {
+    const previousSubPointsClicked =
+      mainContext.pointsClicked[currentIndexOrder!];
+    const concaveSelected = mainContext.concaves[currentIndexOrder!][key];
+
+    for (const point of concaveSelected) {
       if (!point.clicked) {
-        newPointsClickedN.push(point);
+        point.clicked = true;
+        previousSubPointsClicked.push(point);
+      }
+    }
+
+    const previousSimplifiedPoints = mainContext.simplifiedPoints;
+
+    for (const point of previousSimplifiedPoints[currentIndexOrder!]) {
+      if (containsCoordinate(previousSubPointsClicked, point)) {
         point.clicked = true;
       }
     }
-    const newPointsClicked = [...mainContext.pointsClicked];
-    newPointsClicked[currentIndexOrder!].push(...newPointsClickedN);
+
+    mainContext.updateSimplifiedPoints(previousSimplifiedPoints);
+    mainContext.setPointsClicked([
+      ...mainContext.pointsClicked.slice(0, currentIndexOrder!),
+      previousSubPointsClicked,
+      ...mainContext.pointsClicked.slice(currentIndexOrder! + 1),
+    ]);
     mainContext.setSubmitAutoconj(false);
-    mainContext.setPointsClicked(newPointsClicked);
   };
 
   if (

@@ -5,7 +5,7 @@ import Infos from "./components/annex_pages/Infos";
 import Tutorial from "./components/annex_pages/Tutorial";
 import Welcome from "./components/annex_pages/Welcome";
 import AutoconjecturesApp from "./components/autoconjectures/AutoconjecturesApp";
-import PhoegApp from "./components/polytopes/PhoegApp";
+import PhoegApp from "./components/phoeg_app/PhoegApp";
 import AppRoutes from "./routes";
 
 const App = () => {

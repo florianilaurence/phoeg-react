@@ -2,7 +2,7 @@ import YouTube from "react-youtube";
 import Title from "../styles_and_settings/Title";
 import { Box, Typography } from "@mui/material";
 import Frame from "./Frame";
-import { OpenProps } from "../polytopes/PhoegApp";
+import { OpenProps } from "../phoeg_app/PhoegApp";
 
 export default function Tutorial({ isOpenMenu, setIsOpenMenu }: OpenProps) {
   const opts = {

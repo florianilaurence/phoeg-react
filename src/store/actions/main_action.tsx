@@ -28,6 +28,7 @@ export enum MainAction {
   SET_DATA_AUTOCONJ, // set concaves, enveloppes, simplified points and minMax (init points clicked)
   SET_POINTS_CLICKED,
   SET_SUBMIT_AUTOCONJ,
+  UPDATE_SIMPLIFIED_POINTS,
 
   // Common actions for phoeg app and conjecture app --> Clear data (change order) and reset (change field in form)
   CLEAR_DATA,
@@ -169,6 +170,16 @@ export const setSubmitAutoconj = (submitAutoconj: boolean, dispatch: any) => {
   dispatch({
     submitAutoconj: submitAutoconj,
     type: MainAction.SET_SUBMIT_AUTOCONJ,
+  });
+};
+
+export const updateSimplifiedPoints = (
+  simplifiedPoints: Array<Array<CoordinateAutoconj>>,
+  dispatch: any
+) => {
+  dispatch({
+    type: MainAction.UPDATE_SIMPLIFIED_POINTS,
+    simplifiedPoints: simplifiedPoints,
   });
 };
 

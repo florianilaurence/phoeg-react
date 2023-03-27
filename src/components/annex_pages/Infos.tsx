@@ -1,6 +1,6 @@
 import Frame from "./Frame";
 import Title from "../styles_and_settings/Title";
-import { OpenProps } from "../polytopes/PhoegApp";
+import { OpenProps } from "../phoeg_app/PhoegApp";
 import { Typography } from "@mui/material";
 
 const Infos = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {

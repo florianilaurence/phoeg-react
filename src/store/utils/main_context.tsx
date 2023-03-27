@@ -36,6 +36,7 @@ const MainContext = createContext({
   ) => {},
   setPointsClicked: (pointsClicked: CoordinateAutoconj[][]) => {},
   setSubmitAutoconj: (submitAutoconj: boolean) => {},
+  updateSimplifiedPoints: (simplifiedPoints: CoordinateAutoconj[][]) => {},
 
   // For clear data or reset when change field in form
   clearData: () => {},

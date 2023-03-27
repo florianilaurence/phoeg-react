@@ -193,6 +193,11 @@ export const MainReducer = (state: MainState, action: any): MainState => {
     }
     case MainAction.SET_SUBMIT_AUTOCONJ:
       return { ...state, submitAutoconj: action.submitAutoconj };
+    case MainAction.UPDATE_SIMPLIFIED_POINTS: {
+      const newSimplifiedPoints = [...state.simplifiedPoints];
+      newSimplifiedPoints[action.index] = action.simplifiedPoints;
+      return { ...state, simplifiedPoints: newSimplifiedPoints };
+    }
 
     // Clear data (change order) and reset (change field in form)
     case MainAction.CLEAR_DATA:

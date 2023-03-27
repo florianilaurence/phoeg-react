@@ -1,7 +1,7 @@
 import Title from "../styles_and_settings/Title";
 import { Box, Typography } from "@mui/material";
 import Frame from "./Frame";
-import { OpenProps } from "../polytopes/PhoegApp";
+import { OpenProps } from "../phoeg_app/PhoegApp";
 
 const About = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   return (

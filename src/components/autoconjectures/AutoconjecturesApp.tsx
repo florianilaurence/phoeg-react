@@ -18,6 +18,7 @@ import {
   setSubmitAutoconj,
   setDataAutoconj,
   clearData,
+  updateSimplifiedPoints,
 } from "../../store/actions/main_action";
 import {
   ChartData,
@@ -31,8 +32,8 @@ import {
 import MainContext from "../../store/utils/main_context";
 import Frame from "../annex_pages/Frame";
 import Form from "../form_fetch/Form";
-import { fetchInvariants, OpenProps } from "../polytopes/PhoegApp";
-import { Invariant } from "../polytopes/PolytopesSlider";
+import { fetchInvariants, OpenProps } from "../phoeg_app/PhoegApp";
+import { Invariant } from "../phoeg_app/PolytopesSlider";
 import MyTabs from "./data/MyTabs";
 import Loading from "../Loading";
 import ConjectureResults from "./result/ConjectureResults";
@@ -98,6 +99,9 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
             setPointsClicked(pointsClicked, dispatchMainReducer),
           setSubmitAutoconj: (submitAutoconj: boolean) =>
             setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
+          updateSimplifiedPoints: (
+            simplifiedPoints: Array<Array<CoordinateAutoconj>>
+          ) => updateSimplifiedPoints(simplifiedPoints, dispatchMainReducer),
 
           clearData: () => clearData(dispatchMainReducer),
           reset: () => reset(dispatchMainReducer),

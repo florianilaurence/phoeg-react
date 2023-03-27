@@ -4,7 +4,7 @@ import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Loading from "../Loading";
-import Chart from "./chart/Chart";
+import Chart from "../chart/Chart";
 import Title from "../styles_and_settings/Title";
 import {
   blueGrey,
