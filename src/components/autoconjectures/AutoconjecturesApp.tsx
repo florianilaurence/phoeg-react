@@ -15,10 +15,10 @@ import {
   reset,
   setOrders,
   setPointsClicked,
-  setSubmitAutoconj,
   setDataAutoconj,
   clearData,
   updateSimplifiedPoints,
+  setSubmitAutoconj,
 } from "../../store/actions/main_action";
 import {
   ChartData,
@@ -36,12 +36,27 @@ import { fetchInvariants, OpenProps } from "../phoeg_app/PhoegApp";
 import { Invariant } from "../phoeg_app/PolytopesSlider";
 import MyTabs from "./data/MyTabs";
 import Loading from "../Loading";
-import ConjectureResults from "./result/ConjectureResults";
 import Fetch from "../form_fetch/Fetch";
+import ConjectureResults from "./result/ConjectureResults";
+import {
+  ConjReducer,
+  initialConjState,
+} from "../../store/reducers/conj_reducer";
+import ConjContext from "../../store/utils/conj_context";
+import {
+  setActive,
+  setIsFYSearched,
+  setIsMore,
+} from "../../store/actions/conj_action";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   const [invariants, setDataInvariants] = useState<Array<Invariant>>([]);
+
+  const [stateConjReducer, dispatchConjReducer] = useReducer(
+    ConjReducer,
+    initialConjState
+  );
 
   const [stateMainReducer, dispatchMainReducer] = useReducer(
     MainReducer,
@@ -94,11 +109,11 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
               minMaxList,
               dispatchMainReducer
             ),
+          setSubmitAutoconj: (submitAutoconj: boolean) =>
+            setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
 
           setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
             setPointsClicked(pointsClicked, dispatchMainReducer),
-          setSubmitAutoconj: (submitAutoconj: boolean) =>
-            setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
           updateSimplifiedPoints: (
             simplifiedPoints: Array<Array<CoordinateAutoconj>>
           ) => updateSimplifiedPoints(simplifiedPoints, dispatchMainReducer),
@@ -116,13 +131,25 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
         {stateMainReducer.isSubmit && stateMainReducer.isLoading && (
           <Loading height="1000px" />
         )}
+        <ConjContext.Provider
+          value={{
+            ...stateConjReducer,
 
-        {stateMainReducer.isSubmit &&
-          !stateMainReducer.isLoading &&
-          stateMainReducer.concaves.length > 0 &&
-          stateMainReducer.minMaxList.length > 0 && <MyTabs />}
+            setActive: (active: boolean, index: number) =>
+              setActive(active, index, dispatchConjReducer),
+            setIsFYSearched: (isFYSearched: boolean, index: number) =>
+              setIsFYSearched(isFYSearched, index, dispatchConjReducer),
+            setIsMore: (isMore: boolean, index: number) =>
+              setIsMore(isMore, index, dispatchConjReducer),
+          }}
+        >
+          {stateMainReducer.isSubmit &&
+            !stateMainReducer.isLoading &&
+            stateMainReducer.concaves.length > 0 &&
+            stateMainReducer.minMaxList.length > 0 && <MyTabs />}
 
-        {stateMainReducer.submitAutoconj && <ConjectureResults />}
+          {stateMainReducer.submitAutoconj && <ConjectureResults />}
+        </ConjContext.Provider>
       </MainContext.Provider>
     </Frame>
   );

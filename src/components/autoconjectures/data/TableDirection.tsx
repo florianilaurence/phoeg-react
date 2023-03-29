@@ -12,6 +12,7 @@ import {
 import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
 import MainContext from "../../../store/utils/main_context";
 import { useContext } from "react";
+import SubTitle from "../../styles_and_settings/SubTitle";
 
 export interface TableDirectionProps {
   title: string;
@@ -25,7 +26,7 @@ const TableDirection = ({ title, data }: TableDirectionProps) => {
 
   return (
     <Box>
-      <Typography variant="body1">{title}</Typography>
+      <SubTitle> {title} </SubTitle>
       <TableContainer component={Paper} sx={{ maxHeight: MAXHEIGHT }}>
         <Table aria-label="simple table">
           <TableHead>
@@ -39,7 +40,9 @@ const TableDirection = ({ title, data }: TableDirectionProps) => {
             {data.map((row, index) =>
               row.map((coordinate) => (
                 <TableRow
-                  key={`data-${title}-n-${index}-x-${coordinate.x}-y-${coordinate.y}`}
+                  key={`data-${title}-n-${index}-x-${coordinate.x}-y-${
+                    coordinate.y
+                  }-${Math.random()}`}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell
