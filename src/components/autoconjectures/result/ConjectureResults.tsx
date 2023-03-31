@@ -4,6 +4,7 @@ import ConjContext from "../../../store/utils/conj_context";
 import MainContext from "../../../store/utils/main_context";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import { inequality, main_func, searched_f } from "./utils/autoconjectures";
+import MathJax from "react-mathjax";
 
 const ConjectureResults = () => {
   const conjContext = useContext(ConjContext);
@@ -34,6 +35,9 @@ const ConjectureResults = () => {
   return (
     <Box>
       <SubTitle> Your results </SubTitle>
+      <MathJax.Provider>
+        <MathJax.Node formula={res} />
+      </MathJax.Provider>
       <Typography variant="body1" sx={{ mt: 2 }}>
         {res}
       </Typography>

@@ -1,5 +1,6 @@
 import { lagrange, Point } from "./lagrange";
 import Polynomial from "./polynomial";
+import Rational from "./rational";
 
 export enum searched_f {
   FX,
@@ -11,88 +12,88 @@ export enum inequality {
   LESS = "<=",
 }
 
-const compute_main_coefficients = (
-  points: Array<Array<Point>>,
-  orders: Array<number>
-): Array<Array<number>> => {
-  const result: Array<Array<number>> = [];
-  for (let i = 0; i < orders.length; i++) {
+// Compute main coefficients ie f which pass by each points for each order
+export const compute_coefficients = (
+  points: Array<Array<Point>>
+): Array<Array<Rational>> => {
+  const result: Array<Array<Rational>> = [];
+  for (let i = 0; i < points.length; i++) {
     const current_n_points = points[i];
-    if (current_n_points.length === 1) result.push([current_n_points[0].y]);
+    if (current_n_points.length === 1)
+      result.push([Rational.fromNumber(current_n_points[0].y)]);
     else result.push(lagrange(current_n_points).coefficients);
   }
-
   return result;
 };
 
-const convert_coefficients = (
-  main_coefficients: Array<Array<number>>,
+// Convert main coefficients to list of list of points {x: order, y: coefficient | 0}
+export const convert_coefficients = (
+  coeffs: Array<Array<Rational>>,
   orders: Array<number>
 ): Array<Array<Point>> => {
   const result: Array<Array<Point>> = [];
-  const max_num_coeffs =
-    main_coefficients[main_coefficients.length - 1].length - 1;
+  const max_num_coeffs = coeffs[coeffs.length - 1].length - 1;
   for (let coeff_num = 0; coeff_num <= max_num_coeffs; coeff_num++) {
     const current: Array<Point> = [];
 
     for (let i = 0; i < orders.length; i++) {
       const order = orders[i];
-      const current_coeff = main_coefficients[i][coeff_num];
-      current.push({ x: order, y: current_coeff ? current_coeff : 0 });
+      const current_coeff = coeffs[i][coeff_num];
+      current.push({
+        x: order,
+        y: current_coeff ? current_coeff.toNumber() : 0,
+      });
     }
     result.push(current);
   }
   return result;
 };
 
-const compute_secondary_coefficients = (
-  points: Array<Array<Point>>
-): Array<Array<number>> => {
-  const result: Array<Array<number>> = [];
-  for (let i = 0; i < points.length; i++) {
-    const current_points = points[i];
-    if (current_points.length === 1) {
-      result.push([current_points[0].y]);
-    } else {
-      result.push(lagrange(current_points).coefficients);
-    }
+export const get_longer = (coeffs: Array<Array<Rational>>): Array<Rational> => {
+  let result: Array<Rational> = coeffs[0];
+  for (let i = 1; i < coeffs.length; i++) {
+    if (coeffs[i].length > result.length) result = coeffs[i];
   }
   return result;
 };
 
-const construct_conjecture = (
-  main_coefficients: Array<Array<number>>,
-  secondary_coefficients: Array<Array<number>>,
+// Construct all conjectures from main and secondary coefficients
+export const construct_conjecture = (
+  main_coefficients: Array<Array<Rational>>,
+  secondary_coefficients: Array<Array<Rational>>,
   f: searched_f,
   ineq: inequality
 ): string => {
   const order_pols: Array<string> = [];
   for (let order_coeff of secondary_coefficients) {
-    const temp_pol = new Polynomial(order_coeff, order_coeff.length - 1);
-    order_pols.push(temp_pol.string_replace_x("n"));
+    const temp_pol = new Polynomial(order_coeff);
+    order_pols.push(temp_pol.toString("n"));
   }
-  const main_coeff = main_coefficients[main_coefficients.length - 1];
-  const temp_pol = new Polynomial(main_coeff, main_coeff.length - 1);
+
+  const main_coeff = get_longer(main_coefficients); // Get the longest list of coefficients
+  const temp_pol = new Polynomial(main_coeff);
+
   let res: string = f === searched_f.FY ? "x " : "y ";
   res += ineq === inequality.LESS ? "<= " : ">= ";
-  res += temp_pol.string_replace_coeff(
-    order_pols,
-    f === searched_f.FY ? "y" : "x"
+  res += temp_pol.toStringReplaceCoeffs(
+    f === searched_f.FY ? "y" : "x",
+    order_pols
   );
+
   return res;
 };
 
+// Main function called from outside
 export const main_func = (
   points: Array<Array<Point>>,
   orders: Array<number>,
   f: searched_f,
   ineq: inequality
 ): string => {
-  //TODO: change to ERROR
   if (points.length !== orders.length)
     return "not correct, because lists not same length";
 
-  let main_coefficients: Array<Array<number>>;
+  let main_coefficients: Array<Array<Rational>>;
   if (f === searched_f.FY) {
     const new_points: Array<Array<Point>> = [];
     //Exchange x and y in points (search x in function of y)
@@ -104,12 +105,14 @@ export const main_func = (
       });
       new_points.push(temp_points);
     });
-    main_coefficients = compute_main_coefficients(new_points, orders);
+    main_coefficients = compute_coefficients(new_points);
   } else {
-    main_coefficients = compute_main_coefficients(points, orders);
+    main_coefficients = compute_coefficients(points);
   }
+
   const converted = convert_coefficients(main_coefficients, orders);
-  const secondary_coefficients = compute_secondary_coefficients(converted);
+  const secondary_coefficients = compute_coefficients(converted);
+
   return construct_conjecture(
     main_coefficients,
     secondary_coefficients,

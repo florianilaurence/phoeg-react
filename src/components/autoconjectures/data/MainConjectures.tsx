@@ -16,7 +16,7 @@ import { Grid, Paper, Typography } from "@mui/material";
 import SubSubTitle from "../../styles_and_settings/SubSubTitle";
 import Loading from "../../Loading";
 
-const allParams = {
+export const allParams = {
   minY: [{ f: searched_f.FX, ineq: inequality.MORE }],
   minXminY: [
     { f: searched_f.FX, ineq: inequality.MORE },

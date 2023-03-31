@@ -1,137 +1,156 @@
-export default class Polynomial {
-  constructor(readonly coefficients: number[], readonly degree: number) {}
+import Rational from "./rational";
 
-  evaluate(x: number): number {
-    let result = 0;
-    for (let i = 0; i <= this.degree; i++) {
-      result += this.coefficients[i] * Math.pow(x, i);
+export default class Polynomial {
+  // [x^0, x^1, x^2, ..., x^degree]
+  constructor(readonly coefficients: Rational[]) {}
+
+  toString(xVar: string): string {
+    const temp: Array<string> = [];
+    for (let i = 0; i < this.coefficients.length; i++) {
+      temp.push(this.constructVar(this.coefficients[i], xVar, i));
+    }
+    let result = "";
+    for (let i = temp.length - 1; i >= 0; i--) {
+      if (i === temp.length - 1 && temp[i].charAt(0) === "+") {
+        result += temp[i].substring(1);
+      } else {
+        result += temp[i];
+      }
+    }
+
+    return result;
+  }
+
+  toStringReplaceCoeffs(xVar: string, coeffs: Array<string>): string {
+    const temp: Array<string> = [];
+    for (let i = 0; i < this.coefficients.length; i++) {
+      temp.push(this.constructVar(coeffs[i], xVar, i));
+    }
+    let result = "";
+    for (let i = temp.length - 1; i >= 0; i--) {
+      if (i === temp.length - 1 && temp[i].charAt(0) === "+") {
+        result += temp[i].substring(1);
+      } else {
+        result += temp[i];
+      }
+    }
+
+    for (let i = 0; i < coeffs.length; i++) {
+      result = result.replace("x^" + i, coeffs[i]);
+    }
+
+    return result;
+  }
+
+  constructVar(coeff: Rational | string, xVar: string, degree: number): string {
+    if (typeof coeff === "string") {
+      if (degree === 0) {
+        return "+(" + coeff + ")";
+      } else if (degree === 1) {
+        return "+(" + coeff + ")" + xVar;
+      } else {
+        return "+(" + coeff + ")" + xVar + "^" + degree;
+      }
+    }
+    const c = coeff.toNumber();
+    if (c === 0) {
+      return "";
+    } else if (c === 1) {
+      if (degree === 0) {
+        return "+1";
+      } else if (degree === 1) {
+        return "+" + xVar;
+      } else {
+        return "+" + xVar + "^" + degree;
+      }
+    } else if (c === -1) {
+      if (degree === 0) {
+        return "-1";
+      } else if (degree === 1) {
+        return "-" + xVar;
+      } else {
+        return "-" + xVar + "^" + degree;
+      }
+    } else if (c > 0) {
+      if (degree === 0) {
+        return "+" + coeff.toString();
+      } else if (degree === 1) {
+        return "+" + coeff.toString() + xVar;
+      } else {
+        return "+" + coeff.toString() + xVar + "^" + degree;
+      }
+    } else {
+      // c < 0
+      if (degree === 0) {
+        return coeff.toString();
+      } else if (degree === 1) {
+        return coeff.toString() + xVar;
+      } else {
+        return coeff.toString() + xVar + "^" + degree;
+      }
+    }
+  }
+
+  evaluate(x: Rational): Rational {
+    let result = new Rational(0, 1);
+    for (let i = 0; i < this.coefficients.length; i++) {
+      result = result.addRational(
+        this.coefficients[i].multiplyRational(x.powNumber(i))
+      );
     }
     return result;
   }
 
   addPolynomial(p: Polynomial): Polynomial {
-    const newCoefficients: Array<number> = [];
-    const newDegree = Math.max(this.degree, p.degree);
-    for (let i = 0; i <= newDegree; i++) {
-      newCoefficients[i] =
-        (this.coefficients[i] || 0) + (p.coefficients[i] || 0);
+    const new_coeffs: Array<Rational> = [];
+    const new_degree = Math.max(
+      this.coefficients.length,
+      p.coefficients.length
+    );
+    for (let i = 0; i < new_degree; i++) {
+      if (i < this.coefficients.length && i < p.coefficients.length) {
+        new_coeffs.push(this.coefficients[i].addRational(p.coefficients[i]));
+      } else if (i < this.coefficients.length) {
+        new_coeffs.push(this.coefficients[i]);
+      } else {
+        new_coeffs.push(p.coefficients[i]);
+      }
     }
-    return new Polynomial(newCoefficients, newDegree);
+    return new Polynomial(new_coeffs);
   }
 
   multiplyPolynomial(p: Polynomial): Polynomial {
-    if (this.coefficients.length === 0) return p;
-
-    if (p.coefficients.length === 0) return this;
-    const prod: Array<number> = [];
-    const n = this.degree;
-    const m = p.degree;
-    for (let i = 0; i <= n + m; i++) prod[i] = 0;
-    for (let i = 0; i <= m; i++) {
-      for (let j = 0; j <= n; j++)
-        prod[i + j] += p.coefficients[i] * this.coefficients[j];
+    const new_coeffs: Array<Rational> = [];
+    const new_degree = this.coefficients.length + p.coefficients.length - 1;
+    for (let i = 0; i < new_degree; i++) {
+      new_coeffs.push(new Rational(0, 1));
     }
-    return new Polynomial(prod, n + m);
+    for (let i = 0; i < this.coefficients.length; i++) {
+      for (let j = 0; j < p.coefficients.length; j++) {
+        new_coeffs[i + j] = new_coeffs[i + j].addRational(
+          this.coefficients[i].multiplyRational(p.coefficients[j])
+        );
+      }
+    }
+    return new Polynomial(new_coeffs);
   }
 
-  divideNumber(n: number): Polynomial {
-    const new_coeffs: Array<number> = [];
-    for (let i = 0; i <= this.degree; i++) {
-      new_coeffs.push(this.coefficients[i] / n);
+  divideRational(n: Rational): Polynomial {
+    const new_coeffs: Array<Rational> = [];
+    for (let i = 0; i < this.coefficients.length; i++) {
+      new_coeffs.push(this.coefficients[i].divideRational(n));
     }
-    return new Polynomial(new_coeffs, this.degree);
+    return new Polynomial(new_coeffs);
   }
 
   simplify(): Polynomial {
-    let new_coeffs: Array<number> = [];
-    for (let coeff of this.coefficients) {
-      new_coeffs.push(Math.round(coeff * 100) / 100);
+    const new_coeffs: Array<Rational> = [...this.coefficients];
+    for (let i = this.coefficients.length - 1; i >= 0; i--) {
+      if (this.coefficients[i].toNumber() !== 0) {
+        break;
+      }
+      new_coeffs.pop();
     }
-    for (let i = new_coeffs.length - 1; i >= 0; i--) {
-      const coeff = new_coeffs[i];
-      if (coeff === 0) new_coeffs = new_coeffs.slice(0, i);
-      else break;
-    }
-    const res = new Polynomial(new_coeffs, new_coeffs.length - 1);
-    return res;
-  }
-
-  toString(): string {
-    if (this.coefficients.length === 0) return "";
-    let degree = this.degree;
-    let result = "";
-    result +=
-      this.coefficients[degree] === 1
-        ? this.x_factor("x", degree)
-        : this.coefficients[degree] + this.x_factor("x", degree);
-    degree -= 1;
-
-    while (degree > 0) {
-      let coeff = this.coefficients[degree];
-      if (coeff > 1) result += " + " + coeff + this.x_factor("x", degree);
-      else if (coeff === 1) result += " + " + this.x_factor("x", degree);
-      else if (coeff < 0)
-        result += " - " + Math.abs(coeff) + this.x_factor("x", degree);
-      degree -= 1;
-    }
-
-    if (degree === 0) {
-      result +=
-        this.coefficients[degree] > 0
-          ? " + " + this.coefficients[degree]
-          : " - " + Math.abs(this.coefficients[degree]);
-    }
-
-    return result;
-  }
-
-  string_replace_x(x_var: string): string {
-    if (this.coefficients.length === 0) return "";
-    let degree = this.degree;
-    let result = "";
-    result +=
-      this.coefficients[degree] === 1 && degree === 0
-        ? 1
-        : this.coefficients[degree] === 1
-        ? this.x_factor(x_var, degree)
-        : this.coefficients[degree] + this.x_factor(x_var, degree);
-    degree -= 1;
-
-    while (degree > 0) {
-      let coeff = this.coefficients[degree];
-      if (coeff > 1) result += " + " + coeff + this.x_factor(x_var, degree);
-      else if (coeff === 1) result += " + " + this.x_factor(x_var, degree);
-      else if (coeff < 0)
-        result += " - " + Math.abs(coeff) + this.x_factor(x_var, degree);
-      degree -= 1;
-    }
-
-    if (degree === 0) {
-      result +=
-        this.coefficients[degree] > 0
-          ? " + " + this.coefficients[degree]
-          : " - " + Math.abs(this.coefficients[degree]);
-    }
-
-    return result;
-  }
-
-  string_replace_coeff(coeffs: Array<string>, var_name: string): string {
-    if (coeffs.length === 0) return "";
-    let degree = this.degree;
-    let result = "";
-    while (degree >= 0) {
-      let coeff = coeffs[degree];
-      result += degree === this.degree ? "" : " + ";
-      result += "(" + coeff + ") " + this.x_factor(var_name, degree);
-      degree -= 1;
-    }
-    return result;
-  }
-
-  x_factor(x_var: string, degree: number): string {
-    if (degree === 0) return "";
-    else if (degree === 1) return x_var;
-    else return x_var + "^" + degree;
+    return new Polynomial(new_coeffs);
   }
 }
