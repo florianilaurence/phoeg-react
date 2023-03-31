@@ -84,6 +84,88 @@ const points1 = [
 
 const orders1 = [3, 4, 5, 6, 7, 8, 9];
 
+const points1_mixed = [
+  [
+    // order 9
+    {
+      x: 2,
+      y: 8,
+    },
+    {
+      x: 1,
+      y: 36,
+    },
+  ],
+  [
+    // order 5
+    {
+      x: 2,
+      y: 4,
+    },
+    {
+      x: 1,
+      y: 10,
+    },
+  ],
+  [
+    // order 4
+    {
+      x: 2,
+      y: 3,
+    },
+    {
+      x: 1,
+      y: 6,
+    },
+  ],
+  [
+    // order 8
+    {
+      x: 2,
+      y: 7,
+    },
+    {
+      x: 1,
+      y: 28,
+    },
+  ],
+  [
+    // order 7
+    {
+      x: 2,
+      y: 6,
+    },
+    {
+      x: 1,
+      y: 21,
+    },
+  ],
+  [
+    // order 3
+    {
+      x: 2,
+      y: 2,
+    },
+    {
+      x: 1,
+      y: 3,
+    },
+  ],
+  [
+    // order 6
+    {
+      x: 2,
+      y: 5,
+    },
+    {
+      x: 1,
+      y: 15,
+    },
+  ],
+];
+
+const orders1_mixed = [9, 5, 4, 8, 7, 3, 6];
+
 const main_coefficients1 = [
   [Rational.fromNumber(4), Rational.fromNumber(-1)],
   [Rational.fromNumber(9), Rational.fromNumber(-3)],
@@ -275,4 +357,12 @@ test("main_func", () => {
 
   const result3 = main_func(points3, orders2, searched_f.FY, inequality.LESS); // With odd orders
   expect(result3).toBe("x <= (n-1)");
+
+  const result1_mixed = main_func(
+    points1_mixed,
+    orders1_mixed,
+    searched_f.FX,
+    inequality.MORE
+  );
+  expect(result1_mixed).toBe(result1);
 });
