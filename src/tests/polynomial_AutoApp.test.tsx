@@ -15,8 +15,8 @@ const pol4 = new Polynomial([ratN1, rat1]);
 const pol5 = new Polynomial([rat0, rat1]);
 
 test("toString", () => {
-  expect(pol1.toString("x")).toBe("-2x^4+2x^2-x+3");
-  expect(pol2.toString("x")).toBe("3x^2-x-2");
+  expect(pol1.toString("x")).toBe("-2x^{4}+2x^{2}-x+3");
+  expect(pol2.toString("x")).toBe("3x^{2}-x-2");
   expect(pol5.toString("x")).toBe("x");
 });
 
@@ -28,19 +28,19 @@ test("evaluate", () => {
 });
 
 test("addPolynomial", () => {
-  expect(pol1.addPolynomial(pol2).toString("x")).toBe("-2x^4+5x^2-2x+1");
+  expect(pol1.addPolynomial(pol2).toString("x")).toBe("-2x^{4}+5x^{2}-2x+1");
 });
 
 test("multiplyPolynomial", () => {
-  expect(pol3.multiplyPolynomial(pol4).toString("x")).toBe("x^2-1");
+  expect(pol3.multiplyPolynomial(pol4).toString("x")).toBe("x^{2}-1");
   expect(pol1.multiplyPolynomial(pol4).toString("x")).toBe(
-    "-2x^5+2x^4+2x^3-3x^2+4x-3"
+    "-2x^{5}+2x^{4}+2x^{3}-3x^{2}+4x-3"
   );
-  expect(pol5.multiplyPolynomial(pol4).toString("x")).toBe("x^2-x");
+  expect(pol5.multiplyPolynomial(pol4).toString("x")).toBe("x^{2}-x");
 });
 
 test("divideRational", () => {
-  expect(pol1.divideRational(rat2).toString("x")).toBe("-x^4+x^2-1/2x+3/2");
+  expect(pol1.divideRational(rat2).toString("x")).toBe("-x^{4}+x^{2}-1/2x+3/2");
 });
 
 test("toStringReplaceCoeffs", () => {

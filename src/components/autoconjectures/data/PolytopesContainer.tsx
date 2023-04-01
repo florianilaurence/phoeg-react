@@ -44,12 +44,21 @@ const PolytopesContainer = () => {
   const clearAllPointsClicked = () => {
     const previousSimplifiedPoints = mainContext.simplifiedPoints;
     const previousPointsClicked = mainContext.pointsClicked;
+    const previousConcaves = mainContext.concaves;
 
-    for (let i = 0; i < mainContext.concaves.length; i++) {
+    for (let i = 0; i < previousConcaves.length; i++) {
       const previousSubPointsClicked = previousPointsClicked[i];
 
       for (const point of previousSimplifiedPoints[i]) {
         point.clicked = false;
+      }
+
+      for (const key of keys) {
+        const concaveSelected = previousConcaves[i][key];
+
+        for (const point of concaveSelected) {
+          point.clicked = false;
+        }
       }
 
       previousSubPointsClicked.length = 0;

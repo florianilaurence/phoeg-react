@@ -1,46 +1,71 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
 import ConjContext from "../../../store/utils/conj_context";
 import MainContext from "../../../store/utils/main_context";
 import SubTitle from "../../styles_and_settings/SubTitle";
-import { inequality, main_func, searched_f } from "./utils/autoconjectures";
-import MathJax from "react-mathjax";
+import {
+  inequality,
+  inequality_latex,
+  main_func,
+  searched_f,
+} from "./utils/autoconjectures";
+import RenderOneConjecture from "./RenderOneConjecture";
+import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
 
 const ConjectureResults = () => {
   const conjContext = useContext(ConjContext);
   const mainContext = useContext(MainContext);
-  const [res, setRes] = useState<null | string>(null);
+  const [res, setRes] = useState<Array<string>>([]);
 
   useEffect(() => {
-    let temp = "";
+    let temp: Array<string> = [];
     if (conjContext.Fs[0].active) {
-      temp += computeConjecture(0);
-    }
-    if (conjContext.Fs[0].active && conjContext.Fs[1].active) {
-      temp += " ╳ ";
+      temp.push(computeConjecture(0));
     }
     if (conjContext.Fs[1].active) {
-      temp += computeConjecture(1);
+      temp.push(computeConjecture(1));
     }
     setRes(temp);
-  }, []);
+  }, [mainContext.submitAutoconj]);
 
   const computeConjecture = (i: number) => {
     const f = conjContext.Fs[i].isFYSearched ? searched_f.FY : searched_f.FX;
-    const ineq = conjContext.Fs[i].isMore ? inequality.MORE : inequality.LESS;
+    const ineq = conjContext.Fs[i].isMore
+      ? inequality_latex.MORE
+      : inequality_latex.LESS;
+    const { newOrders, newPointsClicked } = simplifyListWithoutSelectedPoint(
+      mainContext.orders,
+      mainContext.pointsClicked
+    );
 
-    return main_func(mainContext.pointsClicked, mainContext.orders, f, ineq);
+    return main_func(newPointsClicked, newOrders, f, ineq, true);
+  };
+
+  const simplifyListWithoutSelectedPoint = (
+    orders: Array<number>,
+    pointsClicked: Array<Array<CoordinateAutoconj>>
+  ) => {
+    const resOrders: Array<number> = [];
+    const resPoints: Array<Array<CoordinateAutoconj>> = [];
+
+    for (let i = 0; i < orders.length; i++) {
+      if (pointsClicked[i].length > 0) {
+        resOrders.push(orders[i]);
+        resPoints.push(pointsClicked[i]);
+      }
+    }
+
+    return { newOrders: resOrders, newPointsClicked: resPoints };
   };
 
   return (
     <Box>
-      <SubTitle> Your results </SubTitle>
-      <MathJax.Provider>
-        <MathJax.Node formula={res} />
-      </MathJax.Provider>
-      <Typography variant="body1" sx={{ mt: 2 }}>
-        {res}
-      </Typography>
+      <SubTitle> Your result{res.length < 2 ? "" : "s"} </SubTitle>
+      {res.map((conj) => (
+        <div key={conj}>
+          <RenderOneConjecture conjecture={conj} />
+        </div>
+      ))}
     </Box>
   );
 };

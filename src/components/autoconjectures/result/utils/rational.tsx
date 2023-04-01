@@ -4,6 +4,9 @@ export default class Rational {
 
   constructor(numerator: number, denominator: number) {
     if (denominator === 0) throw new Error("Denominator cannot be 0");
+    if (Number.isNaN(numerator) || Number.isNaN(denominator)) {
+      throw new Error("Numerator and denominator cannot be NaN");
+    }
     if (denominator < 0) {
       numerator = -numerator;
       denominator = -denominator;
@@ -32,19 +35,21 @@ export default class Rational {
     return new Rational(new_numerator, new_denominator);
   }
 
+  static gcd = (a: number, b: number): number => {
+    if (!Number.isInteger(a) || !Number.isInteger(b)) {
+      throw new Error(`a=${a} and b=${b} must be integers`);
+    }
+    if (b === 0) return a;
+    return Rational.gcd(b, a % b);
+  };
+
   simplify(): void {
-    const gcd = (a: number, b: number): number => {
-      if (b === 0) return a;
-      return gcd(b, a % b);
-    };
-    const g = gcd(Math.abs(this.numerator), Math.abs(this.denominator));
+    const g = Rational.gcd(
+      Math.abs(this.numerator),
+      Math.abs(this.denominator)
+    );
     this.numerator = this.numerator / g;
     this.denominator = this.denominator / g;
-  }
-
-  toString(): string {
-    if (this.denominator === 1) return this.numerator.toString();
-    return `${this.numerator}/${this.denominator}`;
   }
 
   toNumber(): number {
@@ -58,6 +63,22 @@ export default class Rational {
   }
 
   static fromNumber(n: number): Rational {
-    return new Rational(n, 1);
+    if (Number.isInteger(n)) return new Rational(n, 1);
+    const s = n.toString();
+    const decimal = s.indexOf(".");
+    const len = s.length - decimal - 1;
+    const denominator = Math.pow(10, len);
+    const numerator = Math.round(n * denominator);
+    return new Rational(numerator, denominator);
+  }
+
+  negate(): Rational {
+    return new Rational(-this.numerator, this.denominator);
+  }
+
+  toString(inLatex: boolean = false): string {
+    if (this.denominator === 1) return this.numerator.toString();
+    if (inLatex) return `\\frac{${this.numerator}}{${this.denominator}}`;
+    return `${this.numerator}/${this.denominator}`;
   }
 }

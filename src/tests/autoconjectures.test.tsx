@@ -2,6 +2,7 @@ import {
   compute_coefficients,
   construct_conjecture,
   convert_coefficients,
+  convert_to_rationals,
   get_longer,
   inequality,
   main_func,
@@ -312,18 +313,88 @@ const points3 = [
   ],
 ];
 
+const rational_points3 = [
+  [
+    // order 3
+    {
+      x: Rational.fromNumber(2),
+      y: Rational.fromNumber(2),
+    },
+  ],
+  [
+    // order 5
+    {
+      x: Rational.fromNumber(4),
+      y: Rational.fromNumber(4),
+    },
+  ],
+  [
+    // order 7
+    {
+      x: Rational.fromNumber(6),
+      y: Rational.fromNumber(6),
+    },
+  ],
+  [
+    // order 9
+    {
+      x: Rational.fromNumber(8),
+      y: Rational.fromNumber(8),
+    },
+  ],
+];
+
+const pFloat1 = { x: 3.6, y: 2.4 };
+const pFloat2 = { x: 4.36, y: 1.64 };
+const pFloat3 = { x: 5.436, y: 0.0564 };
+const pFloat4 = { x: 5.7436, y: 0.7436 };
+
+const psFloat = [[pFloat1, pFloat2, pFloat3, pFloat4]];
+
+test("convert_to_rationals", () => {
+  const result = convert_to_rationals(points3);
+  expect(result).toEqual(rational_points3);
+});
+
+test("convert_to_rationals_with_float", () => {
+  const result = convert_to_rationals(psFloat);
+  const expected = [
+    [
+      {
+        x: new Rational(18, 5), // 3.6
+        y: new Rational(12, 5), // 2.4
+      },
+      {
+        x: new Rational(109, 25), // 4.36
+        y: new Rational(41, 25), // 1.64
+      },
+      {
+        x: new Rational(1359, 250), // 5.436
+        y: new Rational(141, 2500), // 0.0564
+      },
+      {
+        x: new Rational(14359, 2500), // 5.7436
+        y: new Rational(1859, 2500), // 0.7436
+      },
+    ],
+  ];
+  expect(result).toEqual(expected);
+});
+
 test("compute_main_coefficients", () => {
-  const result = compute_coefficients(points1);
+  const result = compute_coefficients(convert_to_rationals(points1));
   expect(result).toEqual(main_coefficients1);
 });
 
 test("convert_main_coefficients", () => {
   const result = convert_coefficients(main_coefficients1, orders1);
-  expect(result).toEqual(converted_coefficients1);
+  expect(result).toEqual(convert_to_rationals(converted_coefficients1));
 });
 
 test("compute_secondary_coefficients", () => {
-  const result = compute_coefficients(converted_coefficients1);
+  const result = compute_coefficients(
+    convert_to_rationals(converted_coefficients1)
+  );
   expect(result).toEqual(secondary_coefficients1);
 });
 
@@ -343,14 +414,15 @@ test("construct_conjecture", () => {
     main_coefficients1,
     secondary_coefficients1,
     searched_f.FX,
-    inequality.MORE
+    inequality.MORE,
+    false
   );
-  expect(result).toBe("y >= (-1/2n^2+3/2n-1)x+(n^2-2n+1)");
+  expect(result).toBe("y >= (-1/2n^{2}+3/2n-1)x+(n^{2}-2n+1)");
 });
 
 test("main_func", () => {
   const result1 = main_func(points1, orders1, searched_f.FX, inequality.MORE);
-  expect(result1).toBe("y >= (-1/2n^2+3/2n-1)x+(n^2-2n+1)");
+  expect(result1).toBe("y >= (-1/2n^{2}+3/2n-1)x+(n^{2}-2n+1)");
 
   const result2 = main_func(points2, orders2, searched_f.FY, inequality.LESS); // ERROR
   expect(result2).toBe("not correct, because lists not same length");

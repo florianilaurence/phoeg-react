@@ -7,7 +7,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
 import MainContext from "../../../store/utils/main_context";

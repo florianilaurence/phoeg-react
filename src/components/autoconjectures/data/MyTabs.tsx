@@ -4,7 +4,6 @@ import {
   Checkbox,
   List,
   ListItem,
-  ListItemIcon,
   Switch,
   Tooltip,
   Typography,
@@ -22,7 +21,6 @@ import {
   CoordinateAutoconj,
 } from "../../../store/reducers/main_reducer";
 import ConjContext from "../../../store/utils/conj_context";
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import { blueGrey } from "@mui/material/colors";
 
 export interface ConcavesRefactoredProps {
@@ -121,8 +119,22 @@ const MyTabs = () => {
     setValue(newValue);
   };
 
-  const handleSubmit = () => {
+  const handleSubmitAutoconj = () => {
+    if (!minimumOneClicked()) {
+      alert("Please select at least one point");
+      return;
+    }
     mainContext.setSubmitAutoconj(true);
+  };
+
+  const minimumOneClicked = () => {
+    let res = false;
+    mainContext.pointsClicked.forEach((points) => {
+      if (points.length > 0) {
+        res = true;
+      }
+    });
+    return res;
   };
 
   const renderALine = (i: number) => {
@@ -211,7 +223,7 @@ const MyTabs = () => {
                 variant="contained"
                 color="success"
                 endIcon={<SendTimeExtensionIcon />}
-                onClick={handleSubmit}
+                onClick={handleSubmitAutoconj}
                 sx={{ height: 40 }}
               >
                 Autoconjectures
