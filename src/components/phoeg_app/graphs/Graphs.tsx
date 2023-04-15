@@ -1,12 +1,16 @@
 import { Box, Grid, Slider, Typography } from "@mui/material";
 import axios from "axios";
 import { useContext, useEffect, useReducer } from "react";
-import { API_URL } from "../../.env";
-import MainContext from "../../store/utils/main_context";
-import { decodeConstraints, getTablenameFromName } from "../form_fetch/Fetch";
-import { Invariant } from "../phoeg_app/PolytopesSlider";
-import SubTitle from "../styles_and_settings/SubTitle";
+import { API_URL } from "../../../.env";
+import MainContext from "../../../store/utils/main_context";
+import {
+  decodeConstraints,
+  getTablenameFromName,
+} from "../../form_fetch/Fetch";
+import { Invariant } from "../PolytopesSlider";
+import SubTitle from "../../styles_and_settings/SubTitle";
 import GraphSlider from "./GraphSlider";
+import { stringify } from "querystring";
 
 interface Graphs {
   list: Array<string>;
@@ -91,7 +95,18 @@ export const Graphs = ({ invariants }: GraphsProps) => {
   useEffect(() => {
     let graphs_request = new URL(`${API_URL}/graphs`);
 
-    const constraints = decodeConstraints(mainContext.constraints).toString();
+    const constraints = decodeConstraints(mainContext.constraints);
+    if (
+      mainContext.labelColor !== "" &&
+      mainContext.labelColor !== "Multiplicity"
+    ) {
+      constraints.push({
+        name: getTablenameFromName(mainContext.labelColor, invariants),
+        minimum_bound: mainContext.pointClicked!.colors[0].toString(),
+        maximum_bound: mainContext.pointClicked!.colors[0].toString(),
+      });
+    }
+
     const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
     const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
 
@@ -101,21 +116,27 @@ export const Graphs = ({ invariants }: GraphsProps) => {
     // Filter for specific invariant values
     graphs_request.searchParams.append(
       "invariants[0][value]",
-      mainContext.pointClicked?.x.toString() || ""
+      mainContext.pointClicked!.x.toString() || ""
     );
     graphs_request.searchParams.append(
       "invariants[1][value]",
-      mainContext.pointClicked?.y.toString() || ""
+      mainContext.pointClicked!.y.toString() || ""
     );
 
-    if (constraints !== "")
-      graphs_request.searchParams.append("constraints", constraints);
-    // graphs_request =
-    //   graphs_request.toString() +
-    //   "&" +
-    //   stringify({
-    //     constraints: context.constraints,
-    //   });
+    constraints.forEach((constraint, i) => {
+      graphs_request.searchParams.append(
+        "constraints[" + i + "][name]",
+        constraint.name
+      );
+      graphs_request.searchParams.append(
+        "constraints[" + i + "][minimum_bound]",
+        constraint.minimum_bound
+      );
+      graphs_request.searchParams.append(
+        "constraints[" + i + "][maximum_bound]",
+        constraint.maximum_bound
+      );
+    });
 
     const advancedConstraints = {
       query: mainContext.advancedConstraints,

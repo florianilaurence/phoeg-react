@@ -37,7 +37,7 @@ import {
   setSubmitAutoconj,
   updateSimplifiedPoints,
 } from "../../store/actions/main_action";
-import Graphs from "../graphs/Graphs";
+import Graphs from "./graphs/Graphs";
 import { Box, Typography } from "@mui/material";
 import Fetch from "../form_fetch/Fetch";
 

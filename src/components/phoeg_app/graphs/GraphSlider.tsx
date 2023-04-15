@@ -3,7 +3,7 @@ import { blueGrey } from "@mui/material/colors";
 import { useState } from "react";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import SubSubTitle from "../styles_and_settings/SubSubTitle";
+import SubSubTitle from "../../styles_and_settings/SubSubTitle";
 import NewGraph from "./NewGraph";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 

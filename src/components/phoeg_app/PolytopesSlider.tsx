@@ -6,13 +6,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Loading from "../Loading";
 import Chart from "../chart/Chart";
 import Title from "../styles_and_settings/Title";
-import {
-  blueGrey,
-  deepOrange,
-  green,
-  grey,
-  orange,
-} from "@mui/material/colors";
+import { deepOrange, green, grey, orange } from "@mui/material/colors";
 import SubTitle from "../styles_and_settings/SubTitle";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 import MainContext from "../../store/utils/main_context";

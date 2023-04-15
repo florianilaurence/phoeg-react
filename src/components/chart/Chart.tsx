@@ -10,7 +10,8 @@ import "./Chart.css";
 import { Box } from "@mui/system";
 import DrawEnvelope from "./DrawEnvelope";
 import DrawPoints from "./DrawPoints";
-import { Typography } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
@@ -148,11 +149,39 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
           )}
         </Group>
       </svg>
+      <Box sx={{ height: "17px", width: "100%" }}>
+        <Typography fontSize={12} align="right">
+          {tooltipData}
+        </Typography>
+      </Box>
       <Legend
         colorScale={colorScale}
         withConcave={withConcave}
         currentIndexOrder={currentIndexOrder}
       />
+      {mainContext.pointClicked && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            mt: 1,
+          }}
+        >
+          <Typography fontSize={14} fontStyle="italic" align="center">
+            Clicked point: x = {mainContext.pointClicked.x}, y =
+            {mainContext.pointClicked.y}, color =
+            {mainContext.pointClicked.colors[0]}, multiplicity =
+            {mainContext.pointClicked.mults[0]}
+          </Typography>
+          <IconButton
+            onClick={() => mainContext.setPointClicked(null)}
+            size="small"
+            color="success"
+          >
+            <ClearIcon />
+          </IconButton>
+        </Box>
+      )}
     </>
   );
 };

@@ -21,7 +21,7 @@ import {
   parseToBits,
   constructEdges,
   constructComplementEdges,
-} from "../../core/ParseSignature";
+} from "../../../core/ParseSignature";
 
 const computeNodesEdges = (sign: string) => {
   const resNodes = new Array<Node>();
