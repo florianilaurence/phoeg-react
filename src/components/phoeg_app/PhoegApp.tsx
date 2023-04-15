@@ -11,6 +11,7 @@ import {
   Concave,
   Coordinate,
   CoordinateAutoconj,
+  CoordinateGrouped,
   initialMainState,
   MainReducer,
   MinMax,
@@ -97,7 +98,7 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
 
           setOrder: (order: number) => setOrder(order, dispatchMainReducer),
           setData: (data: ChartData) => setData(data, dispatchMainReducer),
-          setPointClicked: (coordinate: Coordinate | null) =>
+          setPointClicked: (coordinate: CoordinateGrouped | null) =>
             setPointClicked(coordinate, dispatchMainReducer),
           setLegendClicked: (legendClicked: number | null) =>
             setLegendClicked(legendClicked, dispatchMainReducer),

@@ -4,7 +4,11 @@ import { stringify } from "qs";
 import axios from "axios";
 import { Invariant } from "../phoeg_app/PolytopesSlider";
 import MainContext from "../../store/utils/main_context";
-import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
+import {
+  CoordinateAutoconj,
+  Coordinate,
+  CoordinateGrouped,
+} from "../../store/reducers/main_reducer";
 
 interface PostConstraint {
   name: string;
@@ -21,6 +25,61 @@ export const getTablenameFromName = (
     return invariant.tablename;
   }
   return "";
+};
+
+const sameCoordinates = (point1: CoordinateGrouped, point2: Coordinate) => {
+  return point1.x === point2.x && point1.y === point2.y;
+};
+
+const regroupByXY = (points: Coordinate[]) => {
+  const newPoints: CoordinateGrouped[] = [];
+  points.forEach((point) => {
+    const index = newPoints.findIndex((p) => sameCoordinates(p, point));
+    if (index === -1) {
+      // first time we see this point so convert it to a CoodinateGrouped
+      newPoints.push({
+        x: point.x,
+        y: point.y,
+        colors: [point.color],
+        meanColor: 0,
+        colorToShow: "#000000",
+        mults: [point.mult],
+      });
+    } else {
+      // we have seen this point before so add the color and mult to the existing CoodinateGrouped
+      newPoints[index].colors.push(point.color);
+      newPoints[index].mults.push(point.mult);
+    }
+  });
+  // compute the mean color for each point
+  newPoints.forEach((point) => {
+    let withoutDuplicate: Array<number> = [];
+    point.colors.forEach((color) => {
+      // to calculate the true average of the available colours (without duplication)
+      if (!withoutDuplicate.includes(color)) {
+        withoutDuplicate.push(color);
+      }
+    });
+
+    point.meanColor =
+      withoutDuplicate.reduce((a, b) => a + b, 0) / withoutDuplicate.length;
+  });
+  return newPoints;
+};
+
+const convertToCoordinateGrouped = (points: Coordinate[]) => {
+  const newPoints: CoordinateGrouped[] = [];
+  points.forEach((point) => {
+    newPoints.push({
+      x: point.x,
+      y: point.y,
+      colors: [point.color],
+      meanColor: point.color,
+      colorToShow: "#000000",
+      mults: [point.mult],
+    });
+  });
+  return newPoints;
 };
 
 export const decodeConstraints = (
@@ -163,10 +222,21 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
       ])
       .then(
         axios.spread((envelope, points, concave) => {
+          let newCoordinates: Array<CoordinateGrouped> = [];
+          if (
+            mainContext.labelColor !== "" &&
+            mainContext.labelColor !== "Multiplicity"
+          ) {
+            newCoordinates = regroupByXY(points.data.coordinates);
+          } else {
+            newCoordinates = convertToCoordinateGrouped(
+              points.data.coordinates
+            );
+          }
           return {
             envelope: envelope.data,
             minMax: points.data.minMax,
-            coordinates: points.data.coordinates,
+            coordinates: newCoordinates,
             sorted: points.data.sorted,
             concave: concave.data.concave,
             error: "",

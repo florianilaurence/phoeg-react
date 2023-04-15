@@ -6,12 +6,11 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DirectionColors } from "./DrawConcave";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MainContext from "../../store/utils/main_context";
-import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
 import { containsCoordinate } from "../form_fetch/Fetch";
 
 interface LegendProps {
@@ -20,15 +19,41 @@ interface LegendProps {
   currentIndexOrder?: number;
 }
 
+interface LegendMean {
+  value: number;
+  colorToShow: string;
+}
+
 const Legend = ({
   colorScale,
   withConcave,
   currentIndexOrder,
 }: LegendProps) => {
   const mainContext = useContext(MainContext);
-  const [showLegend, setShowLegend] = useState<boolean>(true);
+  const [showLegend, setShowLegend] = useState(true);
+  const [means, setMeans] = useState<Array<LegendMean>>([]);
 
   let dirsKeys: string[] = [];
+
+  useEffect(() => {
+    let means: Array<LegendMean> = [];
+    let viewedMeans: Array<number> = [];
+    mainContext.coordinates.forEach((point) => {
+      if (viewedMeans.indexOf(point.meanColor) === -1) {
+        means.push({
+          value: point.meanColor,
+          colorToShow: colorScale(point.meanColor),
+        });
+        viewedMeans.push(point.meanColor);
+      }
+      // update colorToShow
+      point.colorToShow = colorScale(point.meanColor);
+    });
+    means.sort((meanObject1, meanObject2) => {
+      return meanObject1.value - meanObject2.value;
+    });
+    setMeans(means);
+  }, [mainContext.coordinates]);
 
   if (withConcave) {
     dirsKeys =
@@ -158,54 +183,97 @@ const Legend = ({
       </Box>
       <Collapse in={showLegend}>
         {mainContext.labelColor !== "" && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-            }}
-            flexWrap="wrap"
-          >
-            {colorsKeys.map((color, i) => {
-              return (
-                <Box
-                  key={`leg-col-${i}-${color}`}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
+          <>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
+              flexWrap="wrap"
+            >
+              <Typography variant="body1" fontSize={14}>
+                Color legend calculated from the average colour of a point (not
+                clickable)
+              </Typography>
+              {means.map((mean, i) => {
+                return (
                   <Box
-                    sx={{ ml: 1, cursor: "pointer" }}
-                    onClick={() => handleOnClickLegend(color)}
+                    key={`leg-mean-${i}-${mean}`}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mr: 2,
+                    }}
                   >
-                    <Typography
-                      variant="body1"
-                      fontSize={14}
-                      color={colorScale(color)}
-                      fontStyle={
-                        mainContext.legendClicked !== null &&
-                        mainContext.legendClicked === color
-                          ? "italic"
-                          : "normal"
-                      }
-                    >
-                      {color}
-                    </Typography>
-                  </Box>
-                  {i !== colorsKeys.length - 1 && (
-                    <Divider
+                    <Box
                       sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 1,
+                        backgroundColor: mean.colorToShow,
+                        mr: 1,
                         ml: 1,
                       }}
-                      orientation="vertical"
-                      variant="middle"
-                      flexItem
                     />
-                  )}
-                </Box>
-              );
-            })}
-          </Box>
+                    <Typography variant="body1" fontSize={14}>
+                      {mean.value}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
+              flexWrap="wrap"
+            >
+              <Typography variant="body1" fontSize={14}>
+                All possible color values (clickable to show point with this
+                value in these colors):
+              </Typography>
+              {colorsKeys.map((color, i) => {
+                return (
+                  <Box
+                    key={`leg-col-${i}-${color}`}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{ ml: 1, cursor: "pointer" }}
+                      onClick={() => handleOnClickLegend(color)}
+                    >
+                      <Typography
+                        variant="body1"
+                        fontSize={14}
+                        fontStyle={
+                          mainContext.legendClicked !== null &&
+                          mainContext.legendClicked === color
+                            ? "italic"
+                            : "normal"
+                        }
+                      >
+                        {color}
+                      </Typography>
+                    </Box>
+                    {i !== colorsKeys.length - 1 && (
+                      <Divider
+                        sx={{
+                          ml: 1,
+                        }}
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                      />
+                    )}
+                  </Box>
+                );
+              })}
+            </Box>
+          </>
         )}
         <Box
           sx={{

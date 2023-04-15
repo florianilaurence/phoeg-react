@@ -4,6 +4,7 @@ import {
   Concave,
   Coordinate,
   CoordinateAutoconj,
+  CoordinateGrouped,
   initialMainState,
   MinMax,
 } from "../reducers/main_reducer";
@@ -13,7 +14,7 @@ const MainContext = createContext({
   // For phoeg app
   setOrder: (order: number) => {},
   setData: (data: ChartData) => {},
-  setPointClicked: (coordinate: Coordinate | null) => {},
+  setPointClicked: (coordinate: CoordinateGrouped | null) => {},
   setLegendClicked: (isClicked: number | null) => {},
 
   // For both apps

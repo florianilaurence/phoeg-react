@@ -3,6 +3,7 @@ import {
   Concave,
   Coordinate,
   CoordinateAutoconj,
+  CoordinateGrouped,
   MinMax,
 } from "../reducers/main_reducer";
 
@@ -51,7 +52,7 @@ export const setData = (data: ChartData, dispatch: any) => {
 };
 
 export const setPointClicked = (
-  coordinate: Coordinate | null,
+  coordinate: CoordinateGrouped | null,
   dispatch: any
 ) => {
   dispatch({

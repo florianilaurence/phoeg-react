@@ -12,6 +12,15 @@ export interface CoordinateAutoconj extends Coordinate {
   clicked: boolean;
 }
 
+export interface CoordinateGrouped {
+  x: number;
+  y: number;
+  colors: Array<number>;
+  meanColor: number;
+  colorToShow: string;
+  mults: Array<number>;
+}
+
 export interface MinMax {
   minX: number;
   maxX: number;
@@ -56,7 +65,7 @@ export interface ChartData {
   envelope: Array<Coordinate>;
   minMax: MinMax;
   concave: Concave;
-  coordinates: Array<Coordinate>;
+  coordinates: Array<CoordinateGrouped>;
   sorted: { [key: number]: Array<Coordinate> };
 }
 
@@ -70,12 +79,12 @@ export interface MainState {
   // Only for phoeg app
   order: number;
 
-  coordinates: Array<Coordinate>;
+  coordinates: Array<CoordinateGrouped>;
   sorted: { [key: number]: Array<Coordinate> };
   envelope: Array<Coordinate>;
   minMax: MinMax | undefined;
   concave: Concave | undefined;
-  pointClicked: Coordinate | null; // point clicked => graphs request
+  pointClicked: CoordinateGrouped | null; // point clicked => graphs request
   legendClicked: number | null; // color clicked => bigger point
 
   // For both apps

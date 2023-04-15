@@ -1,8 +1,8 @@
 import { Group } from "@visx/group";
 import { Circle } from "@visx/shape";
 import MainContext from "../../store/utils/main_context";
-import { useContext } from "react";
-import { Coordinate } from "../../store/reducers/main_reducer";
+import { useContext, useEffect } from "react";
+import { CoordinateGrouped } from "../../store/reducers/main_reducer";
 
 interface DrawPointsProps {
   xScale: any;
@@ -22,14 +22,18 @@ const DrawPoints = ({
   const handleClickOnCircle = (
     x: number,
     y: number,
-    color: number,
-    mult: number
+    colors: Array<number>,
+    meanColor: number,
+    colorToShow: string,
+    mults: Array<number>
   ) => {
-    const pointClicked: Coordinate = {
+    const pointClicked: CoordinateGrouped = {
       x: x,
       y: y,
-      color: color,
-      mult: mult,
+      colors: colors,
+      meanColor: meanColor,
+      colorToShow: colorToShow,
+      mults: mults,
     };
     mainContext.setPointClicked(pointClicked);
   };
@@ -43,13 +47,27 @@ const DrawPoints = ({
             className="circle"
             cx={xScale(point.x)}
             cy={yScale(point.y)}
-            r={mainContext.legendClicked === point.color ? 7 : 4}
+            r={
+              mainContext.legendClicked !== null &&
+              point.colors.includes(mainContext.legendClicked)
+                ? 7
+                : 4
+            }
             fillOpacity={0.75}
             fill={
-              mainContext.labelColor === "" ? "black" : colorScale(point.color)
+              mainContext.labelColor === ""
+                ? "black"
+                : colorScale(point.meanColor)
             }
             onClick={() =>
-              handleClickOnCircle(point.x, point.y, point.color, point.mult)
+              handleClickOnCircle(
+                point.x,
+                point.y,
+                point.colors,
+                point.meanColor,
+                point.colorToShow,
+                point.mults
+              )
             }
             onMouseEnter={() => {
               setTooltipData(
@@ -60,8 +78,13 @@ const DrawPoints = ({
                   mainContext.labelY +
                   " = " +
                   point.y +
-                  " | mult = " +
-                  point.mult
+                  " | colors = [ " +
+                  point.colors +
+                  " ] | mean of colors = " +
+                  point.meanColor +
+                  " ] | mults = [ " +
+                  point.mults +
+                  " ]"
               );
             }}
             onMouseLeave={() => {
