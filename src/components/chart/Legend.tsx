@@ -184,10 +184,21 @@ const Legend = ({
       <Collapse in={showLegend}>
         {mainContext.labelColor !== "" && (
           <>
+            <Box sx={{ mt: 1 }}>
+              <Typography
+                variant="body1"
+                fontSize={14}
+                fontWeight="bold"
+                fontStyle="italic"
+              >
+                Stars show the points with several color values
+              </Typography>
+            </Box>
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
+                mt: 1,
               }}
               flexWrap="wrap"
             >
@@ -226,6 +237,7 @@ const Legend = ({
               sx={{
                 display: "flex",
                 alignItems: "center",
+                mt: 1,
               }}
               flexWrap="wrap"
             >

@@ -3,6 +3,7 @@ import { Circle } from "@visx/shape";
 import MainContext from "../../store/utils/main_context";
 import { useContext, useEffect } from "react";
 import { CoordinateGrouped } from "../../store/reducers/main_reducer";
+import { GlyphStar } from "@visx/glyph";
 
 interface DrawPointsProps {
   xScale: any;
@@ -41,57 +42,108 @@ const DrawPoints = ({
   return (
     <Group>
       {mainContext.coordinates.map((point, i) => {
-        return (
-          <Circle
-            key={`point-${point[0]}-${i}`}
-            className="circle"
-            cx={xScale(point.x)}
-            cy={yScale(point.y)}
-            r={
-              mainContext.legendClicked !== null &&
-              point.colors.includes(mainContext.legendClicked)
-                ? 7
-                : 4
-            }
-            fillOpacity={0.75}
-            fill={
-              mainContext.labelColor === ""
-                ? "black"
-                : colorScale(point.meanColor)
-            }
-            onClick={() =>
-              handleClickOnCircle(
-                point.x,
-                point.y,
-                point.colors,
-                point.meanColor,
-                point.colorToShow,
-                point.mults
-              )
-            }
-            onMouseEnter={() => {
-              setTooltipData(
-                mainContext.labelX +
-                  " = " +
-                  point.x +
-                  " | " +
-                  mainContext.labelY +
-                  " = " +
-                  point.y +
-                  " | colors = [ " +
-                  point.colors +
-                  " ] | mean of colors = " +
-                  point.meanColor +
-                  " ] | mults = [ " +
-                  point.mults +
-                  " ]"
-              );
-            }}
-            onMouseLeave={() => {
-              setTooltipData("");
-            }}
-          />
-        );
+        if (point.colors.length < 2) {
+          return (
+            <Circle
+              key={`point-${point[0]}-${i}`}
+              className="circle"
+              cx={xScale(point.x)}
+              cy={yScale(point.y)}
+              r={
+                mainContext.legendClicked !== null &&
+                point.colors.includes(mainContext.legendClicked)
+                  ? 7
+                  : 4
+              }
+              fillOpacity={0.75}
+              fill={
+                mainContext.labelColor === ""
+                  ? "black"
+                  : colorScale(point.meanColor)
+              }
+              onClick={() =>
+                handleClickOnCircle(
+                  point.x,
+                  point.y,
+                  point.colors,
+                  point.meanColor,
+                  point.colorToShow,
+                  point.mults
+                )
+              }
+              onMouseEnter={() => {
+                setTooltipData(
+                  mainContext.labelX +
+                    " = " +
+                    point.x +
+                    " | " +
+                    mainContext.labelY +
+                    " = " +
+                    point.y +
+                    " | colors = " +
+                    point.colors[0] +
+                    " | mult = " +
+                    point.mults[0]
+                );
+              }}
+              onMouseLeave={() => {
+                setTooltipData("");
+              }}
+            />
+          );
+        } else {
+          return (
+            <GlyphStar
+              key={`point-${point[0]}-${i}`}
+              className="circle"
+              left={xScale(point.x)}
+              top={yScale(point.y)}
+              r={
+                mainContext.legendClicked !== null &&
+                point.colors.includes(mainContext.legendClicked)
+                  ? 6
+                  : 3
+              }
+              fillOpacity={0.75}
+              fill={
+                mainContext.labelColor === ""
+                  ? "black"
+                  : colorScale(point.meanColor)
+              }
+              onClick={() =>
+                handleClickOnCircle(
+                  point.x,
+                  point.y,
+                  point.colors,
+                  point.meanColor,
+                  point.colorToShow,
+                  point.mults
+                )
+              }
+              onMouseEnter={() => {
+                setTooltipData(
+                  mainContext.labelX +
+                    " = " +
+                    point.x +
+                    " | " +
+                    mainContext.labelY +
+                    " = " +
+                    point.y +
+                    " | colors = [ " +
+                    point.colors +
+                    " ] | mean of colors = " +
+                    point.meanColor +
+                    " ] | mults = [ " +
+                    point.mults +
+                    " ]"
+                );
+              }}
+              onMouseLeave={() => {
+                setTooltipData("");
+              }}
+            />
+          );
+        }
       })}
     </Group>
   );
