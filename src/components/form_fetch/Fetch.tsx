@@ -41,8 +41,7 @@ const regroupByXY = (points: Coordinate[]) => {
         x: point.x,
         y: point.y,
         colors: [point.color],
-        meanColor: 0,
-        colorToShow: "#000000",
+        averageCols: point.color,
         mults: [point.mult],
       });
     } else {
@@ -61,7 +60,7 @@ const regroupByXY = (points: Coordinate[]) => {
       }
     });
 
-    point.meanColor =
+    point.averageCols =
       withoutDuplicate.reduce((a, b) => a + b, 0) / withoutDuplicate.length;
   });
   return newPoints;
@@ -74,8 +73,7 @@ const convertToCoordinateGrouped = (points: Coordinate[]) => {
       x: point.x,
       y: point.y,
       colors: [point.color],
-      meanColor: point.color,
-      colorToShow: "#000000",
+      averageCols: point.color,
       mults: [point.mult],
     });
   });

@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { Grid, Slider, Tooltip, Typography } from "@mui/material";
+import { useContext, useEffect, useReducer, useState } from "react";
+import { Grid, IconButton, Slider, Tooltip, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -12,6 +12,17 @@ import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 import MainContext from "../../store/utils/main_context";
 import Legend from "../chart/Legend";
 import { scaleLinear } from "@visx/scale";
+import ColorationsContext from "../../store/utils/colorations_context";
+import {
+  ColorationObject,
+  ColorationsReducer,
+  initialColorationsState,
+} from "../../store/reducers/colorations_reducer";
+import {
+  setDataCols,
+  updateAColoration,
+} from "../../store/actions/colorations_action";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export interface Invariant {
   tablename: string;
@@ -26,6 +37,29 @@ interface PolytopesSliderProps {
 
 const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
   const mainContext = useContext(MainContext);
+  const [stateColsObject, dispatchColsObject] = useReducer(
+    ColorationsReducer,
+    initialColorationsState
+  );
+
+  useEffect(() => {
+    let objects: Array<ColorationObject> = [];
+    let viewedAverages: Array<number> = [];
+    mainContext.coordinates.forEach((point) => {
+      if (viewedAverages.indexOf(point.averageCols) === -1) {
+        objects.push({
+          average: point.averageCols,
+          coloration: colorScale(point.averageCols),
+        });
+        viewedAverages.push(point.averageCols);
+      }
+    });
+
+    objects.sort((colObject1, colObject2) => {
+      return colObject1.average - colObject2.average;
+    });
+    setDataCols(objects, dispatchColsObject);
+  }, [mainContext.order, mainContext.coordinates]);
 
   const nextOrder = () => {
     if (mainContext.order < 10) {
@@ -72,7 +106,6 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
   };
 
   const colorScale = scaleLinear<string>({
-    // TODO: config colors reducer (could change select colors)
     domain: mainContext.minMax && [
       mainContext.minMax!.minColor,
       mainContext.minMax!.maxColor,
@@ -80,14 +113,22 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
     range: ["#000000", "#00ff00"],
     clamp: true,
   });
+  if (!stateColsObject.ready) {
+    return <Loading height="1000px" />;
+  } else {
+    return (
+      <ColorationsContext.Provider
+        value={{
+          ...stateColsObject,
 
-  return (
-    <>
-      {mainContext.isSubmit && <Title title="Polytope" />}
-      {mainContext.isSubmit && mainContext.isLoading && (
-        <Loading height="1000px" />
-      )}
-      {mainContext.isSubmit && !mainContext.isLoading && (
+          setDataCols: (objects: Array<ColorationObject>) => {
+            setDataCols(objects, dispatchColsObject);
+          },
+          updateAColoration: (average: number, coloration: string) => {
+            updateAColoration(average, coloration, dispatchColsObject);
+          },
+        }}
+      >
         <Box sx={{ ml: 1, mr: 1 }}>
           <SubTitle>{`Chart for order ${mainContext.order}`}</SubTitle>
 
@@ -156,11 +197,7 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
               ) : (
                 <ParentSize>
                   {({ width }) => (
-                    <Chart
-                      width={width}
-                      withConcave={withConcave}
-                      colorScale={colorScale}
-                    />
+                    <Chart width={width} withConcave={withConcave} />
                   )}
                 </ParentSize>
               )}
@@ -187,12 +224,40 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
             </Grid>
           </Grid>
           {withConcave && mainContext.concave && (
-            <Legend withConcave={withConcave} colorScale={colorScale} />
+            <Legend withConcave={withConcave} />
+          )}
+
+          {!withConcave && <Legend withConcave={withConcave} />}
+
+          {/* Show which point is clicked */}
+          {mainContext.pointClicked && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-around",
+                alignItems: "center",
+                mt: 1,
+              }}
+            >
+              <Typography fontSize={14} fontStyle="italic" align="center">
+                Clicked point: x = {mainContext.pointClicked.x}, y =
+                {mainContext.pointClicked.y}, color =
+                {mainContext.pointClicked.colors[0]}, multiplicity =
+                {mainContext.pointClicked.mults[0]}
+              </Typography>
+              <IconButton
+                onClick={() => mainContext.setPointClicked(null)}
+                size="small"
+                color="success"
+              >
+                <ClearIcon />
+              </IconButton>
+            </Box>
           )}
         </Box>
-      )}
-    </>
-  );
+      </ColorationsContext.Provider>
+    );
+  }
 };
 
 export default PolytopesSlider;

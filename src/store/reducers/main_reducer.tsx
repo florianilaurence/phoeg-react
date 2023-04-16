@@ -16,8 +16,7 @@ export interface CoordinateGrouped {
   x: number;
   y: number;
   colors: Array<number>;
-  meanColor: number;
-  colorToShow: string;
+  averageCols: number;
   mults: Array<number>;
 }
 

@@ -9,7 +9,6 @@ import MainContext from "../../store/utils/main_context";
 import {
   ChartData,
   Concave,
-  Coordinate,
   CoordinateAutoconj,
   CoordinateGrouped,
   initialMainState,
@@ -40,6 +39,8 @@ import {
 import Graphs from "./graphs/Graphs";
 import { Box, Typography } from "@mui/material";
 import Fetch from "../form_fetch/Fetch";
+import Title from "../styles_and_settings/Title";
+import Loading from "../Loading";
 
 export interface OpenProps {
   isOpenMenu: boolean;
@@ -158,7 +159,13 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
             withOrders={false}
           />
         )}
-        <PolytopesSlider withConcave={withConcave} />
+        {stateMainReducer.isSubmit && <Title title="Polytope" />}
+        {stateMainReducer.isSubmit && stateMainReducer.isLoading && (
+          <Loading height="1000px" />
+        )}
+        {stateMainReducer.isSubmit && !stateMainReducer.isLoading && (
+          <PolytopesSlider withConcave={withConcave} />
+        )}
         {stateMainReducer.isSubmit &&
           !stateMainReducer.isLoading &&
           stateMainReducer.pointClicked && <Graphs invariants={invariants} />}

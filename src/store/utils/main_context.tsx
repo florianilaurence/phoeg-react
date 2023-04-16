@@ -2,7 +2,6 @@ import { createContext } from "react";
 import {
   ChartData,
   Concave,
-  Coordinate,
   CoordinateAutoconj,
   CoordinateGrouped,
   initialMainState,

@@ -1,25 +1,33 @@
 import { Group } from "@visx/group";
 import { Circle } from "@visx/shape";
 import MainContext from "../../store/utils/main_context";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { CoordinateGrouped } from "../../store/reducers/main_reducer";
 import { GlyphStar } from "@visx/glyph";
 import { Box, Button, Modal, Typography } from "@mui/material";
+import ColorationsContext from "../../store/utils/colorations_context";
+import { ColorationObject } from "../../store/reducers/colorations_reducer";
 
 interface DrawPointsProps {
   xScale: any;
   yScale: any;
-  colorScale: any;
   setTooltipData: any;
 }
 
-const DrawPoints = ({
-  xScale,
-  yScale,
-  colorScale,
-  setTooltipData,
-}: DrawPointsProps) => {
+const getColorationFromAverage = (
+  average: number,
+  objects: Array<ColorationObject>
+) => {
+  console.log("average", average);
+  console.log("objects", objects);
+  const object = objects.filter((object) => object.average === average)[0];
+  return object.coloration;
+};
+
+const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
   const mainContext = useContext(MainContext);
+  const colorationsContext = useContext(ColorationsContext);
+
   const [showModal, setShowModal] = useState(false);
   const [pointClicked, setPointClicked] = useState<CoordinateGrouped | null>(
     null
@@ -55,7 +63,10 @@ const DrawPoints = ({
                 fill={
                   mainContext.labelColor === ""
                     ? "black"
-                    : colorScale(point.meanColor)
+                    : getColorationFromAverage(
+                        point.averageCols,
+                        colorationsContext.objects
+                      )
                 }
                 onClick={() => handleClickOnCircle(point)}
                 onMouseEnter={() => {
@@ -88,14 +99,17 @@ const DrawPoints = ({
                 r={
                   mainContext.legendClicked !== null &&
                   point.colors.includes(mainContext.legendClicked)
-                    ? 6
-                    : 3
+                    ? 5
+                    : 2
                 }
                 fillOpacity={0.75}
                 fill={
                   mainContext.labelColor === ""
                     ? "black"
-                    : colorScale(point.meanColor)
+                    : getColorationFromAverage(
+                        point.averageCols,
+                        colorationsContext.objects
+                      )
                 }
                 onClick={() => handleClickOnStar(point)}
                 onMouseEnter={() => {
@@ -110,7 +124,7 @@ const DrawPoints = ({
                       " | colors = [ " +
                       point.colors +
                       " ] | mean of colors = " +
-                      point.meanColor +
+                      point.averageCols +
                       " ] | mults = [ " +
                       point.mults +
                       " ]"

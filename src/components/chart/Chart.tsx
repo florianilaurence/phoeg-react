@@ -4,14 +4,12 @@ import { AxisBottom, AxisLeft } from "@visx/axis";
 import { GridColumns, GridRows } from "@visx/grid";
 import { scaleLinear } from "@visx/scale";
 import DrawConcave from "./DrawConcave";
-import Legend from "./Legend";
 import MainContext from "../../store/utils/main_context";
 import "./Chart.css";
 import { Box } from "@mui/system";
 import DrawEnvelope from "./DrawEnvelope";
 import DrawPoints from "./DrawPoints";
-import { IconButton, Typography } from "@mui/material";
-import ClearIcon from "@mui/icons-material/Clear";
+import { Typography } from "@mui/material";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
@@ -20,16 +18,10 @@ const margin = { top: 10, right: 0, bottom: 45, left: 70 };
 interface ChartProps {
   width: number;
   withConcave: boolean; // Only for phoeg app
-  colorScale?: any; // Only for phoeg app
   currentIndexOrder?: number; // Only for autoconjectures app
 }
 
-const Chart = ({
-  width,
-  withConcave,
-  colorScale,
-  currentIndexOrder,
-}: ChartProps) => {
+const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
   const mainContext = useContext(MainContext);
   const [tooltipData, setTooltipData] = useState<string>("");
 
@@ -139,7 +131,6 @@ const Chart = ({
             <DrawPoints
               xScale={xScale}
               yScale={yScale}
-              colorScale={colorScale}
               setTooltipData={setTooltipData}
             />
           )}
@@ -150,31 +141,6 @@ const Chart = ({
           {tooltipData}
         </Typography>
       </Box>
-      {/* Show wich point is clicked */}
-      {mainContext.pointClicked && (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-around",
-            alignItems: "center",
-            mt: 1,
-          }}
-        >
-          <Typography fontSize={14} fontStyle="italic" align="center">
-            Clicked point: x = {mainContext.pointClicked.x}, y =
-            {mainContext.pointClicked.y}, color =
-            {mainContext.pointClicked.colors[0]}, multiplicity =
-            {mainContext.pointClicked.mults[0]}
-          </Typography>
-          <IconButton
-            onClick={() => mainContext.setPointClicked(null)}
-            size="small"
-            color="success"
-          >
-            <ClearIcon />
-          </IconButton>
-        </Box>
-      )}
     </>
   );
 };

@@ -6,55 +6,29 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { DirectionColors } from "./DrawConcave";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MainContext from "../../store/utils/main_context";
 import { containsCoordinate } from "../form_fetch/Fetch";
 import { red } from "@mui/material/colors";
+import ColorationsContext from "../../store/utils/colorations_context";
 
 interface LegendProps {
   withConcave: boolean;
-  colorScale?: any;
   currentIndexOrder?: number;
-}
-
-interface LegendMean {
-  value: number;
-  colorToShow: string;
 }
 
 const Legend = ({
   withConcave,
-  colorScale,
   currentIndexOrder, // undefined --> phoeg app || defined --> autoconjectures app
 }: LegendProps) => {
   const mainContext = useContext(MainContext);
+  const colorationsContext = useContext(ColorationsContext);
   const [showLegend, setShowLegend] = useState(true);
-  const [means, setMeans] = useState<Array<LegendMean>>([]);
 
   let dirsKeys: string[] = [];
-
-  useEffect(() => {
-    let means: Array<LegendMean> = [];
-    let viewedMeans: Array<number> = [];
-    mainContext.coordinates.forEach((point) => {
-      if (viewedMeans.indexOf(point.meanColor) === -1) {
-        means.push({
-          value: point.meanColor,
-          colorToShow: colorScale(point.meanColor),
-        });
-        viewedMeans.push(point.meanColor);
-      }
-      // update colorToShow
-      point.colorToShow = colorScale(point.meanColor);
-    });
-    means.sort((meanObject1, meanObject2) => {
-      return meanObject1.value - meanObject2.value;
-    });
-    setMeans(means);
-  }, [mainContext.coordinates]);
 
   if (withConcave) {
     dirsKeys =
@@ -207,7 +181,7 @@ const Legend = ({
                 mt: 1,
               }}
             >
-              <Typography variant="body1" fontSize={14} fontStyle="italic">
+              <Typography variant="body1" fontSize={12} fontStyle="italic">
                 Color legend calculated from the average colour of a point (not
                 clickable):
               </Typography>
@@ -225,10 +199,10 @@ const Legend = ({
                 }}
                 flexWrap="wrap"
               >
-                {means.map((mean, i) => {
+                {colorationsContext.objects.map((object, i) => {
                   return (
                     <Box
-                      key={`leg-mean-${i}-${mean}`}
+                      key={`leg-mean-${i}-${object.average}`}
                       sx={{
                         display: "flex",
                         alignItems: "center",
@@ -240,13 +214,13 @@ const Legend = ({
                           width: 10,
                           height: 10,
                           borderRadius: 1,
-                          backgroundColor: mean.colorToShow,
+                          backgroundColor: object.coloration,
                           mr: 1,
                           ml: 1,
                         }}
                       />
-                      <Typography variant="body1" fontSize={14}>
-                        {mean.value}
+                      <Typography variant="body1" fontSize={12}>
+                        {object.average}
                       </Typography>
                     </Box>
                   );
@@ -260,7 +234,7 @@ const Legend = ({
                 mt: 1,
               }}
             >
-              <Typography variant="body1" fontSize={14} fontStyle="italic">
+              <Typography variant="body1" fontSize={12} fontStyle="italic">
                 All possible color values (clickable to show point with this
                 value in these colors):
               </Typography>
@@ -293,7 +267,7 @@ const Legend = ({
                       >
                         <Typography
                           variant="body1"
-                          fontSize={14}
+                          fontSize={12}
                           fontStyle={
                             mainContext.legendClicked !== null &&
                             mainContext.legendClicked === color
@@ -322,56 +296,58 @@ const Legend = ({
           </>
         )}
         {/* Directions legend */}
-        <Box
-          className="coloration-container"
-          sx={{
-            mt: 1,
-          }}
-        >
-          <Typography variant="body1" fontSize={14} fontStyle="italic">
-            Points families:
-          </Typography>
-
+        {withConcave && (
           <Box
+            className="coloration-container"
             sx={{
-              display: "flex",
-              alignItems: "center",
               mt: 1,
             }}
           >
-            {dirsKeys.map((dir, i) => {
-              return (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    mr: 1,
-                  }}
-                  key={`leg-dir-${dir}`}
-                >
-                  <Typography
-                    variant="body1"
-                    fontSize={14}
-                    color={DirectionColors[dir]}
-                    fontWeight="bold"
+            <Typography variant="body1" fontSize={12} fontStyle="italic">
+              Points families:
+            </Typography>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                mt: 1,
+              }}
+            >
+              {dirsKeys.map((dir, i) => {
+                return (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      mr: 1,
+                    }}
+                    key={`leg-dir-${dir}`}
                   >
-                    {dir}
-                  </Typography>
-                  {i !== dirsKeys.length - 1 && (
-                    <Divider
-                      sx={{
-                        ml: 1,
-                      }}
-                      orientation="vertical"
-                      variant="middle"
-                      flexItem
-                    />
-                  )}
-                </Box>
-              );
-            })}
+                    <Typography
+                      variant="body1"
+                      fontSize={12}
+                      color={DirectionColors[dir]}
+                      fontWeight="bold"
+                    >
+                      {dir}
+                    </Typography>
+                    {i !== dirsKeys.length - 1 && (
+                      <Divider
+                        sx={{
+                          ml: 1,
+                        }}
+                        orientation="vertical"
+                        variant="middle"
+                        flexItem
+                      />
+                    )}
+                  </Box>
+                );
+              })}
+            </Box>
           </Box>
-        </Box>
+        )}
       </Collapse>
     </>
   );

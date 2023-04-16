@@ -1,7 +1,6 @@
 import {
   ChartData,
   Concave,
-  Coordinate,
   CoordinateAutoconj,
   CoordinateGrouped,
   MinMax,
