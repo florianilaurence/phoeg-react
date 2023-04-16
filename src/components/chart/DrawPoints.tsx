@@ -94,11 +94,11 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
                 className="circle"
                 left={xScale(point.x)}
                 top={yScale(point.y)}
-                r={
+                size={
                   mainContext.legendClicked !== null &&
                   point.colors.includes(mainContext.legendClicked)
-                    ? 5
-                    : 2
+                    ? 115
+                    : 50
                 }
                 fillOpacity={0.75}
                 fill={
