@@ -3,6 +3,7 @@ import {
   Button,
   Collapse,
   Divider,
+  Modal,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -12,8 +13,11 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MainContext from "../../store/utils/main_context";
 import { containsCoordinate } from "../form_fetch/Fetch";
-import { red } from "@mui/material/colors";
+import { blueGrey, red } from "@mui/material/colors";
 import ColorationsContext from "../../store/utils/colorations_context";
+import ColorPicker from "material-ui-color-picker";
+import DoneIcon from "@mui/icons-material/Done";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface LegendProps {
   withConcave: boolean;
@@ -27,6 +31,21 @@ const Legend = ({
   const mainContext = useContext(MainContext);
   const colorationsContext = useContext(ColorationsContext);
   const [showLegend, setShowLegend] = useState(true);
+  const [openModal, setOpenModal] = useState(false);
+  const [coloration, setColoration] = useState(""); // To save current coloration selected in Modal
+  const [averageClicked, setAverageClicked] = useState(-1);
+
+  const handleOpen = (col: string) => {
+    setColoration(col);
+    setOpenModal(true);
+  };
+
+  const handleClose = (isCancel: boolean) => {
+    if (!isCancel) {
+      colorationsContext.updateAColoration(averageClicked, coloration);
+    }
+    setOpenModal(false);
+  };
 
   let dirsKeys: string[] = [];
 
@@ -171,7 +190,7 @@ const Legend = ({
                 fontStyle="italic"
                 color={red[500]}
               >
-                Stars show the points with several color values
+                Stars show the points with several different color values
               </Typography>
             </Box>
             {/* Coloration possible (average if several color values on one point) */}
@@ -210,6 +229,7 @@ const Legend = ({
                       }}
                     >
                       <Box
+                        className="box-coloration"
                         sx={{
                           width: 10,
                           height: 10,
@@ -218,7 +238,87 @@ const Legend = ({
                           mr: 1,
                           ml: 1,
                         }}
+                        onClick={() => {
+                          setAverageClicked(object.average);
+                          handleOpen(object.coloration);
+                        }}
                       />
+                      <Modal
+                        open={openModal}
+                        onClose={() => handleClose(true)}
+                        aria-labelledby="modal-modal-title"
+                        aria-describedby="modal-modal-description"
+                      >
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            width: 500,
+                            bgcolor: "whitesmoke",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            p: 2,
+                            borderRadius: 2,
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography variant="body1" fontSize={10}>
+                            Choose color for average {averageClicked}:
+                          </Typography>
+                          <ColorPicker
+                            name="color"
+                            value={coloration}
+                            defaultValue="example"
+                            onChange={(color) => setColoration(color)}
+                          />
+                          <Box
+                            sx={{
+                              m: 1,
+                              display: "flex",
+                              justifyContent: "space-around",
+                            }}
+                          >
+                            <Button
+                              sx={{ m: 1 }}
+                              variant="outlined"
+                              onClick={() => {
+                                handleClose(true);
+                              }}
+                              size="small"
+                              color="warning"
+                              startIcon={<CloseIcon />}
+                            >
+                              <Typography
+                                variant="body1"
+                                fontSize={10}
+                                color={blueGrey[800]}
+                              >
+                                Cancel
+                              </Typography>
+                            </Button>
+                            <Button
+                              sx={{ m: 1 }}
+                              variant="outlined"
+                              onClick={() => {
+                                handleClose(false);
+                              }}
+                              size="small"
+                              color="success"
+                              endIcon={<DoneIcon />}
+                            >
+                              <Typography
+                                variant="body1"
+                                fontSize={10}
+                                color={blueGrey[800]}
+                              >
+                                Valid
+                              </Typography>
+                            </Button>
+                          </Box>
+                        </Box>
+                      </Modal>
                       <Typography variant="body1" fontSize={12}>
                         {object.average}
                       </Typography>

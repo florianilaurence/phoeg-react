@@ -33,7 +33,7 @@ export const ColorationsReducer = (
           if (object.average === action.average) {
             return {
               ...object,
-              coloration: action.coloration,
+              coloration: action.newColoration,
             };
           } else {
             return object;

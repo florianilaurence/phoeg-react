@@ -9,3 +9,7 @@
     stroke-opacity: 1;
     cursor: pointer;
 }
+
+.box-coloration:hover {
+    cursor: pointer;
+}

@@ -17,12 +17,12 @@ export const setDataCols = (
 
 export const updateAColoration = (
   average: number,
-  coloration: string,
+  newColoration: string,
   dispatch: any
 ) => {
   dispatch({
     type: ColorationsAction.UPDATE_A_COLORATION,
     average: average,
-    coloration: coloration,
+    newColoration: newColoration,
   });
 };

@@ -18,8 +18,6 @@ const getColorationFromAverage = (
   average: number,
   objects: Array<ColorationObject>
 ) => {
-  console.log("average", average);
-  console.log("objects", objects);
   const object = objects.filter((object) => object.average === average)[0];
   return object.coloration;
 };
