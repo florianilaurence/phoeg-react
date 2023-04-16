@@ -20,10 +20,16 @@ const margin = { top: 10, right: 0, bottom: 45, left: 70 };
 interface ChartProps {
   width: number;
   withConcave: boolean; // Only for phoeg app
+  colorScale?: any; // Only for phoeg app
   currentIndexOrder?: number; // Only for autoconjectures app
 }
 
-const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
+const Chart = ({
+  width,
+  withConcave,
+  colorScale,
+  currentIndexOrder,
+}: ChartProps) => {
   const mainContext = useContext(MainContext);
   const [tooltipData, setTooltipData] = useState<string>("");
 
@@ -74,16 +80,6 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
       }),
     [innerHeight, mainContext.minMax, mainContext.minMaxList]
   );
-
-  const colorScale = scaleLinear<string>({
-    // TODO: config colors reducer (could change select colors)
-    domain:
-      currentIndexOrder !== undefined
-        ? [0, 0]
-        : [mainContext.minMax!.minColor, mainContext.minMax!.maxColor],
-    range: ["#000000", "#00ff00"],
-    clamp: true,
-  });
 
   return (
     <>
@@ -154,16 +150,13 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
           {tooltipData}
         </Typography>
       </Box>
-      <Legend
-        colorScale={colorScale}
-        withConcave={withConcave}
-        currentIndexOrder={currentIndexOrder}
-      />
+      {/* Show wich point is clicked */}
       {mainContext.pointClicked && (
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-around",
+            alignItems: "center",
             mt: 1,
           }}
         >

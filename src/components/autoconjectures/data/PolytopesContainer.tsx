@@ -9,6 +9,7 @@ import { DirectionColors } from "../../chart/DrawConcave";
 import { containsCoordinate } from "../../form_fetch/Fetch";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import ClearIcon from "@mui/icons-material/Clear";
+import Legend from "../../chart/Legend";
 
 const PolytopesContainer = () => {
   const mainContext = useContext(MainContext);
@@ -166,15 +167,18 @@ const PolytopesContainer = () => {
                     </Typography>
                   </Box>
                 ) : (
-                  <ParentSize>
-                    {({ width }) => (
-                      <Chart
-                        width={width}
-                        currentIndexOrder={index}
-                        withConcave={true}
-                      />
-                    )}
-                  </ParentSize>
+                  <Box>
+                    <ParentSize>
+                      {({ width }) => (
+                        <Chart
+                          width={width}
+                          currentIndexOrder={index}
+                          withConcave={true}
+                        />
+                      )}
+                    </ParentSize>
+                    <Legend withConcave={true} currentIndexOrder={index} />
+                  </Box>
                 )}
               </Grid>
             );

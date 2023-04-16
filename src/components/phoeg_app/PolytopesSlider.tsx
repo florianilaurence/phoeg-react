@@ -10,6 +10,8 @@ import { deepOrange, green, grey, orange } from "@mui/material/colors";
 import SubTitle from "../styles_and_settings/SubTitle";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 import MainContext from "../../store/utils/main_context";
+import Legend from "../chart/Legend";
+import { scaleLinear } from "@visx/scale";
 
 export interface Invariant {
   tablename: string;
@@ -68,6 +70,16 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
         return green[800];
     }
   };
+
+  const colorScale = scaleLinear<string>({
+    // TODO: config colors reducer (could change select colors)
+    domain: mainContext.minMax && [
+      mainContext.minMax!.minColor,
+      mainContext.minMax!.maxColor,
+    ],
+    range: ["#000000", "#00ff00"],
+    clamp: true,
+  });
 
   return (
     <>
@@ -144,7 +156,11 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
               ) : (
                 <ParentSize>
                   {({ width }) => (
-                    <Chart width={width} withConcave={withConcave} />
+                    <Chart
+                      width={width}
+                      withConcave={withConcave}
+                      colorScale={colorScale}
+                    />
                   )}
                 </ParentSize>
               )}
@@ -170,6 +186,9 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
               </Tooltip>
             </Grid>
           </Grid>
+          {withConcave && mainContext.concave && (
+            <Legend withConcave={withConcave} colorScale={colorScale} />
+          )}
         </Box>
       )}
     </>
