@@ -47,6 +47,17 @@ export interface OpenProps {
   setIsOpenMenu: (isOpenMenu: boolean) => void;
 }
 
+export enum InvariantTypes {
+  ANY = "any",
+  NUMBER = "number",
+  INTEGER = "integer",
+  RATIONAL = "rational",
+  REAL = "real",
+  DOUBLE = "double",
+  BOOLEAN = "boolean",
+  SPECIAL = "special", // for mult
+}
+
 const fetchData = async (request: string): Promise<Array<Invariant>> => {
   try {
     const res = await axios.get(request);
@@ -57,11 +68,12 @@ const fetchData = async (request: string): Promise<Array<Invariant>> => {
 };
 
 export const fetchInvariants = async () => {
+  // Exported for use in AutoconjecturesApp.tsx
   let request = new URL(`${API_URL}/invariants?type=any`);
   const inv = await fetchData(request.toString());
   inv.push({
     name: "Multiplicity",
-    datatype: -1,
+    datatype: InvariantTypes.SPECIAL,
     tablename: "mult",
     description: "",
   });

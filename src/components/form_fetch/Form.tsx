@@ -29,20 +29,15 @@ import CalculateIcon from "@mui/icons-material/Calculate";
 import { blueGrey } from "@mui/material/colors";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
+import { InvariantTypes } from "../phoeg_app/PhoegApp";
 
 enum ConstraintTypes {
   NUMBER = "number",
   BOOL = "bool",
   SPECIAL = "special",
-  ADVANCED = "advanced",
-  NONE = "none",
+  ADVANCED = "advanced", // For advanced constraints mode
+  NONE = "none", // For no constraint selected
 }
-
-export const getType = (id: number): string => {
-  if (id >= 2 && id <= 4) return ConstraintTypes.NUMBER;
-  if (id === 5) return ConstraintTypes.BOOL;
-  return ConstraintTypes.SPECIAL;
-};
 
 export interface FormProps {
   invariants: Array<Invariant>;
@@ -60,6 +55,7 @@ enum ConstraintAction {
   CHANGE_ADVANCED_MODE,
   CHANGE_ADVANCED_FIELD,
   RESET_CONSTRAINTS,
+  ERASE_NAME,
 }
 
 export interface Constraint {
@@ -68,7 +64,7 @@ export interface Constraint {
   tablename: string;
   min: number;
   max: number;
-  type: string;
+  type: ConstraintTypes;
   advancedMode: boolean;
   advancedField: string;
 }
@@ -113,6 +109,38 @@ const parseOrders = (orders: string): Array<number> => {
   return orders_int;
 };
 
+const isNumericalInvariant = (type: string): boolean => {
+  return (
+    type === InvariantTypes.NUMBER ||
+    type === InvariantTypes.INTEGER ||
+    type === InvariantTypes.RATIONAL ||
+    type === InvariantTypes.REAL ||
+    type === InvariantTypes.DOUBLE
+  );
+};
+
+const isColorationInvariant = (type: string): boolean => {
+  return (
+    type === InvariantTypes.BOOLEAN ||
+    type === InvariantTypes.NUMBER ||
+    type === InvariantTypes.INTEGER ||
+    type === InvariantTypes.RATIONAL ||
+    type === InvariantTypes.REAL ||
+    type === InvariantTypes.DOUBLE ||
+    type === InvariantTypes.SPECIAL
+  );
+};
+
+const convertToConstraintType = (type: string): ConstraintTypes => {
+  if (type === InvariantTypes.BOOLEAN) {
+    return ConstraintTypes.BOOL;
+  } else if (type === InvariantTypes.SPECIAL) {
+    return ConstraintTypes.SPECIAL;
+  } else {
+    return ConstraintTypes.NUMBER;
+  }
+};
+
 const Form = ({
   invariants,
   withOrders,
@@ -147,15 +175,13 @@ const Form = ({
   const [showColoration, setShowColoration] = useState(false);
   const [showConstrSubForm, setShowConstrSubForm] = useState(false);
 
-  const constraintInvariant: Array<Invariant> = invariants.filter(
-    (inv: Invariant) =>
-      getType(inv.datatype) === ConstraintTypes.NUMBER ||
-      getType(inv.datatype) === ConstraintTypes.BOOL ||
-      getType(inv.datatype) === ConstraintTypes.SPECIAL
+  const constraintsInvariant: Array<Invariant> = invariants.filter(
+    // Filter invariants to keep only invariants can be constraint
+    (inv: Invariant) => isColorationInvariant(inv.datatype)
   );
 
   const getConstraintFromName = (name: string): Invariant => {
-    return constraintInvariant.find((inv) => inv.name === name) as Invariant;
+    return constraintsInvariant.find((inv) => inv.name === name) as Invariant;
   };
 
   // Orders reducer
@@ -224,11 +250,12 @@ const Form = ({
 
       case ConstraintAction.CHANGE_NAME:
         const new_constraint = getConstraintFromName(action.name as string);
+
         const new_state_name = state.map((item: Constraint) => {
           if (item.id === action.id) {
             item.name = new_constraint.name;
             item.tablename = new_constraint.tablename;
-            item.type = getType(new_constraint.datatype);
+            item.type = convertToConstraintType(new_constraint.datatype);
             item.min = item.type === ConstraintTypes.BOOL ? 1 : 0;
             item.max = 1;
           }
@@ -277,6 +304,16 @@ const Form = ({
         setCurrentId(1);
         return [initialConstraint(1)];
 
+      case ConstraintAction.ERASE_NAME:
+        const new_state_erase_name = state.map((item: Constraint) => {
+          if (item.id === action.id) {
+            item.name = "";
+            item.type = ConstraintTypes.NONE;
+          }
+          return item;
+        });
+        return new_state_erase_name;
+
       default:
         throw new Error();
     }
@@ -289,6 +326,10 @@ const Form = ({
   // Constraints controllers
   const handleChangeName = (id: number, name: string) => {
     mainContext.reset();
+    if (name === "") {
+      dispatchConstraints({ type: ConstraintAction.ERASE_NAME, id });
+      return;
+    }
     dispatchConstraints({ type: ConstraintAction.CHANGE_NAME, id, name });
   };
 
@@ -528,7 +569,9 @@ const Form = ({
                     handleChangeX(newValue as string)
                   }
                   options={invariants
-                    .filter((inv) => getType(inv.datatype) === "number")
+                    .filter((inv: Invariant) =>
+                      isNumericalInvariant(inv.datatype)
+                    )
                     .map((inv) => inv.name)}
                   renderInput={(params) => (
                     <TextField {...params} label="Invariant X" />
@@ -566,7 +609,9 @@ const Form = ({
                     handleChangeY(newValue as string)
                   }
                   options={invariants
-                    .filter((inv) => getType(inv.datatype) === "number")
+                    .filter((inv: Invariant) =>
+                      isNumericalInvariant(inv.datatype)
+                    )
                     .map((inv) => inv.name)}
                   sx={{ m: 1 }}
                   renderInput={(params) => (
@@ -576,7 +621,7 @@ const Form = ({
                 />
               </Paper>
             </Grid>
-            {/* COLOR CARD (phoeg app) OR ORDERS CARD (autoconjecture app) */}
+            {/* ORDERS CARD (autoconjecture app) OR COLOR CARD (phoeg app) */}
             <Grid item xs={3.9}>
               {withOrders ? (
                 <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
@@ -792,12 +837,7 @@ const Form = ({
                       handleChangeColoration(newValue as string)
                     }
                     options={invariants
-                      .filter(
-                        (inv) =>
-                          getType(inv.datatype) === "number" ||
-                          getType(inv.datatype) === "bool" ||
-                          getType(inv.datatype) === "special"
-                      )
+                      .filter((inv) => isColorationInvariant(inv.datatype))
                       .map((inv) => inv.name)}
                     sx={{ m: 1 }}
                     renderInput={(params) => (
@@ -810,7 +850,7 @@ const Form = ({
             </Grid>
           </Grid>
 
-          {/* Concave hull option */}
+          {/* Concave hull option only in PHOEG app */}
           {withConcave !== undefined && setWithConcave !== undefined && (
             <Box sx={{ mt: 1, display: "flex", justifyContent: "center" }}>
               <Typography variant="body1">
@@ -830,6 +870,7 @@ const Form = ({
 
           {/* CONSTRAINTS SUB FORM */}
           {showConstrSubForm ? (
+            // Constraints mode
             <Box>
               <Divider sx={{ mt: 2, mb: 2 }} />
               <Box
@@ -950,7 +991,9 @@ const Form = ({
                                 newValue === null ? "" : newValue
                               )
                             }
-                            options={constraintInvariant.map((inv) => inv.name)}
+                            options={constraintsInvariant.map(
+                              (inv) => inv.name
+                            )}
                             sx={{ m: 1 }}
                             renderInput={(params) => (
                               <TextField {...params} label="Invariant" />

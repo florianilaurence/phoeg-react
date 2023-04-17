@@ -26,7 +26,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 
 export interface Invariant {
   tablename: string;
-  datatype: number;
+  datatype: string;
   name: string;
   description: string;
 }

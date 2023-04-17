@@ -23,7 +23,6 @@ import {
 import {
   ChartData,
   Concave,
-  Coordinate,
   CoordinateAutoconj,
   CoordinateGrouped,
   initialMainState,
@@ -49,7 +48,6 @@ import {
   setIsFYSearched,
   setIsMore,
 } from "../../store/actions/conj_action";
-import Rational from "./result/utils/rational";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
