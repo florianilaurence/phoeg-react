@@ -8,11 +8,17 @@ export interface ColorationObject {
 export interface ColorationsState {
   objects: Array<ColorationObject>;
   ready: boolean;
+  minColoration: string;
+  maxColoration: string;
+  hasChanged: boolean;
 }
 
 export const initialColorationsState: ColorationsState = {
   objects: [],
   ready: false,
+  minColoration: "#000000",
+  maxColoration: "#00ff00",
+  hasChanged: false,
 };
 
 export const ColorationsReducer = (
@@ -40,6 +46,24 @@ export const ColorationsReducer = (
           }
         }),
       };
+    case ColorationsAction.CHANGE_MIN: // Change min coloration for gradient
+      return {
+        ...state,
+        minColoration: action.newColoration,
+        hasChanged: true,
+      };
+    case ColorationsAction.CHANGE_MAX: // Change max coloration for gradient
+      return {
+        ...state,
+        maxColoration: action.newColoration,
+        hasChanged: true,
+      };
+    case ColorationsAction.RESET_HAS_CHANGED:
+      return {
+        ...state,
+        hasChanged: false,
+      };
+
     default:
       return state;
   }

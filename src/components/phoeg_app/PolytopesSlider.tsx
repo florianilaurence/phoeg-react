@@ -1,16 +1,15 @@
-import { useContext, useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer } from "react";
 import { Grid, IconButton, Slider, Tooltip, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import Loading from "../Loading";
 import Chart from "../chart/Chart";
-import Title from "../styles_and_settings/Title";
 import { deepOrange, green, grey, orange } from "@mui/material/colors";
 import SubTitle from "../styles_and_settings/SubTitle";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 import MainContext from "../../store/utils/main_context";
-import Legend from "../chart/Legend";
+import Legend from "../chart/legend/Legend";
 import { scaleLinear } from "@visx/scale";
 import ColorationsContext from "../../store/utils/colorations_context";
 import {
@@ -19,6 +18,9 @@ import {
   initialColorationsState,
 } from "../../store/reducers/colorations_reducer";
 import {
+  changeMaxColoration,
+  changeMinColoration,
+  resetHasChanged,
   setDataCols,
   updateAColoration,
 } from "../../store/actions/colorations_action";
@@ -110,9 +112,10 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
       mainContext.minMax!.minColor,
       mainContext.minMax!.maxColor,
     ],
-    range: ["#000000", "#00ff00"],
+    range: [stateColsObject.minColoration, stateColsObject.maxColoration],
     clamp: true,
   });
+
   if (!stateColsObject.ready) {
     return <Loading height="1000px" />;
   } else {
@@ -126,6 +129,15 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
           },
           updateAColoration: (average: number, coloration: string) => {
             updateAColoration(average, coloration, dispatchColsObject);
+          },
+          changeMinColoration: (newColoration: string) => {
+            changeMinColoration(newColoration, dispatchColsObject);
+          },
+          changeMaxColoration: (newColoration: string) => {
+            changeMaxColoration(newColoration, dispatchColsObject);
+          },
+          resetHasChanged: () => {
+            resetHasChanged(dispatchColsObject);
           },
         }}
       >
@@ -224,10 +236,12 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
             </Grid>
           </Grid>
           {withConcave && mainContext.concave && (
-            <Legend withConcave={withConcave} />
+            <Legend withConcave={withConcave} colorScale={colorScale} />
           )}
 
-          {!withConcave && <Legend withConcave={withConcave} />}
+          {!withConcave && (
+            <Legend withConcave={withConcave} colorScale={colorScale} />
+          )}
 
           {/* Show which point is clicked */}
           {mainContext.pointClicked && (

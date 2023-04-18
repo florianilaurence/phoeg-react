@@ -9,6 +9,9 @@ const ColorationsContext = createContext({
 
   setDataCols: (objects: Array<ColorationObject>) => {},
   updateAColoration: (average: number, coloration: string) => {},
+  changeMinColoration: (newColoration: string) => {},
+  changeMaxColoration: (newColoration: string) => {},
+  resetHasChanged: () => {},
 });
 
 export default ColorationsContext;

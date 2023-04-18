@@ -9,7 +9,7 @@ import { DirectionColors } from "../../chart/DrawConcave";
 import { containsCoordinate } from "../../form_fetch/Fetch";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import ClearIcon from "@mui/icons-material/Clear";
-import Legend from "../../chart/Legend";
+import Legend from "../../chart/legend/Legend";
 
 const PolytopesContainer = () => {
   const mainContext = useContext(MainContext);

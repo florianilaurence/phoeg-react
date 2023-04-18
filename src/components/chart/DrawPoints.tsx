@@ -40,6 +40,34 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
     setShowModal(true);
   };
 
+  const generateTooltip = (point: CoordinateGrouped) => {
+    let result =
+      mainContext.labelX +
+      " = " +
+      point.x +
+      " | " +
+      mainContext.labelY +
+      " = " +
+      point.y;
+
+    if (mainContext.labelColor !== "") {
+      result += " | " + mainContext.labelColor + " = ";
+      if (point.colors.length === 1) {
+        result += point.colors[0];
+      } else {
+        result += "[" + point.colors.join(", ") + "]";
+        result += " | average = " + point.averageCols;
+      }
+    }
+    result += " | mult";
+    if (point.mults.length === 1) {
+      result += " = " + point.mults[0];
+    } else {
+      result += "s = [" + point.mults.join(", ") + "]";
+    }
+    return result;
+  };
+
   return (
     <>
       <Group>
@@ -57,7 +85,6 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
                     ? 7
                     : 4
                 }
-                fillOpacity={0.75}
                 fill={
                   mainContext.labelColor === ""
                     ? "black"
@@ -68,19 +95,7 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
                 }
                 onClick={() => handleClickOnCircle(point)}
                 onMouseEnter={() => {
-                  setTooltipData(
-                    mainContext.labelX +
-                      " = " +
-                      point.x +
-                      " | " +
-                      mainContext.labelY +
-                      " = " +
-                      point.y +
-                      " | colors = " +
-                      point.colors[0] +
-                      " | mult = " +
-                      point.mults[0]
-                  );
+                  setTooltipData(generateTooltip(point));
                 }}
                 onMouseLeave={() => {
                   setTooltipData("");
@@ -100,7 +115,6 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
                     ? 115
                     : 50
                 }
-                fillOpacity={0.75}
                 fill={
                   mainContext.labelColor === ""
                     ? "black"
@@ -111,22 +125,7 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
                 }
                 onClick={() => handleClickOnStar(point)}
                 onMouseEnter={() => {
-                  setTooltipData(
-                    mainContext.labelX +
-                      " = " +
-                      point.x +
-                      " | " +
-                      mainContext.labelY +
-                      " = " +
-                      point.y +
-                      " | colors = [ " +
-                      point.colors +
-                      " ] | mean of colors = " +
-                      point.averageCols +
-                      " ] | mults = [ " +
-                      point.mults +
-                      " ]"
-                  );
+                  setTooltipData(generateTooltip(point));
                 }}
                 onMouseLeave={() => {
                   setTooltipData("");
