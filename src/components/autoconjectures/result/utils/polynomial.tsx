@@ -115,6 +115,7 @@ export default class Polynomial {
     degree: number,
     inLatex: boolean
   ): string {
+    if (coeff === undefined) return "";
     if (typeof coeff === "string") {
       if (degree === 0) {
         return "+(" + coeff + ")";

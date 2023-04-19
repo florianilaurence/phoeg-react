@@ -17,6 +17,7 @@ const PolytopesContainer = () => {
   const keys = Object.keys(mainContext.concaves[0]);
 
   const onClickLegendConcave = (key: string) => {
+    mainContext.setSubmitAutoconj(false);
     const previousSimplifiedPoints = mainContext.simplifiedPoints;
     const previousPointsClicked = mainContext.pointsClicked;
 
@@ -90,10 +91,10 @@ const PolytopesContainer = () => {
                 sx={{
                   mr: 1,
                 }}
-                key={`leg-dir-${dir}`}
+                key={`leg-dir-${dir}-${i}`}
               >
                 <Tooltip
-                  title="Click to select all points in this direction"
+                  title="Click to select all points in all polytopes for this family"
                   placement="top"
                 >
                   <Button

@@ -161,7 +161,11 @@ const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
                       justifyContent: "space-evenly",
                     }}
                   >
-                    <RenderOneConjecture conjecture={conj} direction={key} />
+                    <RenderOneConjecture
+                      maxLenEq={75}
+                      conjecture={conj}
+                      direction={key}
+                    />
                   </Box>
                 );
               })}

@@ -13,13 +13,13 @@ import CloseIcon from "@mui/icons-material/Close";
 
 interface RenderOneConjectureProps {
   conjecture: string;
+  maxLenEq: number;
   direction?: string;
 }
 
-const maxLenEq = 75;
-
 const RenderOneConjecture = ({
   conjecture,
+  maxLenEq,
   direction,
 }: RenderOneConjectureProps) => {
   const [showDialogConj, setShowDialogConj] = useState(false);

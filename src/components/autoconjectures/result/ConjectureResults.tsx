@@ -63,7 +63,7 @@ const ConjectureResults = () => {
       <SubTitle> Your result{res.length < 2 ? "" : "s"} </SubTitle>
       {res.map((conj) => (
         <div key={conj}>
-          <RenderOneConjecture conjecture={conj} />
+          <RenderOneConjecture maxLenEq={150} conjecture={conj} />
         </div>
       ))}
     </Box>

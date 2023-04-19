@@ -45,49 +45,53 @@ const LegendConcaves = ({ currentIndexOrder }: LegendAutoAppProps) => {
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      {dirsKeys.map((dir, i) => {
-        return (
-          <Box className="dirs-container" key={`dirs-container-${i}`}>
-            <Typography variant="body1" fontSize={14} fontStyle="italic">
-              Points families:
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                mr: 1,
-              }}
-            >
-              <Tooltip title="Click to select all points in this direction">
-                <Button
-                  variant="text"
-                  onClick={() => onClickLegendConcave(dir)}
-                >
-                  <Typography
-                    variant="body1"
-                    fontSize={10}
-                    color={DirectionColors[dir]}
-                    fontWeight="bold"
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Typography variant="body1" fontSize={14} fontStyle="italic">
+        Points families:
+      </Typography>
+      <Box
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        {dirsKeys.map((dir, i) => {
+          return (
+            <Box className="dirs-container" key={`dirs-container-${i}`}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mr: 1,
+                }}
+              >
+                <Tooltip title="Click to select all points in this direction">
+                  <Button
+                    variant="text"
+                    onClick={() => onClickLegendConcave(dir)}
                   >
-                    {dir}
-                  </Typography>
-                </Button>
-              </Tooltip>
-              {i !== dirsKeys.length - 1 && (
-                <Divider
-                  sx={{
-                    ml: 1,
-                  }}
-                  orientation="vertical"
-                  variant="middle"
-                  flexItem
-                />
-              )}
+                    <Typography
+                      variant="body1"
+                      fontSize={10}
+                      color={DirectionColors[dir]}
+                      fontWeight="bold"
+                    >
+                      {dir}
+                    </Typography>
+                  </Button>
+                </Tooltip>
+                {i !== dirsKeys.length - 1 && (
+                  <Divider
+                    sx={{
+                      ml: 1,
+                    }}
+                    orientation="vertical"
+                    variant="middle"
+                    flexItem
+                  />
+                )}
+              </Box>
             </Box>
-          </Box>
-        );
-      })}
+          );
+        })}
+      </Box>
     </Box>
   );
 };
