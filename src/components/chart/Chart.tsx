@@ -10,6 +10,11 @@ import { Box } from "@mui/system";
 import DrawEnvelope from "./DrawEnvelope";
 import DrawPoints from "./DrawPoints";
 import { Typography } from "@mui/material";
+import { UncontrolledReactSVGPanZoom } from "react-svg-pan-zoom";
+import {
+  ReactSvgPanZoomLoader,
+  SvgLoaderSelectElement,
+} from "react-svg-pan-zoom-loader";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
@@ -73,76 +78,156 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
     [innerHeight, mainContext.minMax, mainContext.minMaxList]
   );
 
-  return (
-    <>
-      <Box sx={{ height: "17px", width: "100%" }}>
-        <Typography fontSize={12} align="right">
-          {tooltipData}
-        </Typography>
-      </Box>
-      <svg width={width} height={height} ref={svgRef}>
-        <rect width={width} height={height} rx={14} fill={background} />
-        <Group>
-          <AxisLeft
-            scale={yScale}
-            left={margin.left}
-            label={mainContext.labelY}
-          />
-          <AxisBottom
-            scale={xScale}
-            top={innerHeight}
-            label={mainContext.labelX}
-          />
-          <GridRows
-            left={margin.left}
-            scale={yScale}
-            width={innerWidth}
-            strokeDasharray="1"
-            stroke={"#464646"}
-            strokeOpacity={0.25}
-            pointerEvents="none"
-          />
-          <GridColumns
-            top={margin.top}
-            scale={xScale}
-            height={innerHeight}
-            strokeDasharray="1"
-            stroke={"#464646"}
-            strokeOpacity={0.25}
-            pointerEvents="none"
-          />
+  if (mainContext.concaves.length === 0) {
+    return (
+      <ReactSvgPanZoomLoader
+        src="test-digram.svg"
+        proxy={
+          <>
+            <SvgLoaderSelectElement
+              selector="#maturetree"
+              onClick={(e) => alert("Tree")}
+            />
+          </>
+        }
+        render={(content) => (
+          <>
+            <Box sx={{ height: "17px", width: "100%" }}>
+              <Typography fontSize={12} align="right">
+                {tooltipData}
+              </Typography>
+            </Box>
+            <UncontrolledReactSVGPanZoom width={width} height={height}>
+              <svg width={width} height={height} ref={svgRef}>
+                <rect width={width} height={height} rx={14} fill={background} />
+                <Group>
+                  <AxisLeft
+                    scale={yScale}
+                    left={margin.left}
+                    label={mainContext.labelY}
+                  />
+                  <AxisBottom
+                    scale={xScale}
+                    top={innerHeight}
+                    label={mainContext.labelX}
+                  />
+                  <GridRows
+                    left={margin.left}
+                    scale={yScale}
+                    width={innerWidth}
+                    strokeDasharray="1"
+                    stroke={"#464646"}
+                    strokeOpacity={0.25}
+                    pointerEvents="none"
+                  />
+                  <GridColumns
+                    top={margin.top}
+                    scale={xScale}
+                    height={innerHeight}
+                    strokeDasharray="1"
+                    stroke={"#464646"}
+                    strokeOpacity={0.25}
+                    pointerEvents="none"
+                  />
 
-          <DrawEnvelope
-            xScale={xScale}
-            yScale={yScale}
-            currentIndexOrder={currentIndexOrder}
-          />
+                  <DrawEnvelope
+                    xScale={xScale}
+                    yScale={yScale}
+                    currentIndexOrder={currentIndexOrder}
+                  />
 
-          {withConcave && (
-            <DrawConcave
+                  {withConcave && (
+                    <DrawConcave
+                      xScale={xScale}
+                      yScale={yScale}
+                      setTooltipData={setTooltipData}
+                      currentIndexOrder={currentIndexOrder}
+                    />
+                  )}
+
+                  {currentIndexOrder === undefined && (
+                    <DrawPoints
+                      xScale={xScale}
+                      yScale={yScale}
+                      setTooltipData={setTooltipData}
+                    />
+                  )}
+                </Group>
+              </svg>
+            </UncontrolledReactSVGPanZoom>
+            <Box sx={{ height: "17px", width: "100%" }}>
+              <Typography fontSize={12} align="right">
+                {tooltipData}
+              </Typography>
+            </Box>
+          </>
+        )}
+      />
+    );
+  } else {
+    return (
+      <>
+        <Box sx={{ height: "17px", width: "100%" }}>
+          <Typography fontSize={12} align="right">
+            {tooltipData}
+          </Typography>
+        </Box>
+        <svg width={width} height={height} ref={svgRef}>
+          <rect width={width} height={height} rx={14} fill={background} />
+          <Group>
+            <AxisLeft
+              scale={yScale}
+              left={margin.left}
+              label={mainContext.labelY}
+            />
+            <AxisBottom
+              scale={xScale}
+              top={innerHeight}
+              label={mainContext.labelX}
+            />
+            <GridRows
+              left={margin.left}
+              scale={yScale}
+              width={innerWidth}
+              strokeDasharray="1"
+              stroke={"#464646"}
+              strokeOpacity={0.25}
+              pointerEvents="none"
+            />
+            <GridColumns
+              top={margin.top}
+              scale={xScale}
+              height={innerHeight}
+              strokeDasharray="1"
+              stroke={"#464646"}
+              strokeOpacity={0.25}
+              pointerEvents="none"
+            />
+
+            <DrawEnvelope
               xScale={xScale}
               yScale={yScale}
-              setTooltipData={setTooltipData}
               currentIndexOrder={currentIndexOrder}
             />
-          )}
 
-          {currentIndexOrder === undefined && (
-            <DrawPoints
-              xScale={xScale}
-              yScale={yScale}
-              setTooltipData={setTooltipData}
-            />
-          )}
-        </Group>
-      </svg>
-      <Box sx={{ height: "17px", width: "100%" }}>
-        <Typography fontSize={12} align="right">
-          {tooltipData}
-        </Typography>
-      </Box>
-    </>
-  );
+            {withConcave && (
+              <DrawConcave
+                xScale={xScale}
+                yScale={yScale}
+                setTooltipData={setTooltipData}
+                currentIndexOrder={currentIndexOrder}
+              />
+            )}
+          </Group>
+        </svg>
+        <Box sx={{ height: "17px", width: "100%" }}>
+          <Typography fontSize={12} align="right">
+            {tooltipData}
+          </Typography>
+        </Box>
+      </>
+    );
+  }
 };
 
 export interface ScalesProps {

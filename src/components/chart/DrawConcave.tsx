@@ -95,7 +95,7 @@ const DrawConcave = ({
                     className="circle"
                     cx={xScale(point.x)}
                     cy={yScale(point.y)}
-                    r={point.clicked ? 5 : 3}
+                    r={point.clicked ? 8 : 5}
                     fill={point.clicked ? "red" : "black"}
                     onClick={() => onClickCircle(point)}
                     onMouseEnter={() => {
