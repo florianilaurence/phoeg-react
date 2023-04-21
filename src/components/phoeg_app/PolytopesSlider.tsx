@@ -44,15 +44,6 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
     initialColorationsState
   );
 
-  const colorScale = scaleLinear<string>({
-    domain: mainContext.minMax && [
-      mainContext.minMax!.minColor,
-      mainContext.minMax!.maxColor,
-    ],
-    range: [stateColsObject.minColoration, stateColsObject.maxColoration],
-    clamp: true,
-  });
-
   useEffect(() => {
     let objects: Array<ColorationObject> = [];
     let viewedAverages: Array<number> = [];
@@ -70,7 +61,7 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
       return colObject1.average - colObject2.average;
     });
     setDataCols(objects, dispatchColsObject);
-  }, [mainContext.order, mainContext.coordinates, colorScale]);
+  }, [mainContext.order, mainContext.coordinates]);
 
   const nextOrder = () => {
     if (mainContext.order < 10) {
@@ -115,6 +106,15 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
         return green[800];
     }
   };
+
+  const colorScale = scaleLinear<string>({
+    domain: mainContext.minMax && [
+      mainContext.minMax!.minColor,
+      mainContext.minMax!.maxColor,
+    ],
+    range: [stateColsObject.minColoration, stateColsObject.maxColoration],
+    clamp: true,
+  });
 
   if (!stateColsObject.ready) {
     return <Loading height="1000px" />;

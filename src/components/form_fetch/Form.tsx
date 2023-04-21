@@ -123,7 +123,6 @@ const isColorationInvariant = (type: string): boolean => {
     type === InvariantTypes.BOOLEAN ||
     type === InvariantTypes.NUMBER ||
     type === InvariantTypes.INTEGER ||
-    type === InvariantTypes.RATIONAL ||
     type === InvariantTypes.REAL ||
     type === InvariantTypes.DOUBLE ||
     type === InvariantTypes.SPECIAL
@@ -156,6 +155,7 @@ const Form = ({
 
   const [invWithRat, setInvWithRat] = useState<Array<Invariant>>([]); // Sorted invariants with rational (remove duplicates)
   const [invWithoutRat, setInvWithoutRat] = useState<Array<Invariant>>([]); // Sorted invariants without rational
+  const [invColoration, setInvColoration] = useState<Array<Invariant>>([]); // Sorted invariants for coloration
 
   useEffect(() => {
     // Sort invariants by type
@@ -181,8 +181,13 @@ const Form = ({
       return isNumericalInvariant(inv.datatype);
     });
 
+    const invColoration: Array<Invariant> = invariants.filter((inv) => {
+      return isColorationInvariant(inv.datatype);
+    });
+
     setInvWithRat(invWithRat);
     setInvWithoutRat(invWithoutRat);
+    setInvColoration(invColoration);
   }, [invariants]);
 
   const handleOpen = () => {
@@ -600,7 +605,9 @@ const Form = ({
                   }
                   options={
                     withOrders
-                      ? invWithRat.map((inv) => inv.name)
+                      ? invWithRat.map((inv) =>
+                          inv.name.replace(" (rational)", "")
+                        )
                       : invWithoutRat.map((inv) => inv.name)
                   }
                   renderInput={(params) => (
@@ -640,7 +647,9 @@ const Form = ({
                   }
                   options={
                     withOrders
-                      ? invWithRat.map((inv) => inv.name)
+                      ? invWithRat.map((inv) =>
+                          inv.name.replace(" (rational)", "")
+                        )
                       : invWithoutRat.map((inv) => inv.name)
                   }
                   sx={{ m: 1 }}
@@ -867,11 +876,9 @@ const Form = ({
                     onChange={(event, newValue) =>
                       handleChangeColoration(newValue as string)
                     }
-                    options={
-                      withOrders
-                        ? invWithRat.map((inv) => inv.name)
-                        : invWithoutRat.map((inv) => inv.name)
-                    }
+                    options={invariants
+                      .filter((inv) => isColorationInvariant(inv.datatype))
+                      .map((inv) => inv.name)}
                     sx={{ m: 1 }}
                     renderInput={(params) => (
                       <TextField {...params} label="Invariant color" />
