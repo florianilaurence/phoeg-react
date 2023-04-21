@@ -1,19 +1,18 @@
 import MainContext from "../../../store/utils/main_context";
-import { useContext, useEffect, useReducer, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import {
   inequality_latex,
   main_func,
   searched_f,
 } from "../result/utils/autoconjectures";
 import { ConcavesRefactoredProps } from "./MyTabs";
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  Paper,
-} from "@mui/material";
+import { Box, Grid, Paper } from "@mui/material";
 import SubSubTitle from "../../styles_and_settings/SubSubTitle";
 import Loading from "../../Loading";
 import RenderOneConjecture from "../result/RenderOneConjecture";
@@ -87,7 +86,7 @@ const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
 
   const keys = Object.keys(initialResultConjectures);
 
-  const computeConjectures = async () => {
+  const computeConjectures = useCallback(() => {
     const tempResultConjectures: ResultConjectures = {
       ...initialResultConjectures,
     };
@@ -127,17 +126,16 @@ const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
     }
 
     return tempResultConjectures;
-  };
+  }, [concavesRefactored, keys, mainContext.orders]);
 
   useEffect(() => {
-    computeConjectures().then((res) => {
-      dispatchConj({
-        type: ConjAction.SET_DATA,
-        payload: res,
-      });
-      setIsLoading(false);
+    const result = computeConjectures();
+    dispatchConj({
+      type: ConjAction.SET_DATA,
+      payload: result,
     });
-  }, [mainContext.concaves, isLoading]);
+    setIsLoading(false);
+  }, [mainContext.concaves, isLoading, computeConjectures]);
 
   if (isLoading) {
     return <Loading height={"250px"} />;

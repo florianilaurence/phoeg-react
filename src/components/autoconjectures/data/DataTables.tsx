@@ -1,12 +1,8 @@
-import MainContext from "../../../store/utils/main_context";
-import { useContext } from "react";
 import { Grid } from "@mui/material";
 import TableDirection from "./TableDirection";
 import { ConcavesRefactoredProps } from "./MyTabs";
 
 const DataTables = ({ concavesRefactored }: ConcavesRefactoredProps) => {
-  const mainContext = useContext(MainContext);
-
   const keys = Object.keys(concavesRefactored);
 
   return (

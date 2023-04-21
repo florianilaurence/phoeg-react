@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { API_URL } from "../../.env";
 import { stringify } from "qs";
 import axios from "axios";
@@ -125,17 +125,56 @@ export const containsCoordinate = (
 const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
   const mainContext = useContext(MainContext);
 
-  useEffect(() => {
-    mainContext.clearData();
-    mainContext.setIsLoading(true);
-    if (withOrders) {
-      autoconjUseEffect();
-    } else {
-      phoegUseEffect();
-    }
-  }, [mainContext.order]);
+  const phoegFetchData = useCallback(
+    (
+      requestEnvelope: URL,
+      requestPoints: URL,
+      body: { query: string },
+      requestConcave?: URL
+    ) => {
+      const requests = [requestEnvelope.toString(), requestPoints.toString()];
+      if (requestConcave) requests.push(requestConcave.toString());
+      return axios
+        .all([
+          axios.post(requestEnvelope.toString(), body),
+          axios.post(requestPoints.toString(), body),
+          axios.post(
+            requestConcave
+              ? requestConcave.toString()
+              : requestEnvelope.toString(),
+            body
+          ),
+        ])
+        .then(
+          axios.spread((envelope, points, concave) => {
+            let newCoordinates: Array<CoordinateGrouped> = [];
+            if (
+              mainContext.labelColor !== "" &&
+              mainContext.labelColor !== "Multiplicity"
+            ) {
+              newCoordinates = regroupByXY(points.data.coordinates);
+            } else {
+              newCoordinates = convertToCoordinateGrouped(
+                points.data.coordinates
+              );
+            }
+            return {
+              envelope: envelope.data,
+              minMax: points.data.minMax,
+              coordinates: newCoordinates,
+              sorted: points.data.sorted,
+              concave: concave.data.concave,
+              error: "",
+              pointClicked: null,
+              legendClicked: null,
+            };
+          })
+        );
+    },
+    [mainContext.labelColor]
+  );
 
-  const phoegUseEffect = () => {
+  const phoegUseEffect = useCallback(() => {
     const constraints = decodeConstraints(mainContext.constraints);
     const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
     const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
@@ -150,27 +189,25 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
       constraints: constraints,
     });
     const envelope_request = new URL(
-      `${API_URL}/graphs/polytope` + "?" + part_request
+      `${API_URL}/graphs/polytope?${part_request}`
     );
     const points_request = new URL(
-      `${API_URL}/graphs/points` +
-        "?" +
-        stringify({
-          order: mainContext.order,
-          x_invariant: x_tablename,
-          y_invariant: y_tablename,
-          colour:
-            color_tablename === "num_vertices" || color_tablename === "mult"
-              ? null
-              : color_tablename,
-          constraints: constraints,
-        })
+      `${API_URL}/graphs/points?${stringify({
+        order: mainContext.order,
+        x_invariant: x_tablename,
+        y_invariant: y_tablename,
+        colour:
+          color_tablename === "num_vertices" || color_tablename === "mult"
+            ? null
+            : color_tablename,
+        constraints: constraints,
+      })}`
     );
     const advanced_constraints = {
       query: mainContext.advancedConstraints,
     };
     const concave_request = new URL(
-      `${API_URL}/graphs/concave` + "?" + part_request
+      `${API_URL}/graphs/concave?${part_request}`
     );
 
     withConcave
@@ -197,55 +234,29 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
             mainContext.setError(error);
             mainContext.setIsLoading(false);
           });
-  };
+  }, [invariants, mainContext, phoegFetchData, withConcave]);
 
-  const phoegFetchData = (
-    requestEnvelope: URL,
-    requestPoints: URL,
-    body: { query: string },
-    requestConcave?: URL
-  ) => {
-    const requests = [requestEnvelope.toString(), requestPoints.toString()];
-    if (requestConcave) requests.push(requestConcave.toString());
-    return axios
-      .all([
-        axios.post(requestEnvelope.toString(), body),
-        axios.post(requestPoints.toString(), body),
-        axios.post(
-          requestConcave
-            ? requestConcave.toString()
-            : requestEnvelope.toString(),
-          body
-        ),
-      ])
-      .then(
-        axios.spread((envelope, points, concave) => {
-          let newCoordinates: Array<CoordinateGrouped> = [];
-          if (
-            mainContext.labelColor !== "" &&
-            mainContext.labelColor !== "Multiplicity"
-          ) {
-            newCoordinates = regroupByXY(points.data.coordinates);
-          } else {
-            newCoordinates = convertToCoordinateGrouped(
-              points.data.coordinates
-            );
-          }
-          return {
-            envelope: envelope.data,
-            minMax: points.data.minMax,
-            coordinates: newCoordinates,
-            sorted: points.data.sorted,
-            concave: concave.data.concave,
-            error: "",
-            pointClicked: null,
-            legendClicked: null,
-          };
-        })
-      );
-  };
+  const autoconjFetchData = useCallback(
+    (requestConcave: URL, requestEnvelopes: URL, body: { query: string }) => {
+      return axios
+        .all([
+          axios.post(requestConcave.toString(), body),
+          axios.post(requestEnvelopes.toString(), body),
+        ])
+        .then(
+          axios.spread((concaves, envelopes) => {
+            return {
+              concaves: concaves.data.concaves,
+              minMax: concaves.data.minMax,
+              envelopes: envelopes.data,
+            };
+          })
+        );
+    },
+    []
+  );
 
-  const autoconjUseEffect = () => {
+  const autoconjUseEffect = useCallback(() => {
     const constraints = decodeConstraints(mainContext.constraints);
     const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
     const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
@@ -256,19 +267,19 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
       y_invariant: y_tablename,
       constraints: constraints,
     });
-    const concave_request = new URL(
-      `${API_URL}/graphs/concaves` + "?" + part_request
+    const concaves_request = new URL(
+      `${API_URL}/graphs/concaves?${part_request}`
     );
 
     const envelopes_request = new URL(
-      `${API_URL}/graphs/polytopes` + "?" + part_request
+      `${API_URL}/graphs/polytopes?${part_request}`
     );
 
     const advanced_constraints = {
       query: mainContext.advancedConstraints,
     };
 
-    autoconjFetchData(concave_request, envelopes_request, advanced_constraints)
+    autoconjFetchData(concaves_request, envelopes_request, advanced_constraints)
       .then((data) => {
         mainContext.setIsLoading(false);
         const tempPoints: Array<Array<CoordinateAutoconj>> = [];
@@ -295,28 +306,23 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
         mainContext.setError(error);
         mainContext.setIsLoading(false);
       });
-  };
+  }, [autoconjFetchData, invariants, mainContext]);
 
-  const autoconjFetchData = async (
-    requestConcave: URL,
-    requestEnvelopes: URL,
-    body: { query: string }
-  ) => {
-    return axios
-      .all([
-        axios.post(requestConcave.toString(), body),
-        axios.post(requestEnvelopes.toString(), body),
-      ])
-      .then(
-        axios.spread((concaves, envelopes) => {
-          return {
-            concaves: concaves.data.concaves,
-            minMax: concaves.data.minMax,
-            envelopes: envelopes.data,
-          };
-        })
-      );
-  };
+  useEffect(() => {
+    mainContext.clearData();
+    mainContext.setIsLoading(true);
+    if (withOrders) {
+      autoconjUseEffect();
+    } else {
+      phoegUseEffect();
+    }
+  }, [
+    mainContext.order,
+    autoconjUseEffect,
+    phoegUseEffect,
+    mainContext,
+    withOrders,
+  ]);
 
   return <></>;
 };

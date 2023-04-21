@@ -14,7 +14,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useContext, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
 import { Invariant } from "../phoeg_app/PolytopesSlider";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -113,7 +113,6 @@ const isNumericalInvariant = (type: string): boolean => {
   return (
     type === InvariantTypes.NUMBER ||
     type === InvariantTypes.INTEGER ||
-    type === InvariantTypes.RATIONAL ||
     type === InvariantTypes.REAL ||
     type === InvariantTypes.DOUBLE
   );
@@ -143,8 +142,8 @@ const convertToConstraintType = (type: string): ConstraintTypes => {
 
 const Form = ({
   invariants,
-  withOrders,
-  withConcave,
+  withOrders, // If true autoconjecture app, else phoeg app
+  withConcave, // If true phoeg app with concave, else phoeg app
   setWithConcave,
 }: FormProps) => {
   const HEIGHTCARD = withOrders ? 125 : 100;
@@ -154,6 +153,37 @@ const Form = ({
 
   const [openModal, setOpenModal] = useState(false);
   const [previousOrders, setPreviousOrders] = useState(""); // To save previous orders if user cancel
+
+  const [invWithRat, setInvWithRat] = useState<Array<Invariant>>([]); // Sorted invariants with rational (remove duplicates)
+  const [invWithoutRat, setInvWithoutRat] = useState<Array<Invariant>>([]); // Sorted invariants without rational
+
+  useEffect(() => {
+    // Sort invariants by type
+    const viewedRat: Array<string> = [];
+    invariants.forEach((inv) => {
+      if (inv.datatype === InvariantTypes.RATIONAL) {
+        viewedRat.push(inv.tablename.replace("_rational", ""));
+      }
+    });
+
+    const invWithRat: Array<Invariant> = [];
+    invariants.forEach((inv) => {
+      if (inv.datatype === InvariantTypes.RATIONAL) {
+        invWithRat.push(inv);
+      } else if (isNumericalInvariant(inv.datatype)) {
+        if (!viewedRat.includes(inv.tablename)) {
+          invWithRat.push(inv);
+        }
+      }
+    });
+
+    const invWithoutRat: Array<Invariant> = invariants.filter((inv) => {
+      return isNumericalInvariant(inv.datatype);
+    });
+
+    setInvWithRat(invWithRat);
+    setInvWithoutRat(invWithoutRat);
+  }, [invariants]);
 
   const handleOpen = () => {
     setPreviousOrders(stateOrders.field);
@@ -568,11 +598,11 @@ const Form = ({
                   onChange={(event, newValue) =>
                     handleChangeX(newValue as string)
                   }
-                  options={invariants
-                    .filter((inv: Invariant) =>
-                      isNumericalInvariant(inv.datatype)
-                    )
-                    .map((inv) => inv.name)}
+                  options={
+                    withOrders
+                      ? invWithRat.map((inv) => inv.name)
+                      : invWithoutRat.map((inv) => inv.name)
+                  }
                   renderInput={(params) => (
                     <TextField {...params} label="Invariant X" />
                   )}
@@ -608,11 +638,11 @@ const Form = ({
                   onChange={(event, newValue) =>
                     handleChangeY(newValue as string)
                   }
-                  options={invariants
-                    .filter((inv: Invariant) =>
-                      isNumericalInvariant(inv.datatype)
-                    )
-                    .map((inv) => inv.name)}
+                  options={
+                    withOrders
+                      ? invWithRat.map((inv) => inv.name)
+                      : invWithoutRat.map((inv) => inv.name)
+                  }
                   sx={{ m: 1 }}
                   renderInput={(params) => (
                     <TextField {...params} label="Invariant Y" />
@@ -807,6 +837,7 @@ const Form = ({
                   </Modal>
                 </Paper>
               ) : (
+                // COLOR CARD
                 <Paper elevation={3} sx={{ p: 1, height: HEIGHTCARD }}>
                   <Box sx={{ height: 40 }}>
                     <Typography
@@ -836,9 +867,11 @@ const Form = ({
                     onChange={(event, newValue) =>
                       handleChangeColoration(newValue as string)
                     }
-                    options={invariants
-                      .filter((inv) => isColorationInvariant(inv.datatype))
-                      .map((inv) => inv.name)}
+                    options={
+                      withOrders
+                        ? invWithRat.map((inv) => inv.name)
+                        : invWithoutRat.map((inv) => inv.name)
+                    }
                     sx={{ m: 1 }}
                     renderInput={(params) => (
                       <TextField {...params} label="Invariant color" />

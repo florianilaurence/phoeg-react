@@ -58,7 +58,7 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
         range: [margin.left, innerWidth],
         clamp: true,
       }),
-    [innerWidth, mainContext.minMax, mainContext.minMaxList]
+    [innerWidth, mainContext.minMax, mainContext.minMaxList, currentIndexOrder]
   );
 
   const yScale = useMemo(
@@ -75,7 +75,7 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
         range: [innerHeight, margin.top],
         clamp: true,
       }),
-    [innerHeight, mainContext.minMax, mainContext.minMaxList]
+    [innerHeight, mainContext.minMax, mainContext.minMaxList, currentIndexOrder]
   );
 
   if (mainContext.concaves.length === 0) {

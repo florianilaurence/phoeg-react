@@ -1,6 +1,6 @@
 import { Box, Grid, Slider, Typography } from "@mui/material";
 import axios from "axios";
-import { useContext, useEffect, useReducer } from "react";
+import { useCallback, useContext, useEffect, useReducer } from "react";
 import { API_URL } from "../../../.env";
 import MainContext from "../../../store/utils/main_context";
 import {
@@ -10,16 +10,15 @@ import {
 import { Invariant } from "../PolytopesSlider";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import GraphSlider from "./GraphSlider";
-import { stringify } from "querystring";
 
-interface Graphs {
+interface GraphsList {
   list: Array<string>;
   isLoading: boolean;
   error: string;
   nbGraphSlider: number;
 }
 
-export const initialGraphsState: Graphs = {
+export const initialGraphsState: GraphsList = {
   list: [],
   isLoading: false,
   error: "",
@@ -40,25 +39,34 @@ interface GraphsProps {
 export const Graphs = ({ invariants }: GraphsProps) => {
   const mainContext = useContext(MainContext);
 
-  const readGraph = (data: any) => {
-    const result: Array<string> = [];
-    const keys = Object.keys(data);
-    const invariantLength = data[keys[0]].length;
-    const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
-    const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
-    for (let i = 0; i < invariantLength; i++) {
-      const xValue = data[x_tablename][i];
-      const yValue = data[y_tablename][i];
-      const signValue = data["sig"][i];
-      if (
-        xValue === mainContext.pointClicked?.x &&
-        yValue === mainContext.pointClicked?.y
-      ) {
-        result.push(signValue);
+  const readGraph = useCallback(
+    (data: any) => {
+      const result: Array<string> = [];
+      const keys = Object.keys(data);
+      const invariantLength = data[keys[0]].length;
+      const x_tablename = getTablenameFromName(mainContext.labelX, invariants);
+      const y_tablename = getTablenameFromName(mainContext.labelY, invariants);
+      for (let i = 0; i < invariantLength; i++) {
+        const xValue = data[x_tablename][i];
+        const yValue = data[y_tablename][i];
+        const signValue = data["sig"][i];
+        if (
+          xValue === mainContext.pointClicked?.x &&
+          yValue === mainContext.pointClicked?.y
+        ) {
+          result.push(signValue);
+        }
       }
-    }
-    return result;
-  };
+      return result;
+    },
+    [
+      invariants,
+      mainContext.labelX,
+      mainContext.labelY,
+      mainContext.pointClicked?.x,
+      mainContext.pointClicked?.y,
+    ]
+  );
 
   const graphsReducer = (state: any, action: any) => {
     switch (action.type) {
@@ -142,7 +150,17 @@ export const Graphs = ({ invariants }: GraphsProps) => {
       query: mainContext.advancedConstraints,
     };
 
-    fetchData(graphs_request, advancedConstraints)
+    axios
+      .post(graphs_request.toString(), {
+        ...advancedConstraints,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .then((response) => {
+        return readGraph(response.data);
+      })
       .then((data) => {
         dispatchGraphs({
           type: GraphsAction.SET_LIST,
@@ -167,21 +185,17 @@ export const Graphs = ({ invariants }: GraphsProps) => {
           payload: false,
         });
       });
-  }, [mainContext.pointClicked]);
-
-  const fetchData = (request: URL, body: any) => {
-    return axios
-      .post(request.toString(), {
-        ...body,
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      })
-      .then((d) => {
-        return readGraph(d.data);
-      });
-  };
+  }, [
+    mainContext.pointClicked,
+    invariants,
+    mainContext.advancedConstraints,
+    mainContext.constraints,
+    mainContext.labelColor,
+    mainContext.labelX,
+    mainContext.labelY,
+    mainContext.order,
+    readGraph,
+  ]);
 
   return (
     <Box sx={{ justifyContent: "center", m: 1 }}>
