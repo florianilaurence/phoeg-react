@@ -155,7 +155,7 @@ const Form = ({
 
   const [invWithRat, setInvWithRat] = useState<Array<Invariant>>([]); // Sorted invariants with rational (remove duplicates)
   const [invWithoutRat, setInvWithoutRat] = useState<Array<Invariant>>([]); // Sorted invariants without rational
-  const [invColoration, setInvColoration] = useState<Array<Invariant>>([]); // Sorted invariants for coloration
+  const [invColoration, setInvColoration] = useState<Array<Invariant>>([]); // Sorted invariants for coloration (number, bool, special)
 
   useEffect(() => {
     // Sort invariants by type
@@ -427,15 +427,25 @@ const Form = ({
     });
   };
 
+  const typeFromName = (name: string) => {
+    let result = "";
+    invariants.forEach((invariant) => {
+      if (invariant.name === name) {
+        result = invariant.datatype;
+      }
+    });
+    return result;
+  };
+
   // Main controllers (axis, coloration and concave hull)
   const handleChangeX = (value: string) => {
     mainContext.reset();
-    mainContext.setLabelX(value);
+    mainContext.setLabelX(value, typeFromName(value));
   };
 
   const handleChangeY = (value: string) => {
     mainContext.reset();
-    mainContext.setLabelY(value);
+    mainContext.setLabelY(value, typeFromName(value));
   };
 
   const handleChangeColoration = (value: string) => {
@@ -446,8 +456,8 @@ const Form = ({
   const handleExchangeXY = () => {
     mainContext.reset();
     const labelY = mainContext.labelY;
-    mainContext.setLabelY(mainContext.labelX);
-    mainContext.setLabelX(labelY);
+    mainContext.setLabelY(mainContext.labelX, mainContext.typeX);
+    mainContext.setLabelX(labelY, typeFromName(labelY));
   };
 
   const handleShowColoration = (value: boolean) => {
@@ -480,6 +490,27 @@ const Form = ({
     if (withOrders && stateOrders.field === "") {
       alert("Please complete all the required fields");
       return;
+    }
+
+    if (withOrders) {
+      if (
+        mainContext.typeX === "rational" &&
+        (mainContext.typeY === "real" || mainContext.typeY === "number")
+      ) {
+        alert(
+          "please choose a rational type for the x axis and a real type for the y axis"
+        );
+        return;
+      }
+      if (
+        (mainContext.typeX === "real" || mainContext.typeX === "number") &&
+        mainContext.typeY === "rational"
+      ) {
+        alert(
+          "please choose a real type for the x axis and a rational type for the y axis"
+        );
+        return;
+      }
     }
 
     if (withOrders) {
@@ -605,9 +636,7 @@ const Form = ({
                   }
                   options={
                     withOrders
-                      ? invWithRat.map((inv) =>
-                          inv.name.replace(" (rational)", "")
-                        )
+                      ? invWithRat.map((inv) => inv.name)
                       : invWithoutRat.map((inv) => inv.name)
                   }
                   renderInput={(params) => (
@@ -647,9 +676,7 @@ const Form = ({
                   }
                   options={
                     withOrders
-                      ? invWithRat.map((inv) =>
-                          inv.name.replace(" (rational)", "")
-                        )
+                      ? invWithRat.map((inv) => inv.name)
                       : invWithoutRat.map((inv) => inv.name)
                   }
                   sx={{ m: 1 }}
@@ -876,9 +903,7 @@ const Form = ({
                     onChange={(event, newValue) =>
                       handleChangeColoration(newValue as string)
                     }
-                    options={invariants
-                      .filter((inv) => isColorationInvariant(inv.datatype))
-                      .map((inv) => inv.name)}
+                    options={invColoration.map((option) => option.name)}
                     sx={{ m: 1 }}
                     renderInput={(params) => (
                       <TextField {...params} label="Invariant color" />

@@ -44,11 +44,11 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
     let result =
       mainContext.labelX +
       " = " +
-      point.x +
+      point.x.getValue() +
       " | " +
       mainContext.labelY +
       " = " +
-      point.y;
+      point.y.getValue();
 
     if (mainContext.labelColor !== "") {
       result += " | " + mainContext.labelColor + " = ";
@@ -77,8 +77,8 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
               <Circle
                 key={`point-${point[0]}-${i}`}
                 className="circle"
-                cx={xScale(point.x)}
-                cy={yScale(point.y)}
+                cx={xScale(point.x.getValue())}
+                cy={yScale(point.y.getValue())}
                 r={
                   mainContext.legendClicked !== null &&
                   point.colors.includes(mainContext.legendClicked)
@@ -107,8 +107,8 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
               <GlyphStar
                 key={`point-${point[0]}-${i}`}
                 className="circle"
-                left={xScale(point.x)}
-                top={yScale(point.y)}
+                left={xScale(point.x.getValue())}
+                top={yScale(point.y.getValue())}
                 size={
                   mainContext.legendClicked !== null &&
                   point.colors.includes(mainContext.legendClicked)

@@ -9,11 +9,13 @@ import MainContext from "../../store/utils/main_context";
 import {
   ChartData,
   Concave,
+  Concaves,
   CoordinateAutoconj,
   CoordinateGrouped,
   initialMainState,
   MainReducer,
   MinMax,
+  SimplifiedCoordinate,
 } from "../../store/reducers/main_reducer";
 import {
   clearData,
@@ -116,8 +118,10 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           setLegendClicked: (legendClicked: number | null) =>
             setLegendClicked(legendClicked, dispatchMainReducer),
 
-          setLabelX: (labelX: string) => setLabelX(labelX, dispatchMainReducer),
-          setLabelY: (labelY: string) => setLabelY(labelY, dispatchMainReducer),
+          setLabelX: (labelX: string, typeX: string) =>
+            setLabelX(labelX, typeX, dispatchMainReducer),
+          setLabelY: (labelY: string, typeY: string) =>
+            setLabelY(labelY, typeY, dispatchMainReducer),
           setLabelColor: (labelColor: string) =>
             setLabelColor(labelColor, dispatchMainReducer),
           setConstraints: (constraints: string) =>
@@ -133,14 +137,16 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           setOrders: (orders: number[]) =>
             setOrders(orders, dispatchMainReducer),
           setDataAutoconj: (
-            concaves: Array<Concave>,
-            enveloppes: Array<Concave>,
+            concaveList: Array<Concave>,
+            concaves: Concaves | {},
+            envelopes: Array<Array<SimplifiedCoordinate>>,
             simplifiedPoints: Array<Array<CoordinateAutoconj>>,
             minMaxList: Array<MinMax>
           ) =>
             setDataAutoconj(
+              concaveList,
               concaves,
-              enveloppes,
+              envelopes,
               simplifiedPoints,
               minMaxList,
               dispatchMainReducer

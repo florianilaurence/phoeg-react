@@ -1,9 +1,11 @@
 import {
   ChartData,
   Concave,
+  Concaves,
   CoordinateAutoconj,
   CoordinateGrouped,
   MinMax,
+  SimplifiedCoordinate,
 } from "../reducers/main_reducer";
 
 export enum MainAction {
@@ -72,17 +74,19 @@ export const setLegendClicked = (
 
 // Common functions for phoeg app and conjecture app
 
-export const setLabelX = (labelX: string, dispatch: any) => {
+export const setLabelX = (labelX: string, typeX: string, dispatch: any) => {
   dispatch({
     type: MainAction.LABEL_X,
     labelX: labelX,
+    typeX: typeX,
   });
 };
 
-export const setLabelY = (labelY: string, dispatch: any) => {
+export const setLabelY = (labelY: string, typeY: string, dispatch: any) => {
   dispatch({
     type: MainAction.LABEL_Y,
     labelY: labelY,
+    typeY: typeY,
   });
 };
 
@@ -141,14 +145,16 @@ export const setOrders = (orders: number[], dispatch: any) => {
 };
 
 export const setDataAutoconj = (
-  concaves: Array<Concave>,
-  envelopes: Array<Concave>,
+  concaveList: Array<Concave>,
+  concaves: Concaves | {},
+  envelopes: Array<Array<SimplifiedCoordinate>>,
   simplifiedPoints: Array<Array<CoordinateAutoconj>>,
   minMaxList: Array<MinMax>,
   dispatch: any
 ) => {
   dispatch({
     type: MainAction.SET_DATA_AUTOCONJ,
+    concaveList: concaveList,
     concaves: concaves,
     envelopes: envelopes,
     simplifiedPoints: simplifiedPoints,

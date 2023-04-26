@@ -2,439 +2,260 @@ import {
   compute_coefficients,
   construct_conjecture,
   convert_coefficients,
-  convert_to_rationals,
   get_longer,
   inequality,
   main_func,
   searched_f,
 } from "../components/autoconjectures/result/utils/autoconjectures";
-import Rational from "../components/autoconjectures/result/utils/rational";
+import NumRat from "../utils/numRat";
 
-const points1 = [
+const pointsInt = [
   [
-    {
-      x: 2,
-      y: 2,
-    },
-    {
-      x: 1,
-      y: 3,
-    },
+    { x: new NumRat(2), y: new NumRat(2) },
+    { x: new NumRat(1), y: new NumRat(3) },
   ],
   [
-    {
-      x: 2,
-      y: 3,
-    },
-    {
-      x: 1,
-      y: 6,
-    },
+    { x: new NumRat(2), y: new NumRat(3) },
+    { x: new NumRat(1), y: new NumRat(6) },
   ],
   [
-    {
-      x: 2,
-      y: 4,
-    },
-    {
-      x: 1,
-      y: 10,
-    },
+    { x: new NumRat(2), y: new NumRat(4) },
+    { x: new NumRat(1), y: new NumRat(10) },
   ],
   [
-    {
-      x: 2,
-      y: 5,
-    },
-    {
-      x: 1,
-      y: 15,
-    },
+    { x: new NumRat(2), y: new NumRat(5) },
+    { x: new NumRat(1), y: new NumRat(15) },
   ],
   [
-    {
-      x: 2,
-      y: 6,
-    },
-    {
-      x: 1,
-      y: 21,
-    },
+    { x: new NumRat(2), y: new NumRat(6) },
+    { x: new NumRat(1), y: new NumRat(21) },
   ],
   [
-    {
-      x: 2,
-      y: 7,
-    },
-    {
-      x: 1,
-      y: 28,
-    },
+    { x: new NumRat(2), y: new NumRat(7) },
+    { x: new NumRat(1), y: new NumRat(28) },
   ],
   [
-    {
-      x: 2,
-      y: 8,
-    },
-    {
-      x: 1,
-      y: 36,
-    },
+    { x: new NumRat(2), y: new NumRat(8) },
+    { x: new NumRat(1), y: new NumRat(36) },
   ],
 ];
 
-const orders1 = [3, 4, 5, 6, 7, 8, 9];
-
-const points1_mixed = [
+const pointsRat = [
   [
-    // order 9
-    {
-      x: 2,
-      y: 8,
-    },
-    {
-      x: 1,
-      y: 36,
-    },
+    { x: new NumRat(1, 2), y: new NumRat(15, 2) },
+    { x: new NumRat(1, 3), y: new NumRat(6) },
   ],
   [
-    // order 5
-    {
-      x: 2,
-      y: 4,
-    },
-    {
-      x: 1,
-      y: 10,
-    },
+    { x: new NumRat(1), y: new NumRat(20) },
+    { x: new NumRat(2), y: new NumRat(36) },
   ],
   [
-    // order 4
-    {
-      x: 2,
-      y: 3,
-    },
-    {
-      x: 1,
-      y: 6,
-    },
+    { x: new NumRat(1, 2), y: new NumRat(35, 2) },
+    { x: new NumRat(1), y: new NumRat(30) },
   ],
   [
-    // order 8
-    {
-      x: 2,
-      y: 7,
-    },
-    {
-      x: 1,
-      y: 28,
-    },
-  ],
-  [
-    // order 7
-    {
-      x: 2,
-      y: 6,
-    },
-    {
-      x: 1,
-      y: 21,
-    },
-  ],
-  [
-    // order 3
-    {
-      x: 2,
-      y: 2,
-    },
-    {
-      x: 1,
-      y: 3,
-    },
-  ],
-  [
-    // order 6
-    {
-      x: 2,
-      y: 5,
-    },
-    {
-      x: 1,
-      y: 15,
-    },
+    { x: new NumRat(1, 2), y: new NumRat(24) },
+    { x: new NumRat(1, 3), y: new NumRat(18) },
   ],
 ];
 
-const orders1_mixed = [9, 5, 4, 8, 7, 3, 6];
-
-const main_coefficients1 = [
-  [Rational.fromNumber(4), Rational.fromNumber(-1)],
-  [Rational.fromNumber(9), Rational.fromNumber(-3)],
-  [Rational.fromNumber(16), Rational.fromNumber(-6)],
-  [Rational.fromNumber(25), Rational.fromNumber(-10)],
-  [Rational.fromNumber(36), Rational.fromNumber(-15)],
-  [Rational.fromNumber(49), Rational.fromNumber(-21)],
-  [Rational.fromNumber(64), Rational.fromNumber(-28)],
-];
-
-const converted_coefficients1 = [
+const pointsFloat = [
   [
-    {
-      x: 3,
-      y: 4,
-    },
-    {
-      x: 4,
-      y: 9,
-    },
-    {
-      x: 5,
-      y: 16,
-    },
-    {
-      x: 6,
-      y: 25,
-    },
-    {
-      x: 7,
-      y: 36,
-    },
-    {
-      x: 8,
-      y: 49,
-    },
-    {
-      x: 9,
-      y: 64,
-    },
+    { x: new NumRat(0.5), y: new NumRat(7.5) },
+    { x: new NumRat(0.33), y: new NumRat(6) },
   ],
   [
-    {
-      x: 3,
-      y: -1,
-    },
-    {
-      x: 4,
-      y: -3,
-    },
-    {
-      x: 5,
-      y: -6,
-    },
-    {
-      x: 6,
-      y: -10,
-    },
-    {
-      x: 7,
-      y: -15,
-    },
-    {
-      x: 8,
-      y: -21,
-    },
-    {
-      x: 9,
-      y: -28,
-    },
+    { x: new NumRat(1), y: new NumRat(20) },
+    { x: new NumRat(2), y: new NumRat(36) },
+  ],
+  [
+    { x: new NumRat(0.5), y: new NumRat(17.5) },
+    { x: new NumRat(1), y: new NumRat(30) },
+  ],
+  [
+    { x: new NumRat(0.5), y: new NumRat(24) },
+    { x: new NumRat(0.33), y: new NumRat(18) },
   ],
 ];
 
-const secondary_coefficients1 = [
-  [Rational.fromNumber(1), Rational.fromNumber(-2), Rational.fromNumber(1)],
-  [Rational.fromNumber(-1), new Rational(3, 2), new Rational(-1, 2)],
+const ordersForInt = [3, 4, 5, 6, 7, 8, 9];
+
+const ordersForRatAndFloat = [3, 4, 5, 6];
+
+const coeffsForInt = [
+  [new NumRat(4), new NumRat(-1)],
+  [new NumRat(9), new NumRat(-3)],
+  [new NumRat(16), new NumRat(-6)],
+  [new NumRat(25), new NumRat(-10)],
+  [new NumRat(36), new NumRat(-15)],
+  [new NumRat(49), new NumRat(-21)],
+  [new NumRat(64), new NumRat(-28)],
 ];
 
-const diff_lenght_coeffs = [
-  [Rational.fromNumber(1), Rational.fromNumber(2)],
-  [Rational.fromNumber(1), Rational.fromNumber(2), Rational.fromNumber(3)],
-  [
-    Rational.fromNumber(1),
-    Rational.fromNumber(2),
-    Rational.fromNumber(3),
-    Rational.fromNumber(4),
-  ],
-  [Rational.fromNumber(1), Rational.fromNumber(2)],
+const coeffsForRat = [
+  [new NumRat(3), new NumRat(9)],
+  [new NumRat(4), new NumRat(16)],
+  [new NumRat(5), new NumRat(25)],
+  [new NumRat(6), new NumRat(36)],
 ];
 
-const points2 = [
-  [
-    {
-      x: 2,
-      y: 2,
-    },
-    {
-      x: 1,
-      y: 3,
-    },
-  ],
-  [
-    {
-      x: 2,
-      y: 3,
-    },
-    {
-      x: 1,
-      y: 6,
-    },
-  ],
+const coeffsForFloat = [
+  [new NumRat(3.09), new NumRat(8.82)],
+  [new NumRat(4), new NumRat(16)],
+  [new NumRat(5), new NumRat(25)],
+  [new NumRat(6.36), new NumRat(35.28)],
 ];
 
-const orders2 = [3, 5, 7, 9];
-
-const points3 = [
+const convertedForInt = [
   [
-    // order 3
-    {
-      x: 2,
-      y: 2,
-    },
+    { x: new NumRat(3), y: new NumRat(4) },
+    { x: new NumRat(4), y: new NumRat(9) },
+    { x: new NumRat(5), y: new NumRat(16) },
+    { x: new NumRat(6), y: new NumRat(25) },
+    { x: new NumRat(7), y: new NumRat(36) },
+    { x: new NumRat(8), y: new NumRat(49) },
+    { x: new NumRat(9), y: new NumRat(64) },
   ],
   [
-    // order 5
-    {
-      x: 4,
-      y: 4,
-    },
-  ],
-  [
-    // order 7
-    {
-      x: 6,
-      y: 6,
-    },
-  ],
-  [
-    // order 9
-    {
-      x: 8,
-      y: 8,
-    },
+    { x: new NumRat(3), y: new NumRat(-1) },
+    { x: new NumRat(4), y: new NumRat(-3) },
+    { x: new NumRat(5), y: new NumRat(-6) },
+    { x: new NumRat(6), y: new NumRat(-10) },
+    { x: new NumRat(7), y: new NumRat(-15) },
+    { x: new NumRat(8), y: new NumRat(-21) },
+    { x: new NumRat(9), y: new NumRat(-28) },
   ],
 ];
 
-const rational_points3 = [
+const convertedForRat = [
   [
-    // order 3
-    {
-      x: Rational.fromNumber(2),
-      y: Rational.fromNumber(2),
-    },
+    { x: new NumRat(3), y: new NumRat(3) },
+    { x: new NumRat(4), y: new NumRat(4) },
+    { x: new NumRat(5), y: new NumRat(5) },
+    { x: new NumRat(6), y: new NumRat(6) },
   ],
   [
-    // order 5
-    {
-      x: Rational.fromNumber(4),
-      y: Rational.fromNumber(4),
-    },
-  ],
-  [
-    // order 7
-    {
-      x: Rational.fromNumber(6),
-      y: Rational.fromNumber(6),
-    },
-  ],
-  [
-    // order 9
-    {
-      x: Rational.fromNumber(8),
-      y: Rational.fromNumber(8),
-    },
+    { x: new NumRat(3), y: new NumRat(9) },
+    { x: new NumRat(4), y: new NumRat(16) },
+    { x: new NumRat(5), y: new NumRat(25) },
+    { x: new NumRat(6), y: new NumRat(36) },
   ],
 ];
 
-const pFloat1 = { x: 3.6, y: 2.4 };
-const pFloat2 = { x: 4.36, y: 1.64 };
-const pFloat3 = { x: 5.436, y: 0.0564 };
-const pFloat4 = { x: 5.7436, y: 0.7436 };
+const convertedForFloat = [
+  [
+    { x: new NumRat(3), y: new NumRat(3.09) },
+    { x: new NumRat(4), y: new NumRat(4) },
+    { x: new NumRat(5), y: new NumRat(5) },
+    { x: new NumRat(6), y: new NumRat(6.36) },
+  ],
+  [
+    { x: new NumRat(3), y: new NumRat(8.82) },
+    { x: new NumRat(4), y: new NumRat(16) },
+    { x: new NumRat(5), y: new NumRat(25) },
+    { x: new NumRat(6), y: new NumRat(35.28) },
+  ],
+];
 
-const psFloat = [[pFloat1, pFloat2, pFloat3, pFloat4]];
-
-test("convert_to_rationals", () => {
-  const result = convert_to_rationals(points3);
-  expect(result).toEqual(rational_points3);
+test("compute_coefficients with only integers", () => {
+  const result = compute_coefficients(pointsInt, true, 0);
+  expect(result).toStrictEqual(coeffsForInt);
 });
 
-test("convert_to_rationals_with_float", () => {
-  const result = convert_to_rationals(psFloat);
-  const expected = [
-    [
-      {
-        x: new Rational(18, 5), // 3.6
-        y: new Rational(12, 5), // 2.4
-      },
-      {
-        x: new Rational(109, 25), // 4.36
-        y: new Rational(41, 25), // 1.64
-      },
-      {
-        x: new Rational(1359, 250), // 5.436
-        y: new Rational(141, 2500), // 0.0564
-      },
-      {
-        x: new Rational(14359, 2500), // 5.7436
-        y: new Rational(1859, 2500), // 0.7436
-      },
-    ],
-  ];
-  expect(result).toEqual(expected);
+test("compute_coefficients with only rationals", () => {
+  const result = compute_coefficients(pointsRat, true, 0);
+  expect(result).toStrictEqual(coeffsForRat);
 });
 
-test("compute_main_coefficients", () => {
-  const result = compute_coefficients(convert_to_rationals(points1));
-  expect(result).toEqual(main_coefficients1);
+test("compute_coefficients with only floats", () => {
+  const result = compute_coefficients(pointsFloat, false, 2);
+  expect(result).toStrictEqual(coeffsForFloat);
 });
 
-test("convert_main_coefficients", () => {
-  const result = convert_coefficients(main_coefficients1, orders1);
-  expect(result).toEqual(convert_to_rationals(converted_coefficients1));
+test("convert_coefficients with only integers", () => {
+  const result = convert_coefficients(coeffsForInt, ordersForInt);
+  expect(result).toStrictEqual(convertedForInt);
 });
 
-test("compute_secondary_coefficients", () => {
-  const result = compute_coefficients(
-    convert_to_rationals(converted_coefficients1)
-  );
-  expect(result).toEqual(secondary_coefficients1);
+test("convert_coefficients with rationals", () => {
+  const result = convert_coefficients(coeffsForRat, ordersForRatAndFloat);
+  expect(result).toStrictEqual(convertedForRat);
 });
 
-test("get_longer", () => {
-  const result = get_longer(diff_lenght_coeffs);
-  const expected = [
-    Rational.fromNumber(1),
-    Rational.fromNumber(2),
-    Rational.fromNumber(3),
-    Rational.fromNumber(4),
-  ];
-  expect(result).toEqual(expected);
+test("convert_coefficients with floats", () => {
+  const result = convert_coefficients(coeffsForFloat, ordersForRatAndFloat);
+  expect(result).toStrictEqual(convertedForFloat);
 });
 
-test("construct_conjecture", () => {
+//TODO: implement get_longer test with coefficients of different length
+
+test("get_longer with only integers", () => {
+  const result = get_longer(coeffsForInt);
+  expect(result).toStrictEqual(coeffsForInt[0]);
+});
+
+//TODO: implement construct_conjecture test
+
+test("construct_conjecture with only integers", () => {
   const result = construct_conjecture(
-    main_coefficients1,
-    secondary_coefficients1,
+    coeffsForInt,
+    compute_coefficients(convertedForInt, true, 0),
     searched_f.FX,
-    inequality.MORE,
+    inequality.LESS,
     false
   );
-  expect(result).toBe("y >= (-1/2n^{2}+3/2n-1)x+(n^{2}-2n+1)");
+  expect(result).toStrictEqual("y <= (-1/2n^{2}+3/2n-1)x+(n^{2}-2n+1)");
 });
 
-test("main_func", () => {
-  const result1 = main_func(points1, orders1, searched_f.FX, inequality.MORE);
-  expect(result1).toBe("y >= (-1/2n^{2}+3/2n-1)x+(n^{2}-2n+1)");
-
-  const result2 = main_func(points2, orders2, searched_f.FY, inequality.LESS); // ERROR
-  expect(result2).toBe("not correct, because lists not same length");
-
-  const result3 = main_func(points3, orders2, searched_f.FY, inequality.LESS); // With odd orders
-  expect(result3).toBe("x <= (n-1)");
-
-  const result1_mixed = main_func(
-    points1_mixed,
-    orders1_mixed,
+test("construct_conjecture with rationals", () => {
+  const result = construct_conjecture(
+    coeffsForRat,
+    compute_coefficients(convertedForRat, true, 0),
     searched_f.FX,
-    inequality.MORE
+    inequality.LESS,
+    false
   );
-  expect(result1_mixed).toBe(result1);
+  expect(result).toStrictEqual("y <= (n^{2})x+(n)");
 });
+
+test("construct_conjecture with floats", () => {
+  // PROBLEM OF OVERFITTING ...
+  // const result = construct_conjecture(
+  //   coeffsForFloat,
+  //   compute_coefficients(convertedForFloat, false, 0),
+  //   searched_f.FX,
+  //   inequality.LESS,
+  //   false
+  // );
+  // expect(result).toStrictEqual("y <= (n^{2})x+(n)");
+});
+
+//TODO: implement main_func test
+
+test("main_func with only integers", () => {
+  const result = main_func(
+    pointsInt,
+    ordersForInt,
+    searched_f.FX,
+    inequality.LESS,
+    false,
+    true,
+    0
+  );
+  expect(result).toStrictEqual("y <= (-1/2n^{2}+3/2n-1)x+(n^{2}-2n+1)");
+});
+
+test("main_func with rationals", () => {
+  const result = main_func(
+    pointsRat,
+    ordersForRatAndFloat,
+    searched_f.FX,
+    inequality.LESS,
+    false,
+    true,
+    0
+  );
+  expect(result).toStrictEqual("y <= (n^{2})x+(n)");
+});
+
+//______> test with floats

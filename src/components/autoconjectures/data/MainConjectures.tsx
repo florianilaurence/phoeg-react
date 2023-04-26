@@ -5,15 +5,7 @@ import {
   main_func,
   searched_f,
 } from "../result/utils/autoconjectures";
-import { ConcavesRefactoredProps } from "./MyTabs";
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  Paper,
-} from "@mui/material";
+import { Box, Grid, Paper } from "@mui/material";
 import SubSubTitle from "../../styles_and_settings/SubSubTitle";
 import Loading from "../../Loading";
 import RenderOneConjecture from "../result/RenderOneConjecture";
@@ -53,21 +45,21 @@ interface ResultConjectures {
 }
 
 const initialResultConjectures: ResultConjectures = {
-  minY: [],
-  minXminY: [],
   minX: [],
-  maxXminY: [],
   maxX: [],
-  maxXmaxY: [],
+  minY: [],
   maxY: [],
+  minXminY: [],
   minXmaxY: [],
+  maxXminY: [],
+  maxXmaxY: [],
 };
 
 enum ConjAction {
   SET_DATA,
 }
 
-const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
+const MainConjectures = () => {
   const mainContext = useContext(MainContext);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -87,40 +79,46 @@ const MainConjectures = ({ concavesRefactored }: ConcavesRefactoredProps) => {
 
   const keys = Object.keys(initialResultConjectures);
 
+  const inRational =
+    mainContext.typeX === "rational" ||
+    mainContext.typeY === "rational" ||
+    (mainContext.typeX === "integer" && mainContext.typeY === "integer");
+  console.log(inRational, mainContext.typeX, mainContext.typeY);
   const computeConjectures = async () => {
     const tempResultConjectures: ResultConjectures = {
-      ...initialResultConjectures,
+      minX: [],
+      maxX: [],
+      minY: [],
+      maxY: [],
+      minXminY: [],
+      minXmaxY: [],
+      maxXminY: [],
+      maxXmaxY: [],
     };
 
     for (let key of keys) {
       const params = allParams[key as keyof ResultConjectures];
-      if (params.length === 1) {
+      tempResultConjectures[key as keyof ResultConjectures].push(
+        main_func(
+          mainContext.concaves[key as keyof ResultConjectures],
+          mainContext.orders,
+          params[0].f,
+          params[0].ineq,
+          true,
+          inRational,
+          inRational ? 0 : 2
+        )
+      );
+      if (params.length === 2) {
         tempResultConjectures[key as keyof ResultConjectures].push(
           main_func(
-            concavesRefactored[key as keyof ResultConjectures],
-            mainContext.orders,
-            params[0].f,
-            params[0].ineq,
-            true
-          )
-        );
-      } else if (params.length === 2) {
-        tempResultConjectures[key as keyof ResultConjectures].push(
-          main_func(
-            concavesRefactored[key as keyof ResultConjectures],
-            mainContext.orders,
-            params[0].f,
-            params[0].ineq,
-            true
-          )
-        );
-        tempResultConjectures[key as keyof ResultConjectures].push(
-          main_func(
-            concavesRefactored[key as keyof ResultConjectures],
+            mainContext.concaves[key as keyof ResultConjectures],
             mainContext.orders,
             params[1].f,
             params[1].ineq,
-            true
+            true,
+            inRational,
+            inRational ? 0 : 2
           )
         );
       }

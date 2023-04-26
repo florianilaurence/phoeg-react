@@ -13,16 +13,15 @@ import Legend from "../../chart/legend/Legend";
 
 const PolytopesContainer = () => {
   const mainContext = useContext(MainContext);
-
-  const keys = Object.keys(mainContext.concaves[0]);
+  const keys = Object.keys(mainContext.concaveList[0]);
 
   const onClickLegendConcave = (key: string) => {
     mainContext.setSubmitAutoconj(false);
     const previousSimplifiedPoints = mainContext.simplifiedPoints;
     const previousPointsClicked = mainContext.pointsClicked;
 
-    for (let i = 0; i < mainContext.concaves.length; i++) {
-      const concaveSelected = mainContext.concaves[i][key];
+    for (let i = 0; i < mainContext.concaveList.length; i++) {
+      const concaveSelected = mainContext.concaveList[i][key];
       const previousSubPointsClicked = previousPointsClicked[i];
 
       for (const point of concaveSelected) {
@@ -46,7 +45,7 @@ const PolytopesContainer = () => {
   const clearAllPointsClicked = () => {
     const previousSimplifiedPoints = mainContext.simplifiedPoints;
     const previousPointsClicked = mainContext.pointsClicked;
-    const previousConcaves = mainContext.concaves;
+    const previousConcaves = mainContext.concaveList;
 
     for (let i = 0; i < previousConcaves.length; i++) {
       const previousSubPointsClicked = previousPointsClicked[i];
@@ -137,7 +136,7 @@ const PolytopesContainer = () => {
       </Box>
       <Box sx={{ height: "400px", overflow: "auto", mb: 1, mt: 1 }}>
         <Grid container spacing={2}>
-          {mainContext.concaves.map((concave: Concave, index: number) => {
+          {mainContext.concaveList.map((concave: Concave, index: number) => {
             return (
               <Grid item xs={6} key={`chart-${index}`}>
                 <SubTitle
@@ -178,7 +177,7 @@ const PolytopesContainer = () => {
                         />
                       )}
                     </ParentSize>
-                    <Legend withConcave={true} currentIndexOrder={index} />
+                    {/* <Legend withConcave={true} currentIndexOrder={index} /> */}
                   </Box>
                 )}
               </Grid>

@@ -107,14 +107,20 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
     }
   };
 
-  const colorScale = scaleLinear<string>({
-    domain: mainContext.minMax && [
-      mainContext.minMax!.minColor,
-      mainContext.minMax!.maxColor,
-    ],
-    range: [stateColsObject.minColoration, stateColsObject.maxColoration],
-    clamp: true,
-  });
+  const colorScale = mainContext.minMax
+    ? scaleLinear<string>({
+        domain: mainContext.minMax && [
+          mainContext.minMax.minColor!,
+          mainContext.minMax.maxColor!,
+        ],
+        range: [stateColsObject.minColoration, stateColsObject.maxColoration],
+        clamp: true,
+      })
+    : scaleLinear<string>({
+        domain: [0, 1],
+        range: [stateColsObject.minColoration, stateColsObject.maxColoration],
+        clamp: true,
+      });
 
   if (!stateColsObject.ready) {
     return <Loading height="1000px" />;
@@ -175,10 +181,14 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
                 }
                 placement="top"
               >
-                <ArrowBackIosIcon
-                  sx={{ fontSize: 40, color: colorPrev() }}
+                <IconButton
+                  sx={{
+                    color: colorPrev(),
+                  }}
                   onClick={prevOrder}
-                />
+                >
+                  <ArrowBackIosIcon />
+                </IconButton>
               </Tooltip>
             </Grid>
             <Grid item xs={11}>
@@ -225,13 +235,15 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
                 }
                 placement="top"
               >
-                <ArrowForwardIosIcon
+                <IconButton
                   sx={{
                     fontSize: 40,
                     color: colorNext(),
                   }}
                   onClick={nextOrder}
-                />
+                >
+                  <ArrowForwardIosIcon />
+                </IconButton>
               </Tooltip>
             </Grid>
           </Grid>
@@ -254,18 +266,20 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
               }}
             >
               <Typography fontSize={14} fontStyle="italic" align="center">
-                Clicked point: x = {mainContext.pointClicked.x}, y =
-                {mainContext.pointClicked.y}, color =
+                Clicked point: x = {mainContext.pointClicked.x.numerator}, y =
+                {mainContext.pointClicked.y.numerator}, color =
                 {mainContext.pointClicked.colors[0]}, multiplicity =
                 {mainContext.pointClicked.mults[0]}
               </Typography>
-              <IconButton
-                onClick={() => mainContext.setPointClicked(null)}
-                size="small"
-                color="success"
-              >
-                <ClearIcon />
-              </IconButton>
+              <Tooltip title="Clear clicked point" placement="top">
+                <IconButton
+                  onClick={() => mainContext.setPointClicked(null)}
+                  size="small"
+                  color="success"
+                >
+                  <ClearIcon />
+                </IconButton>
+              </Tooltip>
             </Box>
           )}
         </Box>

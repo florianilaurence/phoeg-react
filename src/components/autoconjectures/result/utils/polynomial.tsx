@@ -1,71 +1,8 @@
-import Rational from "./rational";
+import NumRat from "../../../../utils/numRat";
 
 export default class Polynomial {
   // [x^0, x^1, x^2, ..., x^degree]
-  constructor(readonly coefficients: Rational[]) {}
-
-  evaluate(x: Rational): Rational {
-    let result = Rational.fromNumber(0);
-    for (let i = 0; i < this.coefficients.length; i++) {
-      result = result.addRational(
-        this.coefficients[i].multiplyRational(x.powNumber(i))
-      );
-    }
-    return result;
-  }
-
-  addPolynomial(p: Polynomial): Polynomial {
-    const new_coeffs: Array<Rational> = [];
-    const new_degree = Math.max(
-      this.coefficients.length,
-      p.coefficients.length
-    );
-    for (let i = 0; i < new_degree; i++) {
-      if (i < this.coefficients.length && i < p.coefficients.length) {
-        new_coeffs.push(this.coefficients[i].addRational(p.coefficients[i]));
-      } else if (i < this.coefficients.length) {
-        new_coeffs.push(this.coefficients[i]);
-      } else {
-        new_coeffs.push(p.coefficients[i]);
-      }
-    }
-    return new Polynomial(new_coeffs);
-  }
-
-  multiplyPolynomial(p: Polynomial): Polynomial {
-    const new_coeffs: Array<Rational> = [];
-    const new_degree = this.coefficients.length + p.coefficients.length - 1;
-    for (let i = 0; i < new_degree; i++) {
-      new_coeffs.push(Rational.fromNumber(0));
-    }
-    for (let i = 0; i < this.coefficients.length; i++) {
-      for (let j = 0; j < p.coefficients.length; j++) {
-        new_coeffs[i + j] = new_coeffs[i + j].addRational(
-          this.coefficients[i].multiplyRational(p.coefficients[j])
-        );
-      }
-    }
-    return new Polynomial(new_coeffs);
-  }
-
-  divideRational(n: Rational): Polynomial {
-    const new_coeffs: Array<Rational> = [];
-    for (let i = 0; i < this.coefficients.length; i++) {
-      new_coeffs.push(this.coefficients[i].divideRational(n));
-    }
-    return new Polynomial(new_coeffs);
-  }
-
-  simplify(): Polynomial {
-    const new_coeffs: Array<Rational> = [...this.coefficients];
-    for (let i = this.coefficients.length - 1; i >= 0; i--) {
-      if (this.coefficients[i].toNumber() !== 0) {
-        break;
-      }
-      new_coeffs.pop();
-    }
-    return new Polynomial(new_coeffs);
-  }
+  constructor(readonly coefficients: Array<NumRat>) {}
 
   toString(xVar: string, inLatex: boolean = false): string {
     const temp: Array<string> = [];
@@ -82,6 +19,76 @@ export default class Polynomial {
     }
 
     return result;
+  }
+
+  addPolynomial(p: Polynomial, decimalNb: number): Polynomial {
+    const new_coeffs: Array<NumRat> = [];
+    const new_degree = Math.max(
+      this.coefficients.length,
+      p.coefficients.length
+    );
+    for (let i = 0; i < new_degree; i++) {
+      if (i < this.coefficients.length && i < p.coefficients.length) {
+        new_coeffs.push(this.coefficients[i].add(p.coefficients[i]));
+      } else if (i < this.coefficients.length) {
+        new_coeffs.push(this.coefficients[i]);
+      } else {
+        new_coeffs.push(p.coefficients[i]);
+      }
+    }
+    for (let i = 0; i < new_coeffs.length; i++) {
+      new_coeffs[i] = new_coeffs[i].round(decimalNb);
+    }
+    return new Polynomial(new_coeffs).simplify();
+  }
+
+  multiplyPolynomial(p: Polynomial, decimalNb: number): Polynomial {
+    const new_coeffs: Array<NumRat> = [];
+    const new_degree = this.coefficients.length + p.coefficients.length - 1;
+    for (let i = 0; i < new_degree; i++) {
+      new_coeffs.push(new NumRat(0));
+    }
+    for (let i = 0; i < this.coefficients.length; i++) {
+      for (let j = 0; j < p.coefficients.length; j++) {
+        new_coeffs[i + j] = new_coeffs[i + j].add(
+          this.coefficients[i].multiply(p.coefficients[j])
+        );
+      }
+    }
+    for (let i = 0; i < new_coeffs.length; i++) {
+      new_coeffs[i] = new_coeffs[i].round(decimalNb);
+    }
+    return new Polynomial(new_coeffs).simplify();
+  }
+
+  divideNumRat(n: NumRat, inRational: boolean, decimalNb: number): Polynomial {
+    const new_coeffs: Array<NumRat> = [];
+    for (let i = 0; i < this.coefficients.length; i++) {
+      new_coeffs.push(this.coefficients[i].divide(n, inRational));
+    }
+    for (let i = 0; i < new_coeffs.length; i++) {
+      new_coeffs[i] = new_coeffs[i].round(decimalNb);
+    }
+    return new Polynomial(new_coeffs).simplify();
+  }
+
+  evaluate(x: NumRat, decimalNb: number): NumRat {
+    let result = new NumRat(0);
+    for (let i = 0; i < this.coefficients.length; i++) {
+      result = result.add(this.coefficients[i].multiply(x.powNumber(i)));
+    }
+    return result.round(decimalNb);
+  }
+
+  simplify(): Polynomial {
+    const new_coeffs: Array<NumRat> = [...this.coefficients];
+    for (let i = this.coefficients.length - 1; i >= 0; i--) {
+      if (this.coefficients[i].numerator !== 0) {
+        break;
+      }
+      new_coeffs.pop();
+    }
+    return new Polynomial(new_coeffs);
   }
 
   toStringReplaceCoeffs(
@@ -110,7 +117,7 @@ export default class Polynomial {
   }
 
   constructVar(
-    coeff: Rational | string,
+    coeff: NumRat | string,
     xVar: string,
     degree: number,
     inLatex: boolean
@@ -125,7 +132,7 @@ export default class Polynomial {
         return "+(" + coeff + ")" + xVar + "^{" + degree + "}";
       }
     }
-    const c = coeff.toNumber();
+    const c = coeff.getValue();
     if (c === 0) {
       return "";
     } else if (c === 1) {

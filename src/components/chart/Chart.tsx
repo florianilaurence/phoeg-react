@@ -15,6 +15,7 @@ import {
   ReactSvgPanZoomLoader,
   SvgLoaderSelectElement,
 } from "react-svg-pan-zoom-loader";
+import NumRat from "../../utils/numRat";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
@@ -49,11 +50,11 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
       scaleLinear<number>({
         domain: [
           currentIndexOrder !== undefined
-            ? mainContext.minMaxList[currentIndexOrder].minX
-            : mainContext.minMax!.minX,
+            ? mainContext.minMaxList[currentIndexOrder].minX.getValue()
+            : mainContext.minMax!.minX.getValue(),
           currentIndexOrder !== undefined
-            ? mainContext.minMaxList[currentIndexOrder].maxX
-            : mainContext.minMax!.maxX,
+            ? mainContext.minMaxList[currentIndexOrder].maxX.getValue()
+            : mainContext.minMax!.maxX.getValue(),
         ],
         range: [margin.left, innerWidth],
         clamp: true,
@@ -66,11 +67,11 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
       scaleLinear<number>({
         domain: [
           currentIndexOrder !== undefined
-            ? mainContext.minMaxList[currentIndexOrder].minY
-            : mainContext.minMax!.minY,
+            ? mainContext.minMaxList[currentIndexOrder].minY.getValue()
+            : mainContext.minMax!.minY.getValue(),
           currentIndexOrder !== undefined
-            ? mainContext.minMaxList[currentIndexOrder].maxY
-            : mainContext.minMax!.maxY,
+            ? mainContext.minMaxList[currentIndexOrder].maxY.getValue()
+            : mainContext.minMax!.maxY.getValue(),
         ],
         range: [innerHeight, margin.top],
         clamp: true,
@@ -78,7 +79,8 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
     [innerHeight, mainContext.minMax, mainContext.minMaxList]
   );
 
-  if (mainContext.concaves.length === 0) {
+  if (currentIndexOrder === undefined) {
+    // Only for phoeg app
     return (
       <ReactSvgPanZoomLoader
         src="test-digram.svg"
@@ -165,6 +167,7 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
       />
     );
   } else {
+    // Only for autoconjectures app
     return (
       <>
         <Box sx={{ height: "17px", width: "100%" }}>

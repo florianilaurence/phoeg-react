@@ -2,6 +2,7 @@ import { Group } from "@visx/group";
 import { LinePath } from "@visx/shape";
 import { useContext } from "react";
 import MainContext from "../../store/utils/main_context";
+import { SimplifiedCoordinate } from "../../store/reducers/main_reducer";
 
 interface DrawEnvelopeProps {
   xScale: any;
@@ -26,8 +27,8 @@ const DrawEnvelope = ({
             ? mainContext.envelopes[currentIndexOrder]
             : mainContext.envelope
         }
-        x={(d) => xScale(d.x)}
-        y={(d) => yScale(d.y)}
+        x={(d: SimplifiedCoordinate) => xScale(d.x.getValue())}
+        y={(d: SimplifiedCoordinate) => yScale(d.y.getValue())}
       />
     </Group>
   );

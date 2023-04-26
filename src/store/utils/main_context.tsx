@@ -2,10 +2,12 @@ import { createContext } from "react";
 import {
   ChartData,
   Concave,
+  Concaves,
   CoordinateAutoconj,
   CoordinateGrouped,
   initialMainState,
   MinMax,
+  SimplifiedCoordinate,
 } from "../reducers/main_reducer";
 
 const MainContext = createContext({
@@ -17,8 +19,8 @@ const MainContext = createContext({
   setLegendClicked: (isClicked: number | null) => {},
 
   // For both apps
-  setLabelX: (labelX: string) => {},
-  setLabelY: (labelY: string) => {},
+  setLabelX: (labelX: string, typeX: string) => {},
+  setLabelY: (labelY: string, typeY: string) => {},
   setLabelColor: (labelColor: string) => {},
   setConstraints: (constraints: string) => {},
   setAdvancedConstraints: (advancedConstraints: string) => {},
@@ -29,8 +31,9 @@ const MainContext = createContext({
   // For conjecture app
   setOrders: (orders: number[]) => {},
   setDataAutoconj: (
-    concaves: Array<Concave>,
-    envelopes: Array<Concave>,
+    concaveList: Array<Concave>,
+    concaves: Concaves | {},
+    envelopes: Array<Array<SimplifiedCoordinate>>,
     simplifiedPoints: Array<Array<CoordinateAutoconj>>,
     minMaxList: Array<MinMax>
   ) => {},

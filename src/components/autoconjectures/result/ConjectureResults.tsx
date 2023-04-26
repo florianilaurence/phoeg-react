@@ -37,8 +37,20 @@ const ConjectureResults = () => {
       mainContext.orders,
       mainContext.pointsClicked
     );
+    const inRational =
+      mainContext.typeX === "rational" ||
+      mainContext.typeY === "rational" ||
+      (mainContext.typeX === "integer" && mainContext.typeY === "integer");
 
-    return main_func(newPointsClicked, newOrders, f, ineq, true);
+    return main_func(
+      newPointsClicked,
+      newOrders,
+      f,
+      ineq,
+      true,
+      inRational,
+      inRational ? 0 : 2 //TODO: change this, not hardcode value 2
+    );
   };
 
   const simplifyListWithoutSelectedPoint = (

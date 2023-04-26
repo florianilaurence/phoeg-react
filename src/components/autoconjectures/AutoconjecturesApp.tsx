@@ -23,11 +23,13 @@ import {
 import {
   ChartData,
   Concave,
+  Concaves,
   CoordinateAutoconj,
   CoordinateGrouped,
   initialMainState,
   MainReducer,
   MinMax,
+  SimplifiedCoordinate,
 } from "../../store/reducers/main_reducer";
 import MainContext from "../../store/utils/main_context";
 import Frame from "../annex_pages/Frame";
@@ -80,8 +82,10 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           setLegendClicked: (legendClicked: number | null) =>
             setLegendClicked(legendClicked, dispatchMainReducer),
 
-          setLabelX: (labelX: string) => setLabelX(labelX, dispatchMainReducer),
-          setLabelY: (labelY: string) => setLabelY(labelY, dispatchMainReducer),
+          setLabelX: (labelX: string, typeX: string) =>
+            setLabelX(labelX, typeX, dispatchMainReducer),
+          setLabelY: (labelY: string, typeY: string) =>
+            setLabelY(labelY, typeY, dispatchMainReducer),
           setLabelColor: (labelColor: string) =>
             setLabelColor(labelColor, dispatchMainReducer),
           setConstraints: (constraints: string) =>
@@ -97,18 +101,21 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           setOrders: (orders: number[]) =>
             setOrders(orders, dispatchMainReducer),
           setDataAutoconj: (
-            concaves: Array<Concave>,
-            enveloppes: Array<Concave>,
+            concaveList: Array<Concave>,
+            concaves: Concaves | {},
+            envelopes: Array<Array<SimplifiedCoordinate>>,
             simplifiedPoints: Array<Array<CoordinateAutoconj>>,
             minMaxList: Array<MinMax>
           ) =>
             setDataAutoconj(
+              concaveList,
               concaves,
-              enveloppes,
+              envelopes,
               simplifiedPoints,
               minMaxList,
               dispatchMainReducer
             ),
+
           setSubmitAutoconj: (submitAutoconj: boolean) =>
             setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
 
@@ -145,7 +152,7 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
         >
           {stateMainReducer.isSubmit &&
             !stateMainReducer.isLoading &&
-            stateMainReducer.concaves.length > 0 &&
+            stateMainReducer.concaveList.length > 0 &&
             stateMainReducer.minMaxList.length > 0 && <MyTabs />}
 
           {stateMainReducer.submitAutoconj && <ConjectureResults />}

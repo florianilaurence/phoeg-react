@@ -55,13 +55,13 @@ const TableDirection = ({ title, data }: TableDirectionProps) => {
                     align="right"
                     sx={{ color: coordinate.clicked ? "red" : "black" }}
                   >
-                    {coordinate.x}
+                    {coordinate.x.getValue()}
                   </TableCell>
                   <TableCell
                     align="right"
                     sx={{ color: coordinate.clicked ? "red" : "black" }}
                   >
-                    {coordinate.y}
+                    {coordinate.y.getValue()}
                   </TableCell>
                 </TableRow>
               ))

@@ -1,7 +1,10 @@
 import { Group } from "@visx/group";
 import { Circle, LinePath } from "@visx/shape";
 import { useContext } from "react";
-import { CoordinateAutoconj } from "../../store/reducers/main_reducer";
+import {
+  CoordinateAutoconj,
+  SimplifiedCoordinate,
+} from "../../store/reducers/main_reducer";
 import MainContext from "../../store/utils/main_context";
 
 // Couleur pour chaque direction
@@ -35,9 +38,9 @@ const DrawConcave = ({
     return null;
   } else {
     const keys = Object.keys(
-      mainContext.concave
-        ? mainContext.concave
-        : mainContext.concaves[currentIndexOrder!]
+      currentIndexOrder !== undefined
+        ? mainContext.concaveList[currentIndexOrder]
+        : mainContext.concave!
     );
 
     const onClickCircle = (point: CoordinateAutoconj) => {
@@ -76,11 +79,11 @@ const DrawConcave = ({
                 strokeWidth={2}
                 data={
                   currentIndexOrder !== undefined
-                    ? mainContext.concaves[currentIndexOrder][key]
+                    ? mainContext.concaveList[currentIndexOrder][key]
                     : mainContext.concave![key as keyof typeof DirectionColors]
                 }
-                x={(d: any) => xScale(d.x)}
-                y={(d: any) => yScale(d.y)}
+                x={(d: SimplifiedCoordinate) => xScale(d.x.getValue())}
+                y={(d: SimplifiedCoordinate) => yScale(d.y.getValue())}
               />
             </Group>
           );
@@ -93,20 +96,20 @@ const DrawConcave = ({
                   <Circle
                     key={`point-${point.x}-${i}`}
                     className="circle"
-                    cx={xScale(point.x)}
-                    cy={yScale(point.y)}
-                    r={point.clicked ? 8 : 5}
+                    cx={xScale(point.x.getValue())}
+                    cy={yScale(point.y.getValue())}
+                    r={point.clicked ? 5 : 3}
                     fill={point.clicked ? "red" : "black"}
                     onClick={() => onClickCircle(point)}
                     onMouseEnter={() => {
                       setTooltipData(
                         mainContext.labelX +
                           " = " +
-                          point.x +
+                          point.x.getValue() +
                           " | " +
                           mainContext.labelY +
                           " = " +
-                          point.y
+                          point.y.getValue()
                       );
                     }}
                     onMouseLeave={() => {

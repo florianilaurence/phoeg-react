@@ -1,77 +1,68 @@
+import NumRat from "../../utils/numRat";
 import { MainAction } from "../actions/main_action";
 
-export interface Coordinate {
-  x: number;
-  y: number;
+export interface SimplifiedCoordinate {
+  // for Envelope, Concave
+  x: NumRat;
+  y: NumRat;
+}
+
+export interface Coordinate extends SimplifiedCoordinate {
+  // from api
   color: number;
   mult: number;
 }
 
-export interface CoordinateAutoconj extends Coordinate {
+export interface CoordinateAutoconj extends SimplifiedCoordinate {
+  // for autoconjecture app
   order: number;
   clicked: boolean;
 }
 
-export interface CoordinateGrouped {
-  x: number;
-  y: number;
+export interface CoordinateGrouped extends SimplifiedCoordinate {
+  // when we group duplicates points (x, y)
   colors: Array<number>;
   averageCols: number;
   mults: Array<number>;
 }
 
 export interface MinMax {
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-  minColor: number;
-  maxColor: number;
+  minX: NumRat;
+  maxX: NumRat;
+  minY: NumRat;
+  maxY: NumRat;
+  minColor?: number;
+  maxColor?: number;
 }
-
-export const defaultMinMax: MinMax = {
-  minX: 0,
-  maxX: 0,
-  minY: 0,
-  maxY: 0,
-  minColor: 0,
-  maxColor: 0,
-};
 
 export interface Concave {
-  minY: Array<Coordinate>;
-  minXminY: Array<Coordinate>;
-  minX: Array<Coordinate>;
-  minXmaxY: Array<Coordinate>;
-  maxY: Array<Coordinate>;
-  maxXmaxY: Array<Coordinate>;
-  maxX: Array<Coordinate>;
-  maxXminY: Array<Coordinate>;
+  minX: Array<SimplifiedCoordinate>;
+  maxX: Array<SimplifiedCoordinate>;
+  minY: Array<SimplifiedCoordinate>;
+  maxY: Array<SimplifiedCoordinate>;
+  minXminY: Array<SimplifiedCoordinate>;
+  minXmaxY: Array<SimplifiedCoordinate>;
+  maxXminY: Array<SimplifiedCoordinate>;
+  maxXmaxY: Array<SimplifiedCoordinate>;
 }
 
-export const defaultConcave: Concave = {
-  minY: [],
-  minXminY: [],
-  minX: [],
-  minXmaxY: [],
-  maxY: [],
-  maxXmaxY: [],
-  maxX: [],
-  maxXminY: [],
-};
+export interface Concaves {
+  minX: Array<Array<SimplifiedCoordinate>>;
+  maxX: Array<Array<SimplifiedCoordinate>>;
+  minY: Array<Array<SimplifiedCoordinate>>;
+  maxY: Array<Array<SimplifiedCoordinate>>;
+  minXminY: Array<Array<SimplifiedCoordinate>>;
+  minXmaxY: Array<Array<SimplifiedCoordinate>>;
+  maxXminY: Array<Array<SimplifiedCoordinate>>;
+  maxXmaxY: Array<Array<SimplifiedCoordinate>>;
+}
 
 export interface ChartData {
-  envelope: Array<Coordinate>;
+  envelope: Array<SimplifiedCoordinate>;
   minMax: MinMax;
-  concave: Concave;
+  concave: Concave | undefined;
   coordinates: Array<CoordinateGrouped>;
   sorted: { [key: number]: Array<Coordinate> };
-}
-
-export interface SimplifiedChartData {
-  envelope: Array<Coordinate>;
-  minMax: MinMax;
-  concave: Concave;
 }
 
 export interface MainState {
@@ -88,7 +79,9 @@ export interface MainState {
 
   // For both apps
   labelX: string;
+  typeX: string;
   labelY: string;
+  typeY: string;
   labelColor: string;
   constraints: string;
   advancedConstraints: string;
@@ -99,8 +92,9 @@ export interface MainState {
   // Only for conjecture app
   orders: Array<number>;
 
-  concaves: Array<Concave>;
-  envelopes: Array<Array<Coordinate>>;
+  concaveList: Array<Concave>;
+  concaves: Concaves | {};
+  envelopes: Array<Array<SimplifiedCoordinate>>;
   minMaxList: Array<MinMax>;
   simplifiedPoints: Array<Array<CoordinateAutoconj>>;
   pointsClicked: Array<Array<CoordinateAutoconj>>;
@@ -121,7 +115,9 @@ export const initialMainState: MainState = {
 
   // For both apps
   labelX: "",
+  typeX: "",
   labelY: "",
+  typeY: "",
   labelColor: "",
   constraints: "",
   advancedConstraints: "",
@@ -132,7 +128,8 @@ export const initialMainState: MainState = {
   // Only for conjecture app
   orders: [],
 
-  concaves: [],
+  concaveList: [],
+  concaves: {},
   envelopes: [],
   minMaxList: [],
   simplifiedPoints: [],
@@ -161,9 +158,9 @@ export const MainReducer = (state: MainState, action: any): MainState => {
 
     // For both apps
     case MainAction.LABEL_X:
-      return { ...state, labelX: action.labelX };
+      return { ...state, labelX: action.labelX, typeX: action.typeX };
     case MainAction.LABEL_Y:
-      return { ...state, labelY: action.labelY };
+      return { ...state, labelY: action.labelY, typeY: action.typeY };
     case MainAction.LABEL_COLOR:
       return { ...state, labelColor: action.labelColor };
     case MainAction.CONSTRAINTS:
@@ -187,6 +184,7 @@ export const MainReducer = (state: MainState, action: any): MainState => {
       }
       const newState = {
         ...state,
+        concaveList: action.concaveList,
         concaves: action.concaves,
         envelopes: action.envelopes,
         simplifiedPoints: action.simplifiedPoints,

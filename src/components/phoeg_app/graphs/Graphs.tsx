@@ -51,8 +51,8 @@ export const Graphs = ({ invariants }: GraphsProps) => {
       const yValue = data[y_tablename][i];
       const signValue = data["sig"][i];
       if (
-        xValue === mainContext.pointClicked?.x &&
-        yValue === mainContext.pointClicked?.y
+        xValue === mainContext.pointClicked?.x.getValue() &&
+        yValue === mainContext.pointClicked?.y.getValue()
       ) {
         result.push(signValue);
       }
@@ -116,11 +116,11 @@ export const Graphs = ({ invariants }: GraphsProps) => {
     // Filter for specific invariant values
     graphs_request.searchParams.append(
       "invariants[0][value]",
-      mainContext.pointClicked!.x.toString() || ""
+      mainContext.pointClicked!.x.getValue().toString() || ""
     );
     graphs_request.searchParams.append(
       "invariants[1][value]",
-      mainContext.pointClicked!.y.toString() || ""
+      mainContext.pointClicked!.y.getValue().toString() || ""
     );
 
     constraints.forEach((constraint, i) => {
