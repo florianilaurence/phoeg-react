@@ -20,6 +20,23 @@ export interface TableDirectionProps {
 
 const MAXHEIGHT = 350;
 
+const isClickedPoint = (
+  coordinate: CoordinateAutoconj,
+  pointsClicked: Array<Array<CoordinateAutoconj>>
+) => {
+  for (let i = 0; i < pointsClicked.length; i++) {
+    for (let j = 0; j < pointsClicked[i].length; j++) {
+      if (
+        pointsClicked[i][j].x.equal(coordinate.x) &&
+        pointsClicked[i][j].y.equal(coordinate.y)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
 const TableDirection = ({ title, data }: TableDirectionProps) => {
   const mainContext = useContext(MainContext);
 
@@ -47,19 +64,40 @@ const TableDirection = ({ title, data }: TableDirectionProps) => {
                   <TableCell
                     component="th"
                     scope="row"
-                    sx={{ color: coordinate.clicked ? "red" : "black" }}
+                    sx={{
+                      color: isClickedPoint(
+                        coordinate,
+                        mainContext.pointsClicked
+                      )
+                        ? "red"
+                        : "black",
+                    }}
                   >
                     {coordinate.order}
                   </TableCell>
                   <TableCell
                     align="right"
-                    sx={{ color: coordinate.clicked ? "red" : "black" }}
+                    sx={{
+                      color: isClickedPoint(
+                        coordinate,
+                        mainContext.pointsClicked
+                      )
+                        ? "red"
+                        : "black",
+                    }}
                   >
                     {coordinate.x.getValue()}
                   </TableCell>
                   <TableCell
                     align="right"
-                    sx={{ color: coordinate.clicked ? "red" : "black" }}
+                    sx={{
+                      color: isClickedPoint(
+                        coordinate,
+                        mainContext.pointsClicked
+                      )
+                        ? "red"
+                        : "black",
+                    }}
                   >
                     {coordinate.y.getValue()}
                   </TableCell>

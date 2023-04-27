@@ -60,7 +60,7 @@ export const containsCoordinate = (
 ) => {
   let res = false;
   for (let c of array) {
-    if (c.x === coord.x && c.y === coord.y) {
+    if (c.x.equal(coord.x) && c.y.equal(coord.y)) {
       res = true;
       break;
     }
@@ -88,7 +88,6 @@ const convertPointsNumRat = (points: Array<any>) => {
 
 const regroupByXY = (points: Coordinate[]) => {
   const newPoints: CoordinateGrouped[] = [];
-  console.log(points);
   points.forEach((point) => {
     const index = newPoints.findIndex((p) => sameCoordinates(p, point));
     if (index === -1) {
@@ -119,7 +118,6 @@ const regroupByXY = (points: Coordinate[]) => {
     point.averageCols =
       withoutDuplicate.reduce((a, b) => a + b, 0) / withoutDuplicate.length;
   });
-  console.log(newPoints);
   return newPoints;
 };
 
@@ -212,10 +210,14 @@ const convertConcave = (concave: any): Concave => {
 };
 
 // utils after fetch, for Autoconj app
-const convertConcaves = (concaveList: Array<Concave>): Array<Concave> => {
+const convertPointConcaveList = (
+  concaveList: Array<Concave>,
+  orders: Array<number>
+): Array<Concave> => {
   const res: Array<Concave> = [];
   const keys = Object.keys(concaveList[0]);
-  for (const concave of concaveList) {
+  for (let i = 0; i < concaveList.length; i++) {
+    let currentConcave = concaveList[i];
     const temp: Concave = {
       minX: [],
       maxX: [],
@@ -227,18 +229,16 @@ const convertConcaves = (concaveList: Array<Concave>): Array<Concave> => {
       maxXmaxY: [],
     };
     for (const key of keys) {
-      for (const coordinate of concave[key]) {
+      for (const coordinate of currentConcave[key]) {
         temp[key].push({
-          x: new NumRat(
-            coordinate.x.denominator
-              ? new NumRat(coordinate.x.numerator, coordinate.x.denominator)
-              : coordinate.x.numerator
-          ),
-          y: new NumRat(
-            coordinate.y.denominator
-              ? new NumRat(coordinate.y.numerator, coordinate.y.denominator)
-              : coordinate.y.numerator
-          ),
+          x: coordinate.x.denominator
+            ? new NumRat(coordinate.x.numerator, coordinate.x.denominator)
+            : new NumRat(coordinate.x.numerator),
+          y: coordinate.y.denominator
+            ? new NumRat(coordinate.y.numerator, coordinate.y.denominator)
+            : new NumRat(coordinate.y.numerator),
+          order: orders[i],
+          clicked: false,
         });
       }
     }
@@ -465,7 +465,10 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
 
     autoconjFetchData(concave_request, envelopes_request, advanced_constraints)
       .then((data) => {
-        const concaveList = convertConcaves(data.concaves);
+        const concaveList = convertPointConcaveList(
+          data.concaves,
+          mainContext.orders
+        );
         const concaves = regroupByFamily(concaveList);
         const envelopes = convertEnvelopes(data.envelopes);
         const simplifiedPoints = constructPointsFromConcaves(

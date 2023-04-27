@@ -34,14 +34,14 @@ export const allParams = {
 };
 
 interface ResultConjectures {
-  minY: Array<string>;
-  minXminY: Array<string>;
   minX: Array<string>;
-  maxXminY: Array<string>;
   maxX: Array<string>;
-  maxXmaxY: Array<string>;
+  minY: Array<string>;
   maxY: Array<string>;
+  minXminY: Array<string>;
   minXmaxY: Array<string>;
+  maxXminY: Array<string>;
+  maxXmaxY: Array<string>;
 }
 
 const initialResultConjectures: ResultConjectures = {
@@ -83,7 +83,6 @@ const MainConjectures = () => {
     mainContext.typeX === "rational" ||
     mainContext.typeY === "rational" ||
     (mainContext.typeX === "integer" && mainContext.typeY === "integer");
-  console.log(inRational, mainContext.typeX, mainContext.typeY);
   const computeConjectures = async () => {
     const tempResultConjectures: ResultConjectures = {
       minX: [],

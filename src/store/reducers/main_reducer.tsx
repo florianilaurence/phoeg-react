@@ -36,25 +36,25 @@ export interface MinMax {
 }
 
 export interface Concave {
-  minX: Array<SimplifiedCoordinate>;
-  maxX: Array<SimplifiedCoordinate>;
-  minY: Array<SimplifiedCoordinate>;
-  maxY: Array<SimplifiedCoordinate>;
-  minXminY: Array<SimplifiedCoordinate>;
-  minXmaxY: Array<SimplifiedCoordinate>;
-  maxXminY: Array<SimplifiedCoordinate>;
-  maxXmaxY: Array<SimplifiedCoordinate>;
+  minX: Array<CoordinateAutoconj>;
+  maxX: Array<CoordinateAutoconj>;
+  minY: Array<CoordinateAutoconj>;
+  maxY: Array<CoordinateAutoconj>;
+  minXminY: Array<CoordinateAutoconj>;
+  minXmaxY: Array<CoordinateAutoconj>;
+  maxXminY: Array<CoordinateAutoconj>;
+  maxXmaxY: Array<CoordinateAutoconj>;
 }
 
 export interface Concaves {
-  minX: Array<Array<SimplifiedCoordinate>>;
-  maxX: Array<Array<SimplifiedCoordinate>>;
-  minY: Array<Array<SimplifiedCoordinate>>;
-  maxY: Array<Array<SimplifiedCoordinate>>;
-  minXminY: Array<Array<SimplifiedCoordinate>>;
-  minXmaxY: Array<Array<SimplifiedCoordinate>>;
-  maxXminY: Array<Array<SimplifiedCoordinate>>;
-  maxXmaxY: Array<Array<SimplifiedCoordinate>>;
+  minX: Array<Array<CoordinateAutoconj>>;
+  maxX: Array<Array<CoordinateAutoconj>>;
+  minY: Array<Array<CoordinateAutoconj>>;
+  maxY: Array<Array<CoordinateAutoconj>>;
+  minXminY: Array<Array<CoordinateAutoconj>>;
+  minXmaxY: Array<Array<CoordinateAutoconj>>;
+  maxXminY: Array<Array<CoordinateAutoconj>>;
+  maxXmaxY: Array<Array<CoordinateAutoconj>>;
 }
 
 export interface ChartData {

@@ -55,14 +55,13 @@ const DrawConcave = ({
         if (point.clicked) {
           // Previously clicked => Remove it from correct subarray in pointsClicked
           const index = previousSubPointsClicked.findIndex(
-            (p) => p.x === point.x && p.y === point.y
+            (p) => p.x.equal(point.x) && p.y.equal(point.y)
           );
           newPointsClicked[currentIndexOrder].splice(index, 1);
         } else {
           // Add point to correct subarray in pointsClicked
           newPointsClicked[currentIndexOrder].push(point);
         }
-
         point.clicked = !point.clicked;
         mainContext.setPointsClicked(newPointsClicked);
       }

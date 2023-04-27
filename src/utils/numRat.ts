@@ -5,9 +5,9 @@ class NumRat {
   constructor(numerator: number, denominator?: number) {
     this.numerator = numerator;
     this.denominator = denominator;
-    if (this.denominator === 0) {
-      throw new Error("Denominator cannot be 0");
-    }
+    // if (this.denominator === 0) {
+    //   throw new Error("Denominator cannot be 0");
+    // }
     if (this.denominator === 1) {
       this.denominator = undefined;
     }
@@ -65,13 +65,13 @@ class NumRat {
     }
     if (Number.isInteger(this.numerator) && Number.isInteger(value.numerator)) {
       if (this.denominator !== undefined) {
-        // Add rational with number
+        // Add rational with integer
         return new NumRat(
           this.numerator + value.numerator * this.denominator,
           this.denominator
         );
       } else if (value.denominator !== undefined) {
-        // Add number with rational
+        // Add integer with rational
         return new NumRat(
           value.numerator + this.numerator * value.denominator,
           value.denominator
