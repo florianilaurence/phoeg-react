@@ -2,6 +2,7 @@ import { ColorationsAction } from "../actions/colorations_action";
 
 export interface ColorationObject {
   average: number;
+  indexInAveragesViewed: number;
   coloration: string;
 }
 

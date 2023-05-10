@@ -409,13 +409,23 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
           newCoordinates = convertToCoordinateGrouped(newPoints);
         }
 
+        const viewedAverages: Array<number> = [];
+
+        newCoordinates.forEach((coordinate) => {
+          if (!viewedAverages.includes(coordinate.averageCols)) {
+            viewedAverages.push(coordinate.averageCols);
+          }
+        });
+
+        viewedAverages.sort((a, b) => a - b); // sort ascending
+
         const newMinMax: MinMax = {
           minX: new NumRat(points.data.minMax.minX.numerator),
           maxX: new NumRat(points.data.minMax.maxX.numerator),
           minY: new NumRat(points.data.minMax.minY.numerator),
           maxY: new NumRat(points.data.minMax.maxY.numerator),
-          minColor: points.data.minMax.minColor,
-          maxColor: points.data.minMax.maxColor,
+          minColor: 0,
+          maxColor: viewedAverages.length - 1,
         };
 
         const newConcave: Concave | undefined = withConcave
@@ -426,6 +436,7 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
           envelope: convertEnvelope(envelope.data),
           minMax: newMinMax,
           coordinates: newCoordinates,
+          viewedAverages: viewedAverages,
           concave: newConcave,
           sorted: points.data.sorted,
           error: "",

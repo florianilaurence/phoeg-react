@@ -76,7 +76,10 @@ const Frame = ({ children, isOpenMenu, setIsOpenMenu }: FrameProps) => {
           <Typography variant="h3" noWrap component="div">
             Phoeg Web UI
           </Typography>
-          <Link onClick={() => navigate("/main-app", { replace: true })}>
+          <Link
+            onClick={() => navigate("/phoeg", { replace: true })}
+            style={{ cursor: "pointer" }}
+          >
             <img
               src={"logo.png"}
               height={heightToolbar}

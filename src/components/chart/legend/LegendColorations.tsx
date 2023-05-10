@@ -10,6 +10,7 @@ import { ColorationObject } from "../../../store/reducers/colorations_reducer";
 import ColorationsContext from "../../../store/utils/colorations_context";
 import { useContext, useReducer } from "react";
 import SendIcon from "@mui/icons-material/Send";
+import MainContext from "../../../store/utils/main_context";
 
 const defaultColorations = [
   "#FFCCCC",
@@ -98,6 +99,7 @@ enum PopperGradientElementsAction {
 
 const LegendColorations = ({ colorScale }: LegendColorationsProps) => {
   const colorationsContext = useContext(ColorationsContext);
+  const mainContext = useContext(MainContext);
 
   // _____________ For individual colorations _____________
   const popperIndElementsReducer = (state: PopperIndElements, action: any) => {
@@ -258,7 +260,7 @@ const LegendColorations = ({ colorScale }: LegendColorationsProps) => {
       objects.map((obj: ColorationObject) => {
         return {
           ...obj,
-          coloration: colorScale(obj.average),
+          coloration: colorScale(obj.indexInAveragesViewed),
         };
       })
     );

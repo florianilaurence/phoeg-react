@@ -45,21 +45,15 @@ const PolytopesSlider = ({ withConcave }: PolytopesSliderProps) => {
   );
 
   useEffect(() => {
-    let objects: Array<ColorationObject> = [];
-    let viewedAverages: Array<number> = [];
-    mainContext.coordinates.forEach((point) => {
-      if (viewedAverages.indexOf(point.averageCols) === -1) {
-        objects.push({
-          average: point.averageCols,
-          coloration: colorScale(point.averageCols),
-        });
-        viewedAverages.push(point.averageCols);
-      }
+    const objects: Array<ColorationObject> = [];
+    mainContext.viewedAverages.forEach((average, index) => {
+      objects.push({
+        average: average,
+        coloration: colorScale(index),
+        indexInAveragesViewed: index,
+      });
     });
 
-    objects.sort((colObject1, colObject2) => {
-      return colObject1.average - colObject2.average;
-    });
     setDataCols(objects, dispatchColsObject);
   }, [mainContext.order, mainContext.coordinates]);
 

@@ -62,6 +62,7 @@ export interface ChartData {
   minMax: MinMax;
   concave: Concave | undefined;
   coordinates: Array<CoordinateGrouped>;
+  viewedAverages: Array<number>;
   sorted: { [key: number]: Array<Coordinate> };
 }
 
@@ -70,6 +71,7 @@ export interface MainState {
   order: number;
 
   coordinates: Array<CoordinateGrouped>;
+  viewedAverages: Array<number>;
   sorted: { [key: number]: Array<Coordinate> };
   envelope: Array<Coordinate>;
   minMax: MinMax | undefined;
@@ -106,6 +108,7 @@ export const initialMainState: MainState = {
   order: 7,
 
   coordinates: [],
+  viewedAverages: [],
   sorted: {},
   envelope: [],
   minMax: undefined,
@@ -148,6 +151,7 @@ export const MainReducer = (state: MainState, action: any): MainState => {
         envelope: action.data.envelope,
         minMax: action.data.minMax,
         coordinates: action.data.coordinates,
+        viewedAverages: action.data.viewedAverages,
         sorted: action.data.sorted,
         concave: action.data.concave,
       };
