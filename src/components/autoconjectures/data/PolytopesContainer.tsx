@@ -1,7 +1,7 @@
 import { Box, Button, Grid, Tooltip, Typography } from "@mui/material";
 import { blueGrey, green } from "@mui/material/colors";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { Concave } from "../../../store/reducers/main_reducer";
 import MainContext from "../../../store/utils/main_context";
 import Chart from "../../chart/Chart";
@@ -14,6 +14,7 @@ import Legend from "../../chart/legend/Legend";
 const PolytopesContainer = () => {
   const mainContext = useContext(MainContext);
   const keys = Object.keys(mainContext.concaveList[0]);
+  const windowSize = useRef([window.innerWidth, window.innerHeight]);
 
   const onClickLegendConcave = (key: string) => {
     mainContext.setSubmitAutoconj(false);
@@ -134,7 +135,14 @@ const PolytopesContainer = () => {
           </Button>
         </Tooltip>
       </Box>
-      <Box sx={{ height: "400px", overflow: "auto", mb: 1, mt: 1 }}>
+      <Box
+        sx={{
+          height: (windowSize.current[1] * 65) / 100 + "px",
+          overflow: "auto",
+          mb: 1,
+          mt: 1,
+        }}
+      >
         <Grid container spacing={2}>
           {mainContext.concaveList.map((concave: Concave, index: number) => {
             return (
@@ -177,7 +185,7 @@ const PolytopesContainer = () => {
                         />
                       )}
                     </ParentSize>
-                    {/* <Legend withConcave={true} currentIndexOrder={index} /> */}
+                    <Legend withConcave={true} currentIndexOrder={index} />
                   </Box>
                 )}
               </Grid>

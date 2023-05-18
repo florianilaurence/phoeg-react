@@ -26,6 +26,11 @@ export const lagrange = (
   decimalNb: number
 ): Polynomial => {
   let result = new Polynomial([]);
+  const first_y = points[0].y;
+  if (points.every((point) => point.y.equal(first_y))) {
+    return new Polynomial([first_y]);
+  }
+
   for (let point of points) {
     const current_pol = compute_a_pol(points, point, decimalNb);
     const value = current_pol.evaluate(point.x, decimalNb);

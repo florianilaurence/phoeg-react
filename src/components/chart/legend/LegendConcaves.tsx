@@ -1,6 +1,6 @@
 import { Box, Typography, Tooltip, Button, Divider } from "@mui/material";
 import { DirectionColors } from "../DrawConcave";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import MainContext from "../../../store/utils/main_context";
 import { containsCoordinate } from "../../form_fetch/Fetch";
 
@@ -12,13 +12,13 @@ const LegendConcaves = ({ currentIndexOrder }: LegendAutoAppProps) => {
   const mainContext = useContext(MainContext);
 
   let dirsKeys: string[] = Object.keys(
-    mainContext.concaves[currentIndexOrder]
-  ).filter((dir) => mainContext.concaves[currentIndexOrder][dir].length > 1);
+    mainContext.concaveList[currentIndexOrder]
+  ).filter((dir) => mainContext.concaveList[currentIndexOrder][dir].length > 1);
 
   const onClickLegendConcave = (key: string) => {
     const previousSubPointsClicked =
       mainContext.pointsClicked[currentIndexOrder!];
-    const concaveSelected = mainContext.concaves[currentIndexOrder!][key];
+    const concaveSelected = mainContext.concaveList[currentIndexOrder!][key];
 
     for (const point of concaveSelected) {
       if (!point.clicked) {

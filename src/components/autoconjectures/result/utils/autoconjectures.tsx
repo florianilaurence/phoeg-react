@@ -78,11 +78,11 @@ export const construct_conjecture = (
   const order_pols: Array<string> = [];
   for (let order_coeff of secondary_coeffs) {
     const temp_pol = new Polynomial(order_coeff);
+
     order_pols.push(temp_pol.toString("n", inLatex));
   }
 
-  const main_coeff = get_longer(main_coeffs); // Get the longest list of coefficients
-  const temp_pol = new Polynomial(main_coeff);
+  const temp_pol = new Polynomial(get_longer(main_coeffs));
 
   let res: string = f === searched_f.FY ? "x " : "y ";
   res += ineq + " ";

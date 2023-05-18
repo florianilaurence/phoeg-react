@@ -1,10 +1,11 @@
 import { Box, Typography, Divider } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import MainContext from "../../../store/utils/main_context";
 
 const LegendColorValues = () => {
   const mainContext = useContext(MainContext);
   const [colorsKeys, setColorsKeys] = useState<number[]>([]);
+  const windowSize = useRef([window.innerWidth, window.innerHeight]);
 
   useEffect(() => {
     const colorsKeysStr = Object.keys(mainContext.sorted);
@@ -38,7 +39,7 @@ const LegendColorValues = () => {
           display: "flex",
           alignItems: "center",
           mt: 1,
-          maxHeight: 45,
+          maxHeight: windowSize.current[1] * 0.1,
         }}
         style={{
           overflow: "hidden",

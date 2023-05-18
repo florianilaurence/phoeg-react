@@ -78,7 +78,27 @@ const pointsFloat = [
   ],
 ];
 
+const pointsYZeroTest = [
+  [{ x: new NumRat(4), y: new NumRat(0) }],
+  [{ x: new NumRat(5), y: new NumRat(0) }],
+  [{ x: new NumRat(6), y: new NumRat(0) }],
+  [{ x: new NumRat(7), y: new NumRat(0) }],
+  [{ x: new NumRat(8), y: new NumRat(0) }],
+  [{ x: new NumRat(9), y: new NumRat(0) }],
+];
+
+const pointsXZeroTest = [
+  [{ x: new NumRat(0), y: new NumRat(4) }],
+  [{ x: new NumRat(0), y: new NumRat(5) }],
+  [{ x: new NumRat(0), y: new NumRat(6) }],
+  [{ x: new NumRat(0), y: new NumRat(7) }],
+  [{ x: new NumRat(0), y: new NumRat(8) }],
+  [{ x: new NumRat(0), y: new NumRat(9) }],
+];
+
 const ordersForInt = [3, 4, 5, 6, 7, 8, 9];
+
+const ordersForZeroTest = [4, 5, 6, 7, 8, 9];
 
 const ordersForRatAndFloat = [3, 4, 5, 6];
 
@@ -259,3 +279,29 @@ test("main_func with rationals", () => {
 });
 
 //______> test with floats
+
+test("main_func with y = 0", () => {
+  const result = main_func(
+    pointsYZeroTest,
+    ordersForZeroTest,
+    searched_f.FX,
+    inequality.MORE,
+    false,
+    true,
+    0
+  );
+  expect(result).toStrictEqual("y >= (0)");
+});
+
+test("main_func with x = 0", () => {
+  const result = main_func(
+    pointsXZeroTest,
+    ordersForZeroTest,
+    searched_f.FY,
+    inequality.MORE,
+    false,
+    true,
+    0
+  );
+  expect(result).toStrictEqual("x >= (0)");
+});

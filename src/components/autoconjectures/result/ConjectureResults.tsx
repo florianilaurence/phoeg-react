@@ -4,7 +4,6 @@ import ConjContext from "../../../store/utils/conj_context";
 import MainContext from "../../../store/utils/main_context";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import {
-  inequality,
   inequality_latex,
   main_func,
   searched_f,

@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { ColorationObject } from "../../../store/reducers/colorations_reducer";
 import ColorationsContext from "../../../store/utils/colorations_context";
-import { useContext, useReducer } from "react";
+import { useContext, useReducer, useRef } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import MainContext from "../../../store/utils/main_context";
 
@@ -100,6 +100,7 @@ enum PopperGradientElementsAction {
 const LegendColorations = ({ colorScale }: LegendColorationsProps) => {
   const colorationsContext = useContext(ColorationsContext);
   const mainContext = useContext(MainContext);
+  const windowSize = useRef([window.innerWidth, window.innerHeight]);
 
   // _____________ For individual colorations _____________
   const popperIndElementsReducer = (state: PopperIndElements, action: any) => {
@@ -465,7 +466,7 @@ const LegendColorations = ({ colorScale }: LegendColorationsProps) => {
           display: "flex",
           alignItems: "center",
           mt: 1,
-          maxHeight: 45,
+          maxHeight: windowSize.current[1] * 0.1,
         }}
         style={{
           overflow: "hidden",

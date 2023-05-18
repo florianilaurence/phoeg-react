@@ -33,7 +33,7 @@ const Legend = ({
 
   if (currentIndexOrder !== undefined) {
     // Autoconjecture app (only show legend for concave)
-    // return <LegendConcaves currentIndexOrder={currentIndexOrder} />;
+    return <LegendConcaves currentIndexOrder={currentIndexOrder} />;
   }
 
   return (

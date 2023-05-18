@@ -235,28 +235,48 @@ const NewGraph = ({ sign, width }: NewGraphProps) => {
           </Tooltip>
         </Grid>
       </Grid>
-      {isComplement ? (
-        <Box sx={{ mt: 1 }}>
-          {renderCytoscape([...nodes, ...edgesComplement], colorComplement)}
-          <Typography
-            variant="body1"
-            align="center"
-            fontSize={13}
-            color={colorComplement}
-          >
-            Complement
-          </Typography>
-        </Box>
+      {layout && layout.name ? (
+        isComplement ? (
+          <Box sx={{ mt: 1 }}>
+            {renderCytoscape([...nodes, ...edgesComplement], colorComplement)}
+            <Typography
+              variant="body1"
+              align="center"
+              fontSize={13}
+              color={colorComplement}
+            >
+              Complement
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ mt: 1 }}>
+            {renderCytoscape([...nodes, ...edges], colorGraph)}
+            <Typography
+              variant="body1"
+              align="center"
+              fontSize={13}
+              color={colorGraph}
+            >
+              Original
+            </Typography>
+          </Box>
+        )
       ) : (
-        <Box sx={{ mt: 1 }}>
-          {renderCytoscape([...nodes, ...edges], colorGraph)}
+        <Box
+          sx={{
+            height: width,
+            display: "flex",
+            mt: 5,
+            justifyContent: "center",
+          }}
+        >
           <Typography
             variant="body1"
-            align="center"
-            fontSize={13}
-            color={colorGraph}
+            fontWeight="bold"
+            fontStyle="italic"
+            fontSize={25}
           >
-            Original
+            Please select a layout
           </Typography>
         </Box>
       )}

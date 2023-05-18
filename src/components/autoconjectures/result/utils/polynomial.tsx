@@ -5,6 +5,11 @@ export default class Polynomial {
   constructor(readonly coefficients: Array<NumRat>) {}
 
   toString(xVar: string, inLatex: boolean = false): string {
+    if (this.coefficients.length === 1) {
+      // Particular case of constant polynomial
+      return this.coefficients[0].toString(inLatex);
+    }
+
     const temp: Array<string> = [];
     for (let i = 0; i < this.coefficients.length; i++) {
       temp.push(this.constructVar(this.coefficients[i], xVar, i, inLatex));

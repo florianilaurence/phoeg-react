@@ -11,25 +11,25 @@ import Loading from "../../Loading";
 import RenderOneConjecture from "../result/RenderOneConjecture";
 
 export const allParams = {
-  minY: [{ f: searched_f.FX, ineq: inequality_latex.MORE }],
-  minXminY: [
-    { f: searched_f.FX, ineq: inequality_latex.MORE },
-    { f: searched_f.FY, ineq: inequality_latex.MORE },
-  ],
   minX: [{ f: searched_f.FY, ineq: inequality_latex.MORE }],
-  maxXminY: [
-    { f: searched_f.FX, ineq: inequality_latex.MORE },
-    { f: searched_f.FY, ineq: inequality_latex.LESS },
-  ],
-  maxY: [{ f: searched_f.FX, ineq: inequality_latex.LESS }],
-  maxXmaxY: [
-    { f: searched_f.FX, ineq: inequality_latex.LESS },
-    { f: searched_f.FY, ineq: inequality_latex.LESS },
-  ],
   maxX: [{ f: searched_f.FY, ineq: inequality_latex.LESS }],
-  minXmaxY: [
+  minY: [{ f: searched_f.FX, ineq: inequality_latex.MORE }],
+  maxY: [{ f: searched_f.FX, ineq: inequality_latex.LESS }],
+  minXminY: [
+    { f: searched_f.FY, ineq: inequality_latex.MORE },
     { f: searched_f.FX, ineq: inequality_latex.MORE },
+  ],
+  minXmaxY: [
+    { f: searched_f.FY, ineq: inequality_latex.MORE },
+    { f: searched_f.FX, ineq: inequality_latex.LESS },
+  ],
+  maxXminY: [
     { f: searched_f.FY, ineq: inequality_latex.LESS },
+    { f: searched_f.FX, ineq: inequality_latex.MORE },
+  ],
+  maxXmaxY: [
+    { f: searched_f.FY, ineq: inequality_latex.LESS },
+    { f: searched_f.FX, ineq: inequality_latex.LESS },
   ],
 };
 
@@ -97,6 +97,7 @@ const MainConjectures = () => {
 
     for (let key of keys) {
       const params = allParams[key as keyof ResultConjectures];
+      console.log(key, params);
       tempResultConjectures[key as keyof ResultConjectures].push(
         main_func(
           mainContext.concaves[key as keyof ResultConjectures],

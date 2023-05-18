@@ -10,7 +10,6 @@ import {
 import { Invariant } from "../PolytopesSlider";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import GraphSlider from "./GraphSlider";
-import { stringify } from "querystring";
 
 interface Graphs {
   list: Array<string>;
@@ -185,57 +184,59 @@ export const Graphs = ({ invariants }: GraphsProps) => {
 
   return (
     <Box sx={{ justifyContent: "center", m: 1 }}>
-      {mainContext.pointClicked && stateGraphs.list.length > 0 && (
-        <>
-          <SubTitle>Graphs</SubTitle>
-          <Typography variant="body1" align="center">
-            There are {stateGraphs.list.length} graph
-            {stateGraphs.list.length === 1 ? "" : "s"}. You can display up to{" "}
-            {stateGraphs.list.length * 2} sliders in same the time:
-          </Typography>
-          <Box sx={{ display: "flex", justifyContent: "center", m: 1 }}>
-            <Slider
-              aria-label="nb_of_sliders"
-              value={stateGraphs.nbGraphSlider}
-              valueLabelDisplay="auto"
-              step={1}
-              marks
-              min={1}
-              max={stateGraphs.list.length * 2}
-              sx={{
-                color: "success.main",
-                "& .MuiSlider-thumb": { borderRadius: "1px" },
-                width: "75%",
-              }}
-              onChange={(event, newValue) =>
-                dispatchGraphs({
-                  type: GraphsAction.SET_NB_GRAPH_SLIDER,
-                  payload: newValue,
-                })
-              }
-            />
-          </Box>
+      {mainContext.pointClicked &&
+        !stateGraphs.isLoading &&
+        stateGraphs.list.length > 0 && (
+          <>
+            <SubTitle>Graphs</SubTitle>
+            <Typography variant="body1" align="center">
+              There are {stateGraphs.list.length} graph
+              {stateGraphs.list.length === 1 ? "" : "s"}. You can display up to{" "}
+              {stateGraphs.list.length * 2} sliders in same the time:
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "center", m: 1 }}>
+              <Slider
+                aria-label="nb_of_sliders"
+                value={stateGraphs.nbGraphSlider}
+                valueLabelDisplay="auto"
+                step={1}
+                marks
+                min={1}
+                max={stateGraphs.list.length * 2}
+                sx={{
+                  color: "success.main",
+                  "& .MuiSlider-thumb": { borderRadius: "1px" },
+                  width: "75%",
+                }}
+                onChange={(event, newValue) =>
+                  dispatchGraphs({
+                    type: GraphsAction.SET_NB_GRAPH_SLIDER,
+                    payload: newValue,
+                  })
+                }
+              />
+            </Box>
 
-          <Grid
-            container
-            spacing={1}
-            sx={{ mt: 1, display: "flex", justifyContent: "center" }}
-          >
-            {Array.from(Array(stateGraphs.nbGraphSlider).keys()).map(
-              (i: number) => {
-                return (
-                  <Grid item sm={6} key={i}>
-                    <GraphSlider
-                      list={stateGraphs.list}
-                      firstToShow={i % stateGraphs.list.length}
-                    />
-                  </Grid>
-                );
-              }
-            )}
-          </Grid>
-        </>
-      )}
+            <Grid
+              container
+              spacing={1}
+              sx={{ mt: 1, display: "flex", justifyContent: "center" }}
+            >
+              {Array.from(Array(stateGraphs.nbGraphSlider).keys()).map(
+                (i: number) => {
+                  return (
+                    <Grid item sm={6} key={i}>
+                      <GraphSlider
+                        list={stateGraphs.list}
+                        firstToShow={i % stateGraphs.list.length}
+                      />
+                    </Grid>
+                  );
+                }
+              )}
+            </Grid>
+          </>
+        )}
     </Box>
   );
 };
