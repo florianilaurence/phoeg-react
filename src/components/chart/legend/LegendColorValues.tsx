@@ -1,6 +1,7 @@
 import { Box, Typography, Divider } from "@mui/material";
 import { useContext, useEffect, useRef, useState } from "react";
 import MainContext from "../../../store/utils/main_context";
+import { blueGrey } from "@mui/material/colors";
 
 const LegendColorValues = () => {
   const mainContext = useContext(MainContext);
@@ -57,16 +58,34 @@ const LegendColorValues = () => {
               }}
             >
               <Box
-                sx={{ ml: 1, cursor: "pointer" }}
+                sx={{ ml: 1, cursor: "pointer", pl: 0.5, pr: 0.5 }}
                 onClick={() => handleOnClickLegend(color)}
+                bgcolor={
+                  mainContext.legendClicked !== null &&
+                  mainContext.legendClicked === color
+                    ? blueGrey[800]
+                    : "none"
+                }
               >
                 <Typography
                   variant="body1"
-                  fontSize={12}
-                  fontStyle={
+                  color={
+                    mainContext.legendClicked !== null &&
+                    mainContext.legendClicked === color
+                      ? blueGrey[50]
+                      : blueGrey[800]
+                  }
+                  fontSize={13}
+                  fontFamily={
                     mainContext.legendClicked !== null &&
                     mainContext.legendClicked === color
                       ? "italic"
+                      : "normal"
+                  }
+                  fontWeight={
+                    mainContext.legendClicked !== null &&
+                    mainContext.legendClicked === color
+                      ? "bold"
                       : "normal"
                   }
                 >
