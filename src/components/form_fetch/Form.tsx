@@ -919,7 +919,7 @@ const Form = ({
           {withConcave !== undefined && setWithConcave !== undefined && (
             <Box sx={{ mt: 1, display: "flex", justifyContent: "center" }}>
               <Typography variant="body1">
-                Do you want compute and show concave hull on your polytope ?
+                Do you want compute and show Pareto hull on your polytope(s) ?
               </Typography>
               <Switch
                 checked={withConcave}
