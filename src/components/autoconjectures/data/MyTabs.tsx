@@ -15,8 +15,8 @@ import PolytopesContainer from "./PolytopesContainer";
 import DataTables from "./DataTables";
 import MainConjectures from "./MainConjectures";
 import SendTimeExtensionIcon from "@mui/icons-material/SendTimeExtension";
-import MainContext from "../../../store/utils/main_context";
-import ConjContext from "../../../store/utils/conj_context";
+import MainContext from "../../../store/contexts/main_context";
+import ConjContext from "../../../store/contexts/conj_context";
 import { blueGrey } from "@mui/material/colors";
 
 const MyTabs = () => {
@@ -154,7 +154,7 @@ const MyTabs = () => {
           <Box sx={{ mr: 4, display: "flex", alignItems: "center" }}>
             <Tooltip title="Generate autoconjectures with selected points">
               <Button
-                variant="contained"
+                variant="outlined"
                 color="success"
                 endIcon={<SendTimeExtensionIcon />}
                 onClick={handleSubmitAutoconj}

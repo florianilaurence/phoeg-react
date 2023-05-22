@@ -24,7 +24,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Box } from "@mui/system";
 import Title from "../styles_and_settings/Title";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import { blueGrey } from "@mui/material/colors";
 import DoneIcon from "@mui/icons-material/Done";

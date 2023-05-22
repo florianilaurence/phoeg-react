@@ -8,10 +8,10 @@ import Chart from "../chart/Chart";
 import { deepOrange, green, grey, orange } from "@mui/material/colors";
 import SubTitle from "../styles_and_settings/SubTitle";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 import Legend from "../chart/legend/Legend";
 import { scaleLinear } from "@visx/scale";
-import ColorationsContext from "../../store/utils/colorations_context";
+import ColorationsContext from "../../store/contexts/colorations_context";
 import {
   ColorationObject,
   ColorationsReducer,

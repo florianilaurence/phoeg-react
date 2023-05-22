@@ -1,6 +1,6 @@
 import { Box, Typography, Divider } from "@mui/material";
 import { useContext, useEffect, useRef, useState } from "react";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import { blueGrey } from "@mui/material/colors";
 
 const LegendColorValues = () => {

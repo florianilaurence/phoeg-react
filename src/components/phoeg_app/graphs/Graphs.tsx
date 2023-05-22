@@ -2,7 +2,7 @@ import { Box, Grid, Slider, Typography } from "@mui/material";
 import axios from "axios";
 import { useContext, useEffect, useReducer } from "react";
 import { API_URL } from "../../../.env";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import {
   decodeConstraints,
   getTablenameFromName,

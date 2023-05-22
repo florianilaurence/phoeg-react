@@ -5,7 +5,7 @@ import {
   CoordinateAutoconj,
   SimplifiedCoordinate,
 } from "../../store/reducers/main_reducer";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 
 // Couleur pour chaque direction
 export enum DirectionColors {

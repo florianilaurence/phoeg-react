@@ -1,7 +1,7 @@
 import { Box, Typography, Tooltip, Button, Divider } from "@mui/material";
 import { DirectionColors } from "../DrawConcave";
 import { useContext, useEffect } from "react";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import { containsCoordinate } from "../../form_fetch/Fetch";
 
 interface LegendAutoAppProps {

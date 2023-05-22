@@ -1,7 +1,7 @@
 import { Box, Typography, Divider } from "@mui/material";
 import { DirectionColors } from "../DrawConcave";
 import { useContext } from "react";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 
 const LegendConcave = () => {
   const mainContext = useContext(MainContext);

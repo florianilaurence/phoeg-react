@@ -3,7 +3,7 @@ import { blueGrey, green } from "@mui/material/colors";
 import ParentSize from "@visx/responsive/lib/components/ParentSizeModern";
 import { useContext, useRef } from "react";
 import { Concave } from "../../../store/reducers/main_reducer";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import Chart from "../../chart/Chart";
 import { DirectionColors } from "../../chart/DrawConcave";
 import { containsCoordinate } from "../../form_fetch/Fetch";

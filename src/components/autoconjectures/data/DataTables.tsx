@@ -1,4 +1,4 @@
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import { useContext } from "react";
 import { Grid } from "@mui/material";
 import TableDirection from "./TableDirection";

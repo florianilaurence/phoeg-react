@@ -1,4 +1,4 @@
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import { useContext, useEffect, useReducer, useState } from "react";
 import {
   inequality_latex,
@@ -97,7 +97,6 @@ const MainConjectures = () => {
 
     for (let key of keys) {
       const params = allParams[key as keyof ResultConjectures];
-      console.log(key, params);
       tempResultConjectures[key as keyof ResultConjectures].push(
         main_func(
           mainContext.concaves[key as keyof ResultConjectures],

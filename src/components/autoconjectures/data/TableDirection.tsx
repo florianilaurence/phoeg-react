@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import { useContext } from "react";
 import SubTitle from "../../styles_and_settings/SubTitle";
 

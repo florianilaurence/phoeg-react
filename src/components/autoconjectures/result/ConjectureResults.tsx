@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { useContext, useEffect, useState } from "react";
-import ConjContext from "../../../store/utils/conj_context";
-import MainContext from "../../../store/utils/main_context";
+import ConjContext from "../../../store/contexts/conj_context";
+import MainContext from "../../../store/contexts/main_context";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import {
   inequality_latex,

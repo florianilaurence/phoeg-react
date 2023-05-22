@@ -2,7 +2,7 @@ import { Box, Button, Collapse, Typography } from "@mui/material";
 import { useContext, useState } from "react";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 import { red } from "@mui/material/colors";
 import LegendConcaves from "./LegendConcaves";
 import LegendColorValues from "./LegendColorValues";

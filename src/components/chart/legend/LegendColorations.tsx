@@ -7,10 +7,10 @@ import {
   ClickAwayListener,
 } from "@mui/material";
 import { ColorationObject } from "../../../store/reducers/colorations_reducer";
-import ColorationsContext from "../../../store/utils/colorations_context";
+import ColorationsContext from "../../../store/contexts/colorations_context";
 import { useContext, useReducer, useRef } from "react";
 import SendIcon from "@mui/icons-material/Send";
-import MainContext from "../../../store/utils/main_context";
+import MainContext from "../../../store/contexts/main_context";
 
 const defaultColorations = [
   "#FFCCCC",

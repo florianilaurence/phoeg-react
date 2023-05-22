@@ -31,7 +31,7 @@ import {
   MinMax,
   SimplifiedCoordinate,
 } from "../../store/reducers/main_reducer";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 import Frame from "../annex_pages/Frame";
 import Form from "../form_fetch/Form";
 import { fetchInvariants, OpenProps } from "../phoeg_app/PhoegApp";
@@ -44,12 +44,16 @@ import {
   ConjReducer,
   initialConjState,
 } from "../../store/reducers/conj_reducer";
-import ConjContext from "../../store/utils/conj_context";
+import ConjContext from "../../store/contexts/conj_context";
 import {
   setActive,
   setIsFYSearched,
   setIsMore,
 } from "../../store/actions/conj_action";
+import { Box, Button, Typography } from "@mui/material";
+import PrintIcon from "@mui/icons-material/Print";
+import { Link, Route } from "react-router-dom";
+import AppRoutes from "../../routes";
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
@@ -64,6 +68,10 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
     MainReducer,
     initialMainState
   );
+
+  const handlePrintPDF = () => {
+    window.print();
+  };
 
   useEffect(() => {
     fetchInvariants().then((inv) => setDataInvariants(inv));

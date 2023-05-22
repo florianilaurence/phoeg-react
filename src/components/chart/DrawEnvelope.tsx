@@ -1,7 +1,7 @@
 import { Group } from "@visx/group";
 import { LinePath } from "@visx/shape";
 import { useContext } from "react";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 import { SimplifiedCoordinate } from "../../store/reducers/main_reducer";
 
 interface DrawEnvelopeProps {

@@ -3,7 +3,7 @@ import { API_URL } from "../../.env";
 import { stringify } from "qs";
 import axios from "axios";
 import { Invariant } from "../phoeg_app/PolytopesSlider";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 import {
   CoordinateAutoconj,
   Coordinate,

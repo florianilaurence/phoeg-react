@@ -69,7 +69,6 @@ export interface ChartData {
 export interface MainState {
   // Only for phoeg app
   order: number;
-
   coordinates: Array<CoordinateGrouped>;
   viewedAverages: Array<number>;
   sorted: { [key: number]: Array<Coordinate> };
@@ -93,7 +92,6 @@ export interface MainState {
 
   // Only for conjecture app
   orders: Array<number>;
-
   concaveList: Array<Concave>;
   concaves: Concaves | {};
   envelopes: Array<Array<SimplifiedCoordinate>>;
@@ -106,7 +104,6 @@ export interface MainState {
 export const initialMainState: MainState = {
   // Only for phoeg app
   order: 7,
-
   coordinates: [],
   viewedAverages: [],
   sorted: {},
@@ -130,7 +127,6 @@ export const initialMainState: MainState = {
 
   // Only for conjecture app
   orders: [],
-
   concaveList: [],
   concaves: {},
   envelopes: [],

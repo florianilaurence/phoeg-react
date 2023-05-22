@@ -1,11 +1,11 @@
 import { Group } from "@visx/group";
 import { Circle } from "@visx/shape";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 import { useContext, useState } from "react";
 import { CoordinateGrouped } from "../../store/reducers/main_reducer";
 import { GlyphStar } from "@visx/glyph";
 import { Box, Button, Modal, Typography } from "@mui/material";
-import ColorationsContext from "../../store/utils/colorations_context";
+import ColorationsContext from "../../store/contexts/colorations_context";
 import { ColorationObject } from "../../store/reducers/colorations_reducer";
 
 interface DrawPointsProps {

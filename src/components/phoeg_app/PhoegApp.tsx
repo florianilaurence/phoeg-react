@@ -5,7 +5,7 @@ import axios from "axios";
 import { API_URL } from "../../.env";
 import { useEffect, useReducer, useState } from "react";
 import Frame from "../annex_pages/Frame";
-import MainContext from "../../store/utils/main_context";
+import MainContext from "../../store/contexts/main_context";
 import {
   ChartData,
   Concave,
