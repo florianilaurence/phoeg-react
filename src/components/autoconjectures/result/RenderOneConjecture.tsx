@@ -10,14 +10,16 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import { ToPrintProps } from "../NewWindow";
 
-interface RenderOneConjectureProps {
+interface RenderOneConjectureProps extends ToPrintProps {
   conjecture: string;
   maxLenEq: number;
   direction?: string;
 }
 
 const RenderOneConjecture = ({
+  isToPrint,
   conjecture,
   maxLenEq,
   direction,
@@ -25,6 +27,9 @@ const RenderOneConjecture = ({
   const [showDialogConj, setShowDialogConj] = useState(false);
 
   const convertConj = (conj: string) => {
+    if (isToPrint) {
+      return conj;
+    }
     if (conj.length > maxLenEq) {
       let temp = conj.slice(0, maxLenEq);
       let index = temp.lastIndexOf("}");
@@ -48,7 +53,7 @@ const RenderOneConjecture = ({
             <MathJax.Node formula={convertConj(conjecture)} />
           </MathJax.Provider>
 
-          {conjecture.length > maxLenEq && (
+          {conjecture.length > maxLenEq && !isToPrint && (
             <Tooltip
               title="Click to show full conjecture"
               placement="top-start"
@@ -61,35 +66,37 @@ const RenderOneConjecture = ({
         </Box>
       )}
 
-      <Dialog
-        open={showDialogConj}
-        onClose={() => setShowDialogConj(false)}
-        title="Conjecture"
-      >
-        {direction ? (
-          <DialogTitle>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-              Conjecture for {direction}
-              <IconButton onClick={() => setShowDialogConj(false)}>
-                <CloseIcon color="warning" />
-              </IconButton>
-            </Box>
-          </DialogTitle>
-        ) : (
-          <DialogTitle>
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-              <IconButton onClick={() => setShowDialogConj(false)}>
-                <CloseIcon color="warning" />
-              </IconButton>
-            </Box>
-          </DialogTitle>
-        )}
-        <DialogContent>
-          <MathJax.Provider>
-            <MathJax.Node inline formula={conjecture} />
-          </MathJax.Provider>
-        </DialogContent>
-      </Dialog>
+      {!isToPrint && (
+        <Dialog
+          open={showDialogConj}
+          onClose={() => setShowDialogConj(false)}
+          title="Conjecture"
+        >
+          {direction ? (
+            <DialogTitle>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                Conjecture for {direction}
+                <IconButton onClick={() => setShowDialogConj(false)}>
+                  <CloseIcon color="warning" />
+                </IconButton>
+              </Box>
+            </DialogTitle>
+          ) : (
+            <DialogTitle>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <IconButton onClick={() => setShowDialogConj(false)}>
+                  <CloseIcon color="warning" />
+                </IconButton>
+              </Box>
+            </DialogTitle>
+          )}
+          <DialogContent>
+            <MathJax.Provider>
+              <MathJax.Node inline formula={conjecture} />
+            </MathJax.Provider>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

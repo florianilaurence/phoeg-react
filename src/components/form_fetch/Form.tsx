@@ -30,6 +30,8 @@ import { blueGrey } from "@mui/material/colors";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { InvariantTypes } from "../phoeg_app/PhoegApp";
+import { initialMainState } from "../../store/reducers/main_reducer";
+import { stat } from "fs";
 
 enum ConstraintTypes {
   NUMBER = "number",
@@ -56,6 +58,7 @@ enum ConstraintAction {
   CHANGE_ADVANCED_FIELD,
   RESET_CONSTRAINTS,
   ERASE_NAME,
+  SET,
 }
 
 export interface Constraint {
@@ -109,6 +112,15 @@ const parseOrders = (orders: string): Array<number> => {
   return orders_int;
 };
 
+const antiParseOrders = (orders: Array<number>): string => {
+  let orders_string = "";
+  orders.forEach((order) => {
+    orders_string += order.toString() + ",";
+  });
+  orders_string = orders_string.slice(0, -1);
+  return orders_string;
+};
+
 const isNumericalInvariant = (type: string): boolean => {
   return (
     type === InvariantTypes.NUMBER ||
@@ -148,6 +160,8 @@ const Form = ({
   const HEIGHTCARD = withOrders ? 125 : 100;
   const HEIGHTCARDCONSTRAINT = 200;
 
+  const [showForm, setShowForm] = useState(true);
+
   const mainContext = useContext(MainContext);
 
   const [openModal, setOpenModal] = useState(false);
@@ -157,56 +171,8 @@ const Form = ({
   const [invWithoutRat, setInvWithoutRat] = useState<Array<Invariant>>([]); // Sorted invariants without rational
   const [invColoration, setInvColoration] = useState<Array<Invariant>>([]); // Sorted invariants for coloration (number, bool, special)
 
-  useEffect(() => {
-    // Sort invariants by type
-    const viewedRat: Array<string> = [];
-    invariants.forEach((inv) => {
-      if (inv.datatype === InvariantTypes.RATIONAL) {
-        viewedRat.push(inv.tablename.replace("_rational", ""));
-      }
-    });
-
-    const invWithRat: Array<Invariant> = [];
-    invariants.forEach((inv) => {
-      if (inv.datatype === InvariantTypes.RATIONAL) {
-        invWithRat.push(inv);
-      } else if (isNumericalInvariant(inv.datatype)) {
-        if (!viewedRat.includes(inv.tablename)) {
-          invWithRat.push(inv);
-        }
-      }
-    });
-
-    const invWithoutRat: Array<Invariant> = invariants.filter((inv) => {
-      return isNumericalInvariant(inv.datatype);
-    });
-
-    const invColoration: Array<Invariant> = invariants.filter((inv) => {
-      return isColorationInvariant(inv.datatype);
-    });
-
-    setInvWithRat(invWithRat);
-    setInvWithoutRat(invWithoutRat);
-    setInvColoration(invColoration);
-  }, [invariants]);
-
-  const handleOpen = () => {
-    setPreviousOrders(stateOrders.field);
-    setOpenModal(true);
-  };
-
-  const handleClose = (isCancel: boolean) => {
-    if (isCancel) {
-      dispatchOrders({
-        type: OrdersAction.FIELD,
-        field: previousOrders,
-      });
-    }
-    setOpenModal(false);
-  };
-
   const [currentId, setCurrentId] = useState(1); // Unique id for each item (not change if add or remove item)
-  const [showForm, setShowForm] = useState(true);
+
   const [showColoration, setShowColoration] = useState(false);
   const [showConstrSubForm, setShowConstrSubForm] = useState(false);
 
@@ -217,56 +183,6 @@ const Form = ({
 
   const getConstraintFromName = (name: string): Invariant => {
     return constraintsInvariant.find((inv) => inv.name === name) as Invariant;
-  };
-
-  // Orders reducer
-  const ordersReducer = (state: Orders, action: any) => {
-    switch (action.type) {
-      case OrdersAction.MIN:
-        return { ...state, min: +action.min }; // +action.min to convert string to number (if not, it's maybe a string)
-      case OrdersAction.MAX:
-        return { ...state, max: +action.max };
-      case OrdersAction.STEP:
-        return { ...state, step: +action.step };
-      case OrdersAction.FIELD:
-        return { ...state, field: action.field };
-      default:
-        return state;
-    }
-  };
-
-  const [stateOrders, dispatchOrders] = useReducer(
-    ordersReducer,
-    initialOrders
-  );
-
-  // Orders controllers
-  const handleOrdersMin = (event: any) => {
-    mainContext.reset();
-    dispatchOrders({ type: OrdersAction.MIN, min: event.target.value });
-  };
-
-  const handleOrdersMax = (event: any) => {
-    mainContext.reset();
-    dispatchOrders({ type: OrdersAction.MAX, max: event.target.value });
-  };
-
-  const handleOrdersStep = (event: any) => {
-    mainContext.reset();
-    dispatchOrders({ type: OrdersAction.STEP, step: event.target.value });
-  };
-
-  const handleOrdersField = (event: any) => {
-    mainContext.reset();
-    dispatchOrders({ type: OrdersAction.FIELD, field: event.target.value });
-  };
-
-  const submitOrders = () => {
-    const orders: Array<number> = [];
-    for (let i = stateOrders.min; i <= stateOrders.max; i += stateOrders.step) {
-      orders.push(i);
-    }
-    dispatchOrders({ type: OrdersAction.FIELD, field: orders.join(", ") });
   };
 
   // Constraints reducer
@@ -349,6 +265,9 @@ const Form = ({
         });
         return new_state_erase_name;
 
+      case ConstraintAction.SET:
+        return action.constraints;
+
       default:
         throw new Error();
     }
@@ -357,6 +276,116 @@ const Form = ({
   const [constraints, dispatchConstraints] = useReducer(constraintsReducer, [
     initialConstraint(1),
   ]);
+
+  useEffect(() => {
+    if (mainContext.concaves !== initialMainState.concaves) {
+      stateOrders.field = antiParseOrders(mainContext.orders);
+      setShowForm(false);
+      if (mainContext.constraints !== initialMainState.constraints) {
+        dispatchConstraints({
+          type: ConstraintAction.SET,
+          constraints: antiEncodeConstraints(mainContext.constraints),
+        });
+        setShowConstrSubForm(true);
+      }
+    }
+
+    // Sort invariants by type
+    const viewedRat: Array<string> = [];
+    invariants.forEach((inv) => {
+      if (inv.datatype === InvariantTypes.RATIONAL) {
+        viewedRat.push(inv.tablename.replace("_rational", ""));
+      }
+    });
+
+    const invWithRat: Array<Invariant> = [];
+    invariants.forEach((inv) => {
+      if (inv.datatype === InvariantTypes.RATIONAL) {
+        invWithRat.push(inv);
+      } else if (isNumericalInvariant(inv.datatype)) {
+        if (!viewedRat.includes(inv.tablename)) {
+          invWithRat.push(inv);
+        }
+      }
+    });
+
+    const invWithoutRat: Array<Invariant> = invariants.filter((inv) => {
+      return isNumericalInvariant(inv.datatype);
+    });
+
+    const invColoration: Array<Invariant> = invariants.filter((inv) => {
+      return isColorationInvariant(inv.datatype);
+    });
+
+    setInvWithRat(invWithRat);
+    setInvWithoutRat(invWithoutRat);
+    setInvColoration(invColoration);
+  }, [invariants]);
+
+  const handleOpen = () => {
+    setPreviousOrders(stateOrders.field);
+    setOpenModal(true);
+  };
+
+  const handleClose = (isCancel: boolean) => {
+    if (isCancel) {
+      dispatchOrders({
+        type: OrdersAction.FIELD,
+        field: previousOrders,
+      });
+    }
+    setOpenModal(false);
+  };
+
+  // Orders reducer
+  const ordersReducer = (state: Orders, action: any) => {
+    switch (action.type) {
+      case OrdersAction.MIN:
+        return { ...state, min: +action.min }; // +action.min to convert string to number (if not, it's maybe a string)
+      case OrdersAction.MAX:
+        return { ...state, max: +action.max };
+      case OrdersAction.STEP:
+        return { ...state, step: +action.step };
+      case OrdersAction.FIELD:
+        return { ...state, field: action.field };
+      default:
+        return state;
+    }
+  };
+
+  const [stateOrders, dispatchOrders] = useReducer(
+    ordersReducer,
+    initialOrders
+  );
+
+  // Orders controllers
+  const handleOrdersMin = (event: any) => {
+    mainContext.reset();
+    dispatchOrders({ type: OrdersAction.MIN, min: event.target.value });
+  };
+
+  const handleOrdersMax = (event: any) => {
+    mainContext.reset();
+    dispatchOrders({ type: OrdersAction.MAX, max: event.target.value });
+  };
+
+  const handleOrdersStep = (event: any) => {
+    mainContext.reset();
+    dispatchOrders({ type: OrdersAction.STEP, step: event.target.value });
+  };
+
+  const handleOrdersField = (event: any) => {
+    mainContext.reset();
+    dispatchOrders({ type: OrdersAction.FIELD, field: event.target.value });
+  };
+
+  const submitOrders = () => {
+    const orders: Array<number> = [];
+    for (let i = stateOrders.min; i <= stateOrders.max; i += stateOrders.step) {
+      orders.push(i);
+    }
+    dispatchOrders({ type: OrdersAction.FIELD, field: orders.join(", ") });
+  };
 
   // Constraints controllers
   const handleChangeName = (id: number, name: string) => {
@@ -470,6 +499,29 @@ const Form = ({
     if (setWithConcave) setWithConcave(value);
   };
 
+  const checkAutoconjApp = () => {
+    if (stateOrders.field === "") {
+      return "Please enter a list of orders";
+    }
+    if (
+      mainContext.typeX === "rational" &&
+      (mainContext.typeY === "real" || mainContext.typeY === "number")
+    ) {
+      return "please not choose a rational type for the x axis and a real type for the y axis";
+    }
+    if (
+      (mainContext.typeX === "real" || mainContext.typeX === "number") &&
+      mainContext.typeY === "rational"
+    ) {
+      return "please not choose a real type for the x axis and a rational type for the y axis";
+    }
+    const regexOrders = /(\d(, *\d)*)/g;
+    if (!regexOrders.test(stateOrders.field)) {
+      return "Please enter a valid list of orders \n ex: 1, 2, 3 or 1,2,3 or 1, 2,3";
+    }
+    return "";
+  };
+
   // Submit controllers and annex functions
   const handleSubmit = () => {
     if (
@@ -481,42 +533,23 @@ const Form = ({
       alert("Please complete all the required fields");
       return;
     }
+
     const messageError = checkMainDifferent();
     if (messageError !== "") {
       alert(messageError);
       return;
     }
 
-    if (withOrders && stateOrders.field === "") {
-      alert("Please complete all the required fields");
-      return;
-    }
-
     if (withOrders) {
-      if (
-        mainContext.typeX === "rational" &&
-        (mainContext.typeY === "real" || mainContext.typeY === "number")
-      ) {
-        alert(
-          "please choose a rational type for the x axis and a real type for the y axis"
-        );
+      const messageErrorAutoconj = checkAutoconjApp();
+      if (messageErrorAutoconj !== "") {
+        alert(messageErrorAutoconj);
         return;
-      }
-      if (
-        (mainContext.typeX === "real" || mainContext.typeX === "number") &&
-        mainContext.typeY === "rational"
-      ) {
-        alert(
-          "please choose a real type for the x axis and a rational type for the y axis"
-        );
-        return;
+      } else {
+        mainContext.setOrders(parseOrders(stateOrders.field));
       }
     }
 
-    if (withOrders) {
-      const orders = parseOrders(stateOrders.field);
-      mainContext.setOrders(orders);
-    }
     setShowForm(false);
     let { encodedConstraints, encodedAdvanced } = encodeConstraints();
     mainContext.setConstraints(encodedConstraints);
@@ -543,6 +576,63 @@ const Form = ({
       }
     });
     return { encodedConstraints, encodedAdvanced };
+  };
+
+  const getNameFromTableName = (tablename: string) => {
+    let result = "";
+    invariants.forEach((invariant) => {
+      if (invariant.tablename === tablename) {
+        result = invariant.name;
+      }
+    });
+    return result;
+  };
+
+  const constraintTypeFromName = (tableName: string) => {
+    let result: ConstraintTypes = ConstraintTypes.NONE;
+    invariants.forEach((inv) => {
+      if (inv.tablename === tableName) {
+        result = convertToConstraintType(inv.datatype);
+      }
+    });
+    return result;
+  };
+
+  const antiEncodeConstraints = (encodedConstraints: string) => {
+    let constraints: Constraint[] = [];
+    let constraintsArray = encodedConstraints.split(";");
+    let id = 0;
+    constraintsArray.forEach((constraint) => {
+      if (constraint !== "") {
+        let constraintArray = constraint.split(" ");
+        if (constraintArray.length === 3) {
+          constraints.push({
+            id: id,
+            name: getNameFromTableName(constraintArray[0]),
+            tablename: constraintArray[0],
+            min: parseInt(constraintArray[1]),
+            max: parseInt(constraintArray[2]),
+            type: constraintTypeFromName(constraintArray[0]),
+            advancedMode: false,
+            advancedField: "",
+          });
+        } else if (constraintArray.length === 1) {
+          constraints.push({
+            id: id,
+            name: "",
+            tablename: "",
+            min: 0,
+            max: 0,
+            type: ConstraintTypes.ADVANCED,
+            advancedMode: true,
+            advancedField: constraintArray[0],
+          });
+        }
+        id++;
+      }
+    });
+    setCurrentId(id);
+    return constraints;
   };
 
   const checkMainDifferent = () => {

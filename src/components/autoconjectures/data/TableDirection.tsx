@@ -12,8 +12,9 @@ import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
 import MainContext from "../../../store/contexts/main_context";
 import { useContext } from "react";
 import SubTitle from "../../styles_and_settings/SubTitle";
+import { ToPrintProps } from "../NewWindow";
 
-export interface TableDirectionProps {
+export interface TableDirectionProps extends ToPrintProps {
   title: string;
   data: Array<Array<CoordinateAutoconj>>;
 }
@@ -37,13 +38,16 @@ const isClickedPoint = (
   return false;
 };
 
-const TableDirection = ({ title, data }: TableDirectionProps) => {
+const TableDirection = ({ isToPrint, title, data }: TableDirectionProps) => {
   const mainContext = useContext(MainContext);
 
   return (
     <Box>
       <SubTitle> {title} </SubTitle>
-      <TableContainer component={Paper} sx={{ maxHeight: MAXHEIGHT }}>
+      <TableContainer
+        component={Paper}
+        sx={isToPrint ? { maxHeight: "none" } : { maxHeight: MAXHEIGHT }}
+      >
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>

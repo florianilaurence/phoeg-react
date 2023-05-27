@@ -12,6 +12,7 @@ interface DrawPointsProps {
   xScale: any;
   yScale: any;
   setTooltipData: any;
+  circleRadius: number;
 }
 
 const getColorationFromAverage = (
@@ -22,7 +23,12 @@ const getColorationFromAverage = (
   return object.coloration;
 };
 
-const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
+const DrawPoints = ({
+  xScale,
+  yScale,
+  setTooltipData,
+  circleRadius,
+}: DrawPointsProps) => {
   const mainContext = useContext(MainContext);
   const colorationsContext = useContext(ColorationsContext);
 
@@ -68,6 +74,18 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
     return result;
   };
 
+  const getRadius = (point: CoordinateGrouped, isStar: boolean) => {
+    if (mainContext.legendClicked !== null) {
+      if (point.colors.includes(mainContext.legendClicked)) {
+        return isStar ? (circleRadius + 3) * 15 : circleRadius + 3;
+      } else {
+        return isStar ? circleRadius * 15 : circleRadius;
+      }
+    } else {
+      return isStar ? circleRadius * 15 : circleRadius;
+    }
+  };
+
   return (
     <>
       <Group>
@@ -79,12 +97,7 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
                 className="circle"
                 cx={xScale(point.x.getValue())}
                 cy={yScale(point.y.getValue())}
-                r={
-                  mainContext.legendClicked !== null &&
-                  point.colors.includes(mainContext.legendClicked)
-                    ? 7
-                    : 4
-                }
+                r={getRadius(point, false)}
                 fill={
                   mainContext.labelColor === ""
                     ? "black"
@@ -109,12 +122,7 @@ const DrawPoints = ({ xScale, yScale, setTooltipData }: DrawPointsProps) => {
                 className="circle"
                 left={xScale(point.x.getValue())}
                 top={yScale(point.y.getValue())}
-                size={
-                  mainContext.legendClicked !== null &&
-                  point.colors.includes(mainContext.legendClicked)
-                    ? 115
-                    : 50
-                }
+                size={getRadius(point, true)}
                 fill={
                   mainContext.labelColor === ""
                     ? "black"

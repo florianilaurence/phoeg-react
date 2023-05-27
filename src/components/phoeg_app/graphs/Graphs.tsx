@@ -156,6 +156,13 @@ export const Graphs = ({ invariants }: GraphsProps) => {
           payload: "",
         });
       })
+      .then(() => {
+        const element = document.getElementById("scroll-end");
+        if (element) {
+          // 👇 Will scroll smoothly to the top of the next section
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      })
       .catch((error) => {
         dispatchGraphs({
           type: GraphsAction.SET_ERROR,
@@ -220,6 +227,7 @@ export const Graphs = ({ invariants }: GraphsProps) => {
             <Grid
               container
               spacing={1}
+              id="graphs"
               sx={{ mt: 1, display: "flex", justifyContent: "center" }}
             >
               {Array.from(Array(stateGraphs.nbGraphSlider).keys()).map(
@@ -237,6 +245,7 @@ export const Graphs = ({ invariants }: GraphsProps) => {
             </Grid>
           </>
         )}
+      <Box id="scroll-end" />
     </Box>
   );
 };

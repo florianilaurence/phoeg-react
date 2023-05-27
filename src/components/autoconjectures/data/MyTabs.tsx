@@ -8,7 +8,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import PolytopesContainer from "./PolytopesContainer";
@@ -24,6 +24,14 @@ const MyTabs = () => {
   const conjContext = useContext(ConjContext);
 
   const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    const element = document.getElementById("my-tabs");
+    if (element) {
+      // 👇 Will scroll smoothly to the top of the next section
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
 
   const handleActiveChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -135,7 +143,7 @@ const MyTabs = () => {
   };
 
   return (
-    <>
+    <Box id="my-tabs">
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs value={value} onChange={handleChange}>
           <Tab label="Polytopes" />
@@ -144,7 +152,7 @@ const MyTabs = () => {
         </Tabs>
       </Box>
       <Box hidden={value !== 0}>
-        <PolytopesContainer />
+        <PolytopesContainer isToPrint={false} />
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
           <List>
             {renderALine(0)}
@@ -166,9 +174,9 @@ const MyTabs = () => {
           </Box>
         </Box>
       </Box>
-      <Box hidden={value !== 1}>{<DataTables />}</Box>
-      <Box hidden={value !== 2}>{<MainConjectures />}</Box>
-    </>
+      <Box hidden={value !== 1}>{<DataTables isToPrint={false} />}</Box>
+      <Box hidden={value !== 2}>{<MainConjectures isToPrint={false} />}</Box>
+    </Box>
   );
 };
 

@@ -3,41 +3,9 @@ import "react-banner/dist/style.css";
 import Form from "../form_fetch/Form";
 import axios from "axios";
 import { API_URL } from "../../.env";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Frame from "../annex_pages/Frame";
 import MainContext from "../../store/contexts/main_context";
-import {
-  ChartData,
-  Concave,
-  Concaves,
-  CoordinateAutoconj,
-  CoordinateGrouped,
-  initialMainState,
-  MainReducer,
-  MinMax,
-  SimplifiedCoordinate,
-} from "../../store/reducers/main_reducer";
-import {
-  clearData,
-  reset,
-  setAdvancedConstraints,
-  setConstraints,
-  setData,
-  setDataAutoconj,
-  setError,
-  setIsLoading,
-  setIsSubmit,
-  setLabelColor,
-  setLabelX,
-  setLabelY,
-  setLegendClicked,
-  setOrder,
-  setOrders,
-  setPointClicked,
-  setPointsClicked,
-  setSubmitAutoconj,
-  updateSimplifiedPoints,
-} from "../../store/actions/main_action";
 import Graphs from "./graphs/Graphs";
 import { Box, Typography } from "@mui/material";
 import Fetch from "../form_fetch/Fetch";
@@ -87,13 +55,10 @@ export const fetchInvariants = async () => {
 const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   const [invariants, setDataInvariants] = useState<Array<Invariant>>([]);
   const [withConcave, setWithConcave] = useState<boolean>(false);
-
-  const [stateMainReducer, dispatchMainReducer] = useReducer(
-    MainReducer,
-    initialMainState
-  );
+  const mainContext = useContext(MainContext);
 
   useEffect(() => {
+    mainContext.resetAllFields();
     fetchInvariants().then((inv) => setDataInvariants(inv));
   }, []);
 
@@ -107,87 +72,29 @@ const PhoegApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
           And enjoy!
         </Typography>
       </Box>
-      <MainContext.Provider
-        value={{
-          ...stateMainReducer,
-
-          setOrder: (order: number) => setOrder(order, dispatchMainReducer),
-          setData: (data: ChartData) => setData(data, dispatchMainReducer),
-          setPointClicked: (coordinate: CoordinateGrouped | null) =>
-            setPointClicked(coordinate, dispatchMainReducer),
-          setLegendClicked: (legendClicked: number | null) =>
-            setLegendClicked(legendClicked, dispatchMainReducer),
-
-          setLabelX: (labelX: string, typeX: string) =>
-            setLabelX(labelX, typeX, dispatchMainReducer),
-          setLabelY: (labelY: string, typeY: string) =>
-            setLabelY(labelY, typeY, dispatchMainReducer),
-          setLabelColor: (labelColor: string) =>
-            setLabelColor(labelColor, dispatchMainReducer),
-          setConstraints: (constraints: string) =>
-            setConstraints(constraints, dispatchMainReducer),
-          setAdvancedConstraints: (advancedConstraints: string) =>
-            setAdvancedConstraints(advancedConstraints, dispatchMainReducer),
-          setIsSubmit: (isSubmit: boolean) =>
-            setIsSubmit(isSubmit, dispatchMainReducer),
-          setIsLoading: (isLoading: boolean) =>
-            setIsLoading(isLoading, dispatchMainReducer),
-          setError: (message: string) => setError(message, dispatchMainReducer),
-
-          setOrders: (orders: number[]) =>
-            setOrders(orders, dispatchMainReducer),
-          setDataAutoconj: (
-            concaveList: Array<Concave>,
-            concaves: Concaves | {},
-            envelopes: Array<Array<SimplifiedCoordinate>>,
-            simplifiedPoints: Array<Array<CoordinateAutoconj>>,
-            minMaxList: Array<MinMax>
-          ) =>
-            setDataAutoconj(
-              concaveList,
-              concaves,
-              envelopes,
-              simplifiedPoints,
-              minMaxList,
-              dispatchMainReducer
-            ),
-
-          setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
-            setPointsClicked(pointsClicked, dispatchMainReducer),
-          setSubmitAutoconj: (submitAutoconj: boolean) =>
-            setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
-          updateSimplifiedPoints: (
-            simplifiedPoints: Array<Array<CoordinateAutoconj>>
-          ) => updateSimplifiedPoints(simplifiedPoints, dispatchMainReducer),
-
-          clearData: () => clearData(dispatchMainReducer),
-          reset: () => reset(dispatchMainReducer),
-        }}
-      >
-        <Form
+      <Form
+        invariants={invariants}
+        withOrders={false}
+        withConcave={withConcave}
+        setWithConcave={setWithConcave}
+      />
+      {mainContext.isSubmit && (
+        <Fetch
           invariants={invariants}
-          withOrders={false}
           withConcave={withConcave}
-          setWithConcave={setWithConcave}
+          withOrders={false}
         />
-        {stateMainReducer.isSubmit && (
-          <Fetch
-            invariants={invariants}
-            withConcave={withConcave}
-            withOrders={false}
-          />
-        )}
-        {stateMainReducer.isSubmit && <Title title="Polytope" />}
-        {stateMainReducer.isSubmit && stateMainReducer.isLoading && (
-          <Loading height="1000px" />
-        )}
-        {stateMainReducer.isSubmit && !stateMainReducer.isLoading && (
-          <PolytopesSlider withConcave={withConcave} />
-        )}
-        {stateMainReducer.isSubmit &&
-          !stateMainReducer.isLoading &&
-          stateMainReducer.pointClicked && <Graphs invariants={invariants} />}
-      </MainContext.Provider>
+      )}
+      {mainContext.isSubmit && <Title title="Polytope" />}
+      {mainContext.isSubmit && mainContext.isLoading && (
+        <Loading height="1000px" />
+      )}
+      {mainContext.isSubmit && !mainContext.isLoading && (
+        <PolytopesSlider withConcave={withConcave} />
+      )}
+      {mainContext.isSubmit &&
+        !mainContext.isLoading &&
+        mainContext.pointClicked && <Graphs invariants={invariants} />}
     </Frame>
   );
 };

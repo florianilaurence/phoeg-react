@@ -10,8 +10,9 @@ import { containsCoordinate } from "../../form_fetch/Fetch";
 import SubTitle from "../../styles_and_settings/SubTitle";
 import ClearIcon from "@mui/icons-material/Clear";
 import Legend from "../../chart/legend/Legend";
+import { ToPrintProps } from "../NewWindow";
 
-const PolytopesContainer = () => {
+const PolytopesContainer = ({ isToPrint }: ToPrintProps) => {
   const mainContext = useContext(MainContext);
   const keys = Object.keys(mainContext.concaveList[0]);
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
@@ -72,76 +73,88 @@ const PolytopesContainer = () => {
 
   return (
     <Box>
-      <Box sx={{ mt: 2, mb: 1 }}>
-        <Typography variant="body2" fontSize={14}>
-          Click here to select the direction on each polytope at once:
-        </Typography>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignContent: "center",
-        }}
-      >
-        <Box sx={{ display: "flex" }}>
-          {keys.map((dir: string, i: number) => {
-            return (
-              <Box
-                sx={{
-                  mr: 1,
-                }}
-                key={`leg-dir-${dir}-${i}`}
-              >
-                <Tooltip
-                  title="Click to select all points in all polytopes for this family"
-                  placement="top"
-                >
-                  <Button
-                    variant="text"
-                    onClick={() => onClickLegendConcave(dir)}
-                  >
-                    <Typography
-                      variant="body1"
-                      fontSize={10}
-                      color={DirectionColors[dir]}
-                      fontWeight="bold"
-                    >
-                      {dir}
-                    </Typography>
-                  </Button>
-                </Tooltip>
-              </Box>
-            );
-          })}
-        </Box>
-
-        <Tooltip title="Warning! It deletes all your selection" placement="top">
-          <Button
-            variant="outlined"
-            onClick={() => clearAllPointsClicked()}
-            startIcon={<ClearIcon />}
-            color="error"
-            size="small"
-          >
-            <Typography
-              variant="body1"
-              fontSize={10}
-              color={blueGrey[800]}
-              fontWeight="bold"
-            >
-              Clear all
+      {!isToPrint && (
+        <>
+          <Box sx={{ mt: 2, mb: 1 }}>
+            <Typography variant="body2" fontSize={14}>
+              Click here to select the direction on each polytope at once:
             </Typography>
-          </Button>
-        </Tooltip>
-      </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignContent: "center",
+            }}
+          >
+            <Box sx={{ display: "flex" }}>
+              {keys.map((dir: string, i: number) => {
+                return (
+                  <Box
+                    sx={{
+                      mr: 1,
+                    }}
+                    key={`leg-dir-${dir}-${i}`}
+                  >
+                    <Tooltip
+                      title="Click to select all points in all polytopes for this family"
+                      placement="top"
+                    >
+                      <Button
+                        variant="text"
+                        onClick={() => onClickLegendConcave(dir)}
+                      >
+                        <Typography
+                          variant="body1"
+                          fontSize={10}
+                          color={DirectionColors[dir]}
+                          fontWeight="bold"
+                        >
+                          {dir}
+                        </Typography>
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                );
+              })}
+            </Box>
+
+            <Tooltip
+              title="Warning! It deletes all your selection"
+              placement="top"
+            >
+              <Button
+                variant="outlined"
+                onClick={() => clearAllPointsClicked()}
+                startIcon={<ClearIcon />}
+                color="error"
+                size="small"
+              >
+                <Typography
+                  variant="body1"
+                  fontSize={10}
+                  color={blueGrey[800]}
+                  fontWeight="bold"
+                >
+                  Clear all
+                </Typography>
+              </Button>
+            </Tooltip>
+          </Box>
+        </>
+      )}
+
       <Box
-        sx={{
-          height: (windowSize.current[1] * 65) / 100 + "px",
-          overflow: "auto",
-          mb: 1,
-          mt: 1,
-        }}
+        sx={
+          isToPrint
+            ? { height: "auto" }
+            : {
+                height: (windowSize.current[1] * 65) / 100 + "px",
+                overflow: "auto",
+                mb: 1,
+                mt: 1,
+              }
+        }
       >
         <Grid container spacing={2}>
           {mainContext.concaveList.map((concave: Concave, index: number) => {

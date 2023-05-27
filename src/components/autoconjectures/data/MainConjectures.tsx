@@ -9,6 +9,7 @@ import { Box, Grid, Paper } from "@mui/material";
 import SubSubTitle from "../../styles_and_settings/SubSubTitle";
 import Loading from "../../Loading";
 import RenderOneConjecture from "../result/RenderOneConjecture";
+import { ToPrintProps } from "../NewWindow";
 
 export const allParams = {
   minX: [{ f: searched_f.FY, ineq: inequality_latex.MORE }],
@@ -59,7 +60,7 @@ enum ConjAction {
   SET_DATA,
 }
 
-const MainConjectures = () => {
+const MainConjectures = ({ isToPrint }: ToPrintProps) => {
   const mainContext = useContext(MainContext);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -83,7 +84,8 @@ const MainConjectures = () => {
     mainContext.typeX === "rational" ||
     mainContext.typeY === "rational" ||
     (mainContext.typeX === "integer" && mainContext.typeY === "integer");
-  const computeConjectures = async () => {
+
+  const computeConjectures = () => {
     const tempResultConjectures: ResultConjectures = {
       minX: [],
       maxX: [],
@@ -99,7 +101,7 @@ const MainConjectures = () => {
       const params = allParams[key as keyof ResultConjectures];
       tempResultConjectures[key as keyof ResultConjectures].push(
         main_func(
-          mainContext.concaves[key as keyof ResultConjectures],
+          mainContext.concaves![key as keyof ResultConjectures],
           mainContext.orders,
           params[0].f,
           params[0].ineq,
@@ -111,7 +113,7 @@ const MainConjectures = () => {
       if (params.length === 2) {
         tempResultConjectures[key as keyof ResultConjectures].push(
           main_func(
-            mainContext.concaves[key as keyof ResultConjectures],
+            mainContext.concaves![key as keyof ResultConjectures],
             mainContext.orders,
             params[1].f,
             params[1].ineq,
@@ -127,14 +129,12 @@ const MainConjectures = () => {
   };
 
   useEffect(() => {
-    computeConjectures().then((res) => {
-      dispatchConj({
-        type: ConjAction.SET_DATA,
-        payload: res,
-      });
-      setIsLoading(false);
+    dispatchConj({
+      type: ConjAction.SET_DATA,
+      payload: computeConjectures(),
     });
-  }, [mainContext.concaves, isLoading]);
+    setIsLoading(false);
+  }, [mainContext.concaves, mainContext.orders]);
 
   if (isLoading) {
     return <Loading height={"250px"} />;
@@ -159,6 +159,7 @@ const MainConjectures = () => {
                     }}
                   >
                     <RenderOneConjecture
+                      isToPrint={isToPrint}
                       maxLenEq={75}
                       conjecture={conj}
                       direction={key}

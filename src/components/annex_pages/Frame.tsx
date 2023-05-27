@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import AppBar from "@mui/material/AppBar";
@@ -22,6 +22,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { blueGrey } from "@mui/material/colors";
 import { Link, Tooltip } from "@mui/material";
 import AppRoutes from "../../routes";
+import MainContext from "../../store/contexts/main_context";
 
 interface FrameProps {
   children: ReactNode;
@@ -56,6 +57,7 @@ const options = [
 const Frame = ({ children, isOpenMenu, setIsOpenMenu }: FrameProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const mainContext = useContext(MainContext);
 
   const onClickOpen = () => {
     setIsOpenMenu(!isOpenMenu);
@@ -77,7 +79,10 @@ const Frame = ({ children, isOpenMenu, setIsOpenMenu }: FrameProps) => {
             Phoeg Web UI
           </Typography>
           <Link
-            onClick={() => navigate("/phoeg", { replace: true })}
+            onClick={() => {
+              mainContext.resetAllFields();
+              navigate("/phoeg", { replace: true });
+            }}
             style={{ cursor: "pointer" }}
           >
             <img
@@ -142,7 +147,10 @@ const Frame = ({ children, isOpenMenu, setIsOpenMenu }: FrameProps) => {
                         ? blueGrey[100]
                         : "transparent",
                   }}
-                  onClick={() => navigate(option.link, { replace: true })}
+                  onClick={() => {
+                    mainContext.resetAllFields();
+                    navigate(option.link, { replace: true });
+                  }}
                 >
                   <Tooltip
                     title={option.text}

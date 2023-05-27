@@ -141,6 +141,11 @@ const NewGraph = ({ sign, width }: NewGraphProps) => {
     setEdges(resEdges);
     setEdgesComplement(resEdgesComplement);
     forceUpdate();
+    const element = document.getElementById("graph");
+    if (element) {
+      // 👇 Will scroll smoothly to the top of the next section
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   }, [sign, forceUpdate]);
 
   const handleChangeChecked = (event) => {
@@ -185,8 +190,7 @@ const NewGraph = ({ sign, width }: NewGraphProps) => {
   if (!nodes || nodes.length === 0) return <>Loading</>;
 
   return (
-    <Box>
-      {" "}
+    <Box id="graph">
       <Grid container spacing={1}>
         <Grid
           item

@@ -69,7 +69,7 @@ const Legend = ({
                 color={red[500]}
               >
                 Stars show the points with several different values for the
-                color invariant
+                {" " + mainContext.labelColor}
               </Typography>
             </Box>
             {/* Color values possible */}

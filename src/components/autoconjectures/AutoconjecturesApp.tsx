@@ -1,36 +1,4 @@
-import { useState, useEffect, useReducer } from "react";
-import {
-  setOrder,
-  setLabelX,
-  setLabelY,
-  setLabelColor,
-  setConstraints,
-  setAdvancedConstraints,
-  setIsSubmit,
-  setIsLoading,
-  setData,
-  setPointClicked,
-  setLegendClicked,
-  setError,
-  reset,
-  setOrders,
-  setPointsClicked,
-  setDataAutoconj,
-  clearData,
-  updateSimplifiedPoints,
-  setSubmitAutoconj,
-} from "../../store/actions/main_action";
-import {
-  ChartData,
-  Concave,
-  Concaves,
-  CoordinateAutoconj,
-  CoordinateGrouped,
-  initialMainState,
-  MainReducer,
-  MinMax,
-  SimplifiedCoordinate,
-} from "../../store/reducers/main_reducer";
+import { useState, useEffect, useReducer, useContext } from "react";
 import MainContext from "../../store/contexts/main_context";
 import Frame from "../annex_pages/Frame";
 import Form from "../form_fetch/Form";
@@ -50,28 +18,47 @@ import {
   setIsFYSearched,
   setIsMore,
 } from "../../store/actions/conj_action";
-import { Box, Button, Typography } from "@mui/material";
-import PrintIcon from "@mui/icons-material/Print";
-import { Link, Route } from "react-router-dom";
-import AppRoutes from "../../routes";
+import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Typography,
+} from "@mui/material";
+import { Link } from "react-router-dom";
+import { blueGrey } from "@mui/material/colors";
+
+export interface AutoconjecturesAppProps extends OpenProps {
+  withPolytopes: boolean;
+  setWithPolytopes: (withPolytopes: boolean) => void;
+  withDataTables: boolean;
+  setWithDataTables: (withDataTables: boolean) => void;
+  withMainConjectures: boolean;
+  setWithMainConjectures: (withMainConjectures: boolean) => void;
+  withConjectureResults: boolean;
+  setWithConjectureResults: (withConjectureResults: boolean) => void;
+}
 
 // Main component of Autoconjectures application
 const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
   const [invariants, setDataInvariants] = useState<Array<Invariant>>([]);
+
+  const [withPolytopes, setWithPolytopes] = useState(false);
+  const [withDataTables, setWithDataTables] = useState(false);
+  const [withMainConjectures, setWithMainConjectures] = useState(false);
+  const [withConjectureResults, setWithConjectureResults] = useState(false);
 
   const [stateConjReducer, dispatchConjReducer] = useReducer(
     ConjReducer,
     initialConjState
   );
 
-  const [stateMainReducer, dispatchMainReducer] = useReducer(
-    MainReducer,
-    initialMainState
-  );
-
-  const handlePrintPDF = () => {
-    window.print();
-  };
+  const mainContext = useContext(MainContext);
 
   useEffect(() => {
     fetchInvariants().then((inv) => setDataInvariants(inv));
@@ -79,93 +66,144 @@ const AutoconjecturesApp = ({ isOpenMenu, setIsOpenMenu }: OpenProps) => {
 
   return (
     <Frame isOpenMenu={isOpenMenu} setIsOpenMenu={setIsOpenMenu}>
-      <MainContext.Provider
+      <Form invariants={invariants} withOrders={true} />
+      {mainContext.isSubmit && (
+        <>
+          <Fetch invariants={invariants} withOrders={true} />
+        </>
+      )}
+
+      {mainContext.isSubmit && mainContext.isLoading && (
+        <Loading height="1000px" />
+      )}
+      <ConjContext.Provider
         value={{
-          ...stateMainReducer,
+          ...stateConjReducer,
 
-          setOrder: (order: number) => setOrder(order, dispatchMainReducer),
-          setData: (data: ChartData) => setData(data, dispatchMainReducer),
-          setPointClicked: (coordinate: CoordinateGrouped | null) =>
-            setPointClicked(coordinate, dispatchMainReducer),
-          setLegendClicked: (legendClicked: number | null) =>
-            setLegendClicked(legendClicked, dispatchMainReducer),
-
-          setLabelX: (labelX: string, typeX: string) =>
-            setLabelX(labelX, typeX, dispatchMainReducer),
-          setLabelY: (labelY: string, typeY: string) =>
-            setLabelY(labelY, typeY, dispatchMainReducer),
-          setLabelColor: (labelColor: string) =>
-            setLabelColor(labelColor, dispatchMainReducer),
-          setConstraints: (constraints: string) =>
-            setConstraints(constraints, dispatchMainReducer),
-          setAdvancedConstraints: (advancedConstraints: string) =>
-            setAdvancedConstraints(advancedConstraints, dispatchMainReducer),
-          setIsSubmit: (isSubmit: boolean) =>
-            setIsSubmit(isSubmit, dispatchMainReducer),
-          setIsLoading: (isLoading: boolean) =>
-            setIsLoading(isLoading, dispatchMainReducer),
-          setError: (message: string) => setError(message, dispatchMainReducer),
-
-          setOrders: (orders: number[]) =>
-            setOrders(orders, dispatchMainReducer),
-          setDataAutoconj: (
-            concaveList: Array<Concave>,
-            concaves: Concaves | {},
-            envelopes: Array<Array<SimplifiedCoordinate>>,
-            simplifiedPoints: Array<Array<CoordinateAutoconj>>,
-            minMaxList: Array<MinMax>
-          ) =>
-            setDataAutoconj(
-              concaveList,
-              concaves,
-              envelopes,
-              simplifiedPoints,
-              minMaxList,
-              dispatchMainReducer
-            ),
-
-          setSubmitAutoconj: (submitAutoconj: boolean) =>
-            setSubmitAutoconj(submitAutoconj, dispatchMainReducer),
-
-          setPointsClicked: (pointsClicked: Array<Array<CoordinateAutoconj>>) =>
-            setPointsClicked(pointsClicked, dispatchMainReducer),
-          updateSimplifiedPoints: (
-            simplifiedPoints: Array<Array<CoordinateAutoconj>>
-          ) => updateSimplifiedPoints(simplifiedPoints, dispatchMainReducer),
-
-          clearData: () => clearData(dispatchMainReducer),
-          reset: () => reset(dispatchMainReducer),
+          setActive: (active: boolean, index: number) =>
+            setActive(active, index, dispatchConjReducer),
+          setIsFYSearched: (isFYSearched: boolean, index: number) =>
+            setIsFYSearched(isFYSearched, index, dispatchConjReducer),
+          setIsMore: (isMore: boolean, index: number) =>
+            setIsMore(isMore, index, dispatchConjReducer),
         }}
       >
-        <Form invariants={invariants} withOrders={true} />
+        {mainContext.isSubmit &&
+          !mainContext.isLoading &&
+          mainContext.concaveList.length > 0 &&
+          mainContext.minMaxList.length > 0 && <MyTabs />}
 
-        {stateMainReducer.isSubmit && (
-          <Fetch invariants={invariants} withOrders={true} />
-        )}
+        {mainContext.submitAutoconj && <ConjectureResults isToPrint={false} />}
 
-        {stateMainReducer.isSubmit && stateMainReducer.isLoading && (
-          <Loading height="1000px" />
-        )}
-        <ConjContext.Provider
-          value={{
-            ...stateConjReducer,
-
-            setActive: (active: boolean, index: number) =>
-              setActive(active, index, dispatchConjReducer),
-            setIsFYSearched: (isFYSearched: boolean, index: number) =>
-              setIsFYSearched(isFYSearched, index, dispatchConjReducer),
-            setIsMore: (isMore: boolean, index: number) =>
-              setIsMore(isMore, index, dispatchConjReducer),
-          }}
-        >
-          {stateMainReducer.isSubmit &&
-            !stateMainReducer.isLoading &&
-            stateMainReducer.concaveList.length > 0 &&
-            stateMainReducer.minMaxList.length > 0 && <MyTabs />}
-
-          {stateMainReducer.submitAutoconj && <ConjectureResults />}
-        </ConjContext.Provider>
-      </MainContext.Provider>
+        {mainContext.isSubmit &&
+          !mainContext.isLoading &&
+          mainContext.concaveList.length > 0 &&
+          mainContext.minMaxList.length > 0 && (
+            <>
+              <Divider />
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-evenly",
+                  alignItems: "center",
+                  mt: 2,
+                }}
+              >
+                <FormControl component="fieldset" variant="standard">
+                  <Typography color={blueGrey[800]} sx={{ mb: 1 }}>
+                    Which components do you want to print?
+                  </Typography>
+                  <FormGroup>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-evenly" }}
+                    >
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={withPolytopes}
+                            onChange={(e) => setWithPolytopes(e.target.checked)}
+                            color="success"
+                            size="small"
+                          />
+                        }
+                        label="Polytopes"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={withDataTables}
+                            onChange={(e) =>
+                              setWithDataTables(e.target.checked)
+                            }
+                            color="success"
+                            size="small"
+                          />
+                        }
+                        label="Data tables"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={withMainConjectures}
+                            onChange={(e) =>
+                              setWithMainConjectures(e.target.checked)
+                            }
+                            color="success"
+                            size="small"
+                          />
+                        }
+                        label="Main conjectures"
+                      />
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            disabled={!mainContext.submitAutoconj}
+                            checked={withConjectureResults}
+                            onChange={(e) => {
+                              setWithConjectureResults(e.target.checked);
+                            }}
+                            color="success"
+                            size="small"
+                          />
+                        }
+                        label="Conjecture results"
+                      />
+                    </Box>
+                  </FormGroup>
+                </FormControl>
+                <Link
+                  to="/autoconjectures/print"
+                  onClick={() => {
+                    localStorage.setItem(
+                      "withPolytopes",
+                      withPolytopes.toString()
+                    );
+                    localStorage.setItem(
+                      "withDataTables",
+                      withDataTables.toString()
+                    );
+                    localStorage.setItem(
+                      "withMainConjectures",
+                      withMainConjectures.toString()
+                    );
+                    localStorage.setItem(
+                      "withConjectureResults",
+                      withConjectureResults.toString()
+                    );
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    color="success"
+                    endIcon={<DocumentScannerIcon />}
+                  >
+                    Generate report
+                  </Button>
+                </Link>
+              </Box>
+            </>
+          )}
+      </ConjContext.Provider>
     </Frame>
   );
 };

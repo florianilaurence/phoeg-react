@@ -35,6 +35,7 @@ export enum MainAction {
   // Common actions for phoeg app and conjecture app --> Clear data (change order) and reset (change field in form)
   CLEAR_DATA,
   RESET,
+  RESET_ALL_FIELDS,
 }
 
 // Functions for phoeg app
@@ -200,5 +201,11 @@ export const reset = (dispatch: any) => {
 export const clearData = (dispatch: any) => {
   dispatch({
     type: MainAction.CLEAR_DATA,
+  });
+};
+
+export const resetAllFields = (dispatch: any) => {
+  dispatch({
+    type: MainAction.RESET_ALL_FIELDS,
   });
 };

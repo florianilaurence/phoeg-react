@@ -93,7 +93,7 @@ export interface MainState {
   // Only for conjecture app
   orders: Array<number>;
   concaveList: Array<Concave>;
-  concaves: Concaves | {};
+  concaves: Concaves | undefined;
   envelopes: Array<Array<SimplifiedCoordinate>>;
   minMaxList: Array<MinMax>;
   simplifiedPoints: Array<Array<CoordinateAutoconj>>;
@@ -127,8 +127,9 @@ export const initialMainState: MainState = {
 
   // Only for conjecture app
   orders: [],
+
   concaveList: [],
-  concaves: {},
+  concaves: undefined,
   envelopes: [],
   minMaxList: [],
   simplifiedPoints: [],
@@ -221,17 +222,30 @@ export const MainReducer = (state: MainState, action: any): MainState => {
       return {
         ...state,
         order: 7,
+
         coordinates: [],
+        viewedAverages: [],
         sorted: {},
         envelope: [],
         minMax: undefined,
         concave: undefined,
         pointClicked: null,
         legendClicked: null,
+
         isSubmit: false,
         isLoading: false,
+
+        concaveList: [],
+        concaves: undefined,
+        envelopes: [],
+        minMaxList: [],
+        simplifiedPoints: [],
+        pointsClicked: [],
         submitAutoconj: false,
       };
+
+    case MainAction.RESET_ALL_FIELDS:
+      return { ...initialMainState };
 
     default:
       return state;

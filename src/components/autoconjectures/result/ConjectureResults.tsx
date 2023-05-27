@@ -10,8 +10,9 @@ import {
 } from "./utils/autoconjectures";
 import RenderOneConjecture from "./RenderOneConjecture";
 import { CoordinateAutoconj } from "../../../store/reducers/main_reducer";
+import { ToPrintProps } from "../NewWindow";
 
-const ConjectureResults = () => {
+const ConjectureResults = ({ isToPrint }: ToPrintProps) => {
   const conjContext = useContext(ConjContext);
   const mainContext = useContext(MainContext);
   const [res, setRes] = useState<Array<string>>([]);
@@ -71,10 +72,16 @@ const ConjectureResults = () => {
 
   return (
     <Box>
-      <SubTitle> Your result{res.length < 2 ? "" : "s"} </SubTitle>
+      {!isToPrint && (
+        <SubTitle> Your result{res.length < 2 ? "" : "s"} </SubTitle>
+      )}
       {res.map((conj) => (
         <div key={conj}>
-          <RenderOneConjecture maxLenEq={150} conjecture={conj} />
+          <RenderOneConjecture
+            isToPrint={isToPrint}
+            maxLenEq={150}
+            conjecture={conj}
+          />
         </div>
       ))}
     </Box>

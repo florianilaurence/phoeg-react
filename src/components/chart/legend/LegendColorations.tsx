@@ -99,7 +99,6 @@ enum PopperGradientElementsAction {
 
 const LegendColorations = ({ colorScale }: LegendColorationsProps) => {
   const colorationsContext = useContext(ColorationsContext);
-  const mainContext = useContext(MainContext);
   const windowSize = useRef([window.innerWidth, window.innerHeight]);
 
   // _____________ For individual colorations _____________

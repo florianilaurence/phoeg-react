@@ -15,7 +15,6 @@ import {
   ReactSvgPanZoomLoader,
   SvgLoaderSelectElement,
 } from "react-svg-pan-zoom-loader";
-import NumRat from "../../utils/numRat";
 
 // Données de configuration de l'encadré contenant le graphique
 const background = "#fafafa";
@@ -25,9 +24,15 @@ interface ChartProps {
   width: number;
   withConcave: boolean; // Only for phoeg app
   currentIndexOrder?: number; // Only for autoconjectures app
+  circleRadius?: number; // Only for phoeg app
 }
 
-const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
+const Chart = ({
+  width,
+  withConcave,
+  currentIndexOrder,
+  circleRadius,
+}: ChartProps) => {
   const mainContext = useContext(MainContext);
   const [tooltipData, setTooltipData] = useState<string>("");
 
@@ -152,6 +157,7 @@ const Chart = ({ width, withConcave, currentIndexOrder }: ChartProps) => {
                       xScale={xScale}
                       yScale={yScale}
                       setTooltipData={setTooltipData}
+                      circleRadius={circleRadius ? circleRadius : 4}
                     />
                   )}
                 </Group>

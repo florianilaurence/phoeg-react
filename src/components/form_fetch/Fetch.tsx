@@ -12,6 +12,7 @@ import {
   Concave,
   Concaves,
   SimplifiedCoordinate,
+  initialMainState,
 } from "../../store/reducers/main_reducer";
 import NumRat from "../../utils/numRat";
 
@@ -330,10 +331,13 @@ const Fetch = ({ invariants, withConcave, withOrders }: FetchProps) => {
   const mainContext = useContext(MainContext);
 
   useEffect(() => {
-    mainContext.clearData();
     mainContext.setIsLoading(true);
     if (withOrders) {
-      autoconjUseEffect();
+      if (mainContext.concaves === undefined) {
+        autoconjUseEffect();
+      } else {
+        mainContext.setIsLoading(false);
+      }
     } else {
       phoegUseEffect();
     }
