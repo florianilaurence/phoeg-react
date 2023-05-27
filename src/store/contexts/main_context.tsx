@@ -44,6 +44,7 @@ const MainContext = createContext({
   // For clear data or reset when change field in form
   clearData: () => {},
   reset: () => {},
+  resetAllFields: () => {},
 });
 
 export default MainContext;
